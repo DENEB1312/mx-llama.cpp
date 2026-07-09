@@ -1,4 +1,5 @@
 #include "gated_delta_net.cuh"
+#include "gated_delta_net_chunk.cuh"
 #include "ggml-cuda/common.cuh"
 
 template <int S_v, bool KDA, bool keep_rs_t>
@@ -180,7 +181,28 @@ static void launch_gated_delta_net(
         int64_t sb1,   int64_t sb2, int64_t sb3,
         int64_t neqk1, int64_t rq3,
         float scale, int K, cudaStream_t stream) {
-    //TODO: Add chunked kernel for even faster pre-fill
+    const int CS = KDA ? 16 : 64;
+
+    // Use the fused chunked kernel for prefill-sized inputs (>= 2 chunks) when we
+    // are not required to write intermediate recurrent snapshots (keep_rs_t).
+    const bool use_chunked = (!keep_rs_t) && (n_tokens >= 2 * CS) && (S_v <= 128);
+
+    GGML_LOG_DEBUG("launch_gated_delta_net: S_v=%lld, n_tokens=%lld, CS=%d, KDA=%d, keep_rs=%d, "
+                   "use_chunked=%d",
+                   (long long)S_v, (long long)n_tokens, CS, (int)KDA, (int)keep_rs_t, (int)use_chunked);
+
+    if (use_chunked) {
+        GGML_LOG_DEBUG("  -> routing to chunked kernel");
+        launch_gated_delta_net_chunk<KDA, keep_rs_t>(
+            q_d, k_d, v_d, g_d, b_d, s_d, dst_d,
+            S_v, H, n_tokens, n_seqs, sq1, sq2, sq3,
+            sv1, sv2, sv3, sb1, sb2, sb3,
+            neqk1, rq3, scale, K, stream);
+        return;
+    }
+
+    GGML_LOG_DEBUG("  -> routing to per-token kernel");
+
     const int warp_size = ggml_cuda_info().devices[ggml_cuda_get_device()].warp_size;
     const int num_warps = 4;
     dim3      grid_dims(H, n_seqs, (S_v + num_warps - 1) / num_warps);

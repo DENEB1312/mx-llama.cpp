@@ -308,3 +308,6 @@ if (TARGET gguf-model-data)
     target_link_libraries(export-graph-ops PRIVATE gguf-model-data)
     target_compile_definitions(export-graph-ops PRIVATE LLAMA_HF_FETCH)
 endif()
+
+llama_build_and_test(test-gdn-minimal.cpp)
+target_include_directories(test-gdn-minimal PRIVATE ${PROJECT_SOURCE_DIR}/ggml/src)
