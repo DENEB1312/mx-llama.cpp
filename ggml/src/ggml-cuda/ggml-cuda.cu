@@ -1326,8 +1326,6 @@ static bool ggml_backend_cuda_comm_allreduce_custom(
     // (PP-size) messages fall through to NCCL because the twoshot F32 kernel
     // pushes 2x the PCIe bytes of NCCL's BF16 ring and consistently loses
     // 5-10% PP across tested models on PCIe 3.0.
-    // If peer-write broadcast is unavailable and NCCL/RCCL is available, fall
-    // through to the backend allreduce.
     static const bool s_have_nccl =
 #ifdef GGML_USE_NCCL
         true;
@@ -1335,16 +1333,33 @@ static bool ggml_backend_cuda_comm_allreduce_custom(
         false;
 #endif
         ;
-    if (!comm_ctx->custom_ar.broadcast_ok && s_have_nccl) {
-        return false;
-    }
+    // When peer-write broadcast is unavailable (gfx906/PCIe without
+    // HSA_FORCE_FINE_GRAIN_PCIE=1), the one-shot kernel uses peer *reads* only,
+    // which are always coherent over PCIe, so it is safe to use for small
+    // tensors where it avoids NCCL's group/launch overhead. Large tensors still
+    // fall through to NCCL/RCCL below (its BF16 ring beats the F32 twoshot on
+    // PCIe bandwidth). Previously this whole path was force-disabled whenever
+    // broadcast was unavailable AND NCCL was present, leaving the custom AR
+    // kernels entirely unused on such hardware.
     bool eligible = true;
     if (s_have_nccl) {
         // Small-vs-large threshold from upstream's NCCL heuristic. Below this,
-        // broadcast wins on TG by 14-30%; above this, NCCL BF16 ring is faster.
+        // broadcast/one-shot wins on TG by 14-30%; above this, NCCL BF16 ring
+        // is faster.
         eligible = (n_backends <= 2 && ne < 32768) ||
                    (n_backends == 3 && ne < 131072) ||
                    (n_backends >= 4 && ne < 262144);
+    }
+    // GGML_TP_AR_FORCE=1 makes the custom path claim EVERY tensor size
+    // (bypassing the NCCL fallback) so the custom kernels can be benchmarked
+    // head-to-head against NCCL — e.g. to measure the F32-vs-BF16 wire speedup
+    // on large, bandwidth-bound ARs that would otherwise be routed to NCCL.
+    static const int s_force = []{
+        const char * e = getenv("GGML_TP_AR_FORCE");
+        return (e && e[0] != '\0' && e[0] != '0') ? 1 : 0;
+    }();
+    if (s_force) {
+        eligible = true;
     }
     if (!eligible) {
         return false;

@@ -165,6 +165,98 @@ static __device__ __forceinline__ void barrier_end(
 #endif // GGML_USE_HIP
 
 // ============================================================================
+// Wire-type conversion helpers (BF16-on-wire support)
+// ============================================================================
+//
+// The peer-write kernels (broadcast / twoshot) convert F32 -> T_wire at the
+// wire boundary and keep the *local reduction in F32*.  The wire format only
+// ever holds a single rank's contribution briefly in fine-grained staging;
+// the sum is computed in F32 and written back as F32.  This means the AR is
+// lossless in *range* — T_wire = nv_bfloat16 carries BF16's 8-bit exponent
+// (same range as F32), so no element overflows where NCCL's BF16 ring would
+// also be safe.  Precision is reduced to the wire mantissa width, matching
+// NCCL's BF16-ring behaviour, but the PCIe byte count is halved vs F32-on-wire.
+//
+// T_wire is a compile-time template parameter selected at launch by
+// GGML_TP_AR_WIRE (default f32 for unchanged behaviour).
+
+template <typename T_wire>
+static __device__ __forceinline__ float wire_to_f32(T_wire x);
+template <typename T_wire>
+static __device__ __forceinline__ T_wire f32_to_wire(float x);
+
+// Portable, rank-identical F32<->BF16 conversion (round-to-nearest-even).
+// Done in software so results are bit-identical on every GPU regardless of
+// ROCm's __hip_bfloat16 constructor, and so no BF16 hardware is required
+// (gfx906 has none).  The cost is a few ALU ops per element at the wire
+// boundary, amortised over the PCIe transfer time.
+static __device__ __forceinline__ uint16_t f32_to_bf16_raw(float f) {
+    uint32_t x; __builtin_memcpy(&x, &f, 4);
+    const uint32_t sign = x & 0x80000000u;
+    const uint32_t mag  = x & 0x7FFFFFFFu;
+    const uint32_t t    = mag + 0x7FFFu + ((mag >> 16) & 1u);
+    return (uint16_t)((t >> 16) | (sign >> 16));
+}
+static __device__ __forceinline__ float bf16_raw_to_f32(uint16_t bf) {
+    uint32_t y = (uint32_t)bf << 16;
+    float r; __builtin_memcpy(&r, &y, 4);
+    return r;
+}
+// Reinterpret a 16-bit wire value's bits without going through float casts.
+static __device__ __forceinline__ uint16_t wraw(const nv_bfloat16 & x) { uint16_t r; __builtin_memcpy(&r, &x, 2); return r; }
+static __device__ __forceinline__ nv_bfloat16 wfrom(uint16_t r) { nv_bfloat16 x; __builtin_memcpy(&x, &r, 2); return x; }
+
+template <> __device__ __forceinline__ float wire_to_f32<float>(float x) { return x; }
+template <> __device__ __forceinline__ float f32_to_wire<float>(float x) { return x; }
+template <> __device__ __forceinline__ float wire_to_f32<nv_bfloat16>(nv_bfloat16 x) { return bf16_raw_to_f32(wraw(x)); }
+template <> __device__ __forceinline__ nv_bfloat16 f32_to_wire<nv_bfloat16>(float x) { return wfrom(f32_to_bf16_raw(x)); }
+
+// wire_traits: type-specific 4-element pack store/load at a wire-element
+// offset, plus scalar store/load for the remainder loop.  Keeping the loop
+// body identical across wire types and only varying these accessors avoids
+// duplicating the kernels.
+template <typename T_wire>
+struct wire_traits;
+
+template <>
+struct wire_traits<float> {
+    using ptr_t = float *;
+    static __device__ __forceinline__ void store4(float * p, const float4 & v) {
+        *reinterpret_cast<float4 *>(p) = v;
+    }
+    static __device__ __forceinline__ float4 load4(const float * p) {
+        return *reinterpret_cast<const float4 *>(p);
+    }
+    static __device__ __forceinline__ void store1(float * p, float v) { *p = v; }
+    static __device__ __forceinline__ float load1(const float * p) { return *p; }
+};
+
+template <>
+struct wire_traits<nv_bfloat16> {
+    using ptr_t = nv_bfloat16 *;
+    static __device__ __forceinline__ void store4(nv_bfloat16 * p, const float4 & v) {
+        const uint16_t a0 = f32_to_bf16_raw(v.x);
+        const uint16_t a1 = f32_to_bf16_raw(v.y);
+        const uint16_t a2 = f32_to_bf16_raw(v.z);
+        const uint16_t a3 = f32_to_bf16_raw(v.w);
+        uint2 u;
+        u.x = (uint32_t)a0 | ((uint32_t)a1 << 16);
+        u.y = (uint32_t)a2 | ((uint32_t)a3 << 16);
+        *reinterpret_cast<uint2 *>(p) = u;
+    }
+    static __device__ __forceinline__ float4 load4(const nv_bfloat16 * p) {
+        const uint2 u = *reinterpret_cast<const uint2 *>(p);
+        return make_float4(
+            bf16_raw_to_f32((uint16_t)(u.x & 0xFFFF)),
+            bf16_raw_to_f32((uint16_t)(u.x >> 16)),
+            bf16_raw_to_f32((uint16_t)(u.y & 0xFFFF)),
+            bf16_raw_to_f32((uint16_t)(u.y >> 16)));
+    }
+    static __device__ __forceinline__ void store1(nv_bfloat16 * p, float v) { *p = f32_to_wire<nv_bfloat16>(v); }
+    static __device__ __forceinline__ float load1(const nv_bfloat16 * p) { return wire_to_f32<nv_bfloat16>(*p); }
+};
+
+// ============================================================================
 // One-shot AllReduce kernel
 // ============================================================================
 //
@@ -270,41 +362,41 @@ k_cross_device_reduce_1stage(
 // low latency). Same aggregate BW as one-shot reads, but writes typically
 // beat reads on PCIe 3.0.
 // ----------------------------------------------------------------------------
-template <int NRANKS>
+template <typename T_wire, int NRANKS>
 __global__ void __launch_bounds__(kThreads, 1)
 k_broadcast_reduce(
         RankData * __restrict__ _dp,        // peer (and self) staging pointers
         RankSignals              sg,
         Signal *   __restrict__  self_sg,
-        const float * __restrict__ input,   // our own input (local device)
-        float *    __restrict__  result,    // our own output (local device)
+        const float * __restrict__ input,   // our own input (local device, F32)
+        float *    __restrict__  result,    // our own output (local device, F32)
         int                      rank,
         int64_t                  n_elements) {
 
     auto dp = *_dp;
+    using W = wire_traits<T_wire>;
 
-    // Phase 1: write our input into each PEER's staging at offset rank*n_elements.
-    // We do NOT write the self-slot. Writing the self-slot would be a local
-    // store to fine-grained memory, which empirically does NOT bypass L2 on
-    // gfx906 even under FGP=1 — phase 2's NT load from HBM would then miss
-    // the fresh self-data. This corrupts ~1/N of the reduction inputs and
-    // degrades PPL (~+2 on a 10-baseline at ubatch=32, tested). Reading our
-    // own contribution directly from `input` in phase 2 (local L2-coherent
-    // read) avoids that path entirely.
-    const int64_t n_float4 = n_elements / 4;
+    // Phase 1: write our input (converted to T_wire) into each PEER's staging
+    // at offset rank*n_elements.  We do NOT write the self-slot.  Writing the
+    // self-slot would be a local store to fine-grained memory, which
+    // empirically does NOT bypass L2 on gfx906 even under FGP=1 — phase 2's NT
+    // load from HBM would then miss the fresh self-data.  Reading our own
+    // contribution directly from `input` in phase 2 (local L2-coherent read)
+    // avoids that path entirely.
+    const int64_t n_vec4 = n_elements / 4;
     const int64_t rank_offset = (int64_t) rank * n_elements;
     for (int64_t idx = (int64_t)blockIdx.x * blockDim.x + threadIdx.x;
-         idx < n_float4;
+         idx < n_vec4;
          idx += (int64_t)gridDim.x * blockDim.x) {
         const float4 v = ((const float4 *) input)[idx];
 #pragma unroll
         for (int r = 0; r < NRANKS; r++) {
             if (r == rank) continue;   // self-slot is NOT peer-written; read `input` directly in phase 2
-            float * dst = ((float *)(uintptr_t)dp.ptrs[r]) + rank_offset + idx * 4;
-            *((float4 *) dst) = v;     // peer write (bypasses source + dest L2 via PCIe)
+            typename W::ptr_t dst = (typename W::ptr_t)(uintptr_t)dp.ptrs[r] + rank_offset + idx * 4;
+            W::store4(dst, v);         // F32 -> T_wire, peer write (bypasses L2 via PCIe)
         }
     }
-    const int64_t rem_start = n_float4 * 4;
+    const int64_t rem_start = n_vec4 * 4;
     for (int64_t idx = rem_start + (int64_t)blockIdx.x * blockDim.x + threadIdx.x;
          idx < n_elements;
          idx += (int64_t)gridDim.x * blockDim.x) {
@@ -312,7 +404,8 @@ k_broadcast_reduce(
 #pragma unroll
         for (int r = 0; r < NRANKS; r++) {
             if (r == rank) continue;
-            ((float *)(uintptr_t)dp.ptrs[r])[rank_offset + idx] = v;
+            typename W::ptr_t dst = (typename W::ptr_t)(uintptr_t)dp.ptrs[r] + rank_offset + idx;
+            W::store1(dst, v);
         }
     }
 
@@ -332,14 +425,15 @@ k_broadcast_reduce(
 
     // Phase 2: identical reduction order on EVERY rank:
     //   sum = 0 + p0 + p1 + p2 + ... + p_{N-1}
-    // For r == rank we read `input` directly (local L2-coherent); for peers we
-    // NT-load from the per-peer slot in our own staging (peer-written → HBM).
-    // The `if (r == rank)` branch inside a #pragma unroll + compile-time NRANKS
-    // resolves at compile time per unrolled iteration, so the emitted code has
-    // no runtime branch — same accumulation sequence on all ranks.
-    const float * local_staging = (const float *) dp.ptrs[rank];
+    // For r == rank we read `input` directly (local L2-coherent, F32); for
+    // peers we read T_wire from the per-peer slot in our own staging (peer-
+    // written → HBM) and convert back to F32.  The `if (r == rank)` branch
+    // inside a #pragma unroll + compile-time NRANKS resolves at compile time
+    // per unrolled iteration, so the emitted code has no runtime branch —
+    // same accumulation sequence on all ranks.
+    typename W::ptr_t local_staging = (typename W::ptr_t)(uintptr_t) dp.ptrs[rank];
     for (int64_t idx = (int64_t)blockIdx.x * blockDim.x + threadIdx.x;
-         idx < n_float4;
+         idx < n_vec4;
          idx += (int64_t)gridDim.x * blockDim.x) {
         float4 sum = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 #pragma unroll
@@ -348,15 +442,8 @@ k_broadcast_reduce(
             if (r == rank) {
                 v = ((const float4 *) input)[idx];   // self contribution
             } else {
-                const float * base = local_staging + (int64_t)r * n_elements + idx * 4;
-#if defined(GGML_USE_HIP)
-                v.x = __builtin_nontemporal_load(base + 0);
-                v.y = __builtin_nontemporal_load(base + 1);
-                v.z = __builtin_nontemporal_load(base + 2);
-                v.w = __builtin_nontemporal_load(base + 3);
-#else
-                v = *((const float4 *) base);
-#endif
+                const typename W::ptr_t base = local_staging + (int64_t)r * n_elements + idx * 4;
+                v = W::load4(base);
             }
             sum.x += v.x;
             sum.y += v.y;
@@ -375,12 +462,7 @@ k_broadcast_reduce(
             if (r == rank) {
                 v = input[idx];
             } else {
-                const float * base = local_staging + (int64_t)r * n_elements + idx;
-#if defined(GGML_USE_HIP)
-                v = __builtin_nontemporal_load(base);
-#else
-                v = *base;
-#endif
+                v = W::load1(local_staging + (int64_t)r * n_elements + idx);
             }
             sum += v;
         }
@@ -399,12 +481,14 @@ k_broadcast_reduce(
 // serial ring — wins on PCIe systems where every GPU has its own root-
 // complex link AND the fabric can carry parallel transfers concurrently.
 //
-// LOSSLESS: F32 input → F32 wire → F32 reduction (F32 accumulator) → F32
-// output. No BF16 round-trip anywhere; output is bit-deterministic and a
-// strictly lossless function of the inputs (modulo the standard fp non-
-// associativity of summation, which is fixed across runs because all ranks
-// sum in the same r-order). Costs 2× the PCIe bytes per AR vs a BF16-on-
-// wire variant; the trade-off vs NCCL BF16 ring is BW for precision.
+// Wire format (F32 or BF16, via GGML_TP_AR_WIRE): F32 input → T_wire → F32
+// reduction (F32 accumulator) → F32 output. F32 wire is fully lossless and
+// bit-deterministic (modulo the standard fp non-associativity of summation,
+// which is fixed across runs because all ranks sum in the same r-order). BF16
+// wire truncates to the BF16 mantissa but keeps BF16's exponent range, so it
+// is lossless in range and matches NCCL's BF16-ring precision. F32 wire costs
+// 2× the PCIe bytes per AR vs a BF16-on-wire variant; the trade-off vs NCCL
+// BF16 ring is BW for precision.
 //
 // Staging layout (per rank, bytes):
 //   [0, n_elements * 4)                    : scatter_buf — N F32 slots, each
@@ -425,10 +509,10 @@ k_broadcast_reduce(
 // Requires n_elements % NRANKS == 0 and slice % 4 == 0 for float4 path. The
 // caller (host dispatch) must gate on these before selecting this kernel.
 // ----------------------------------------------------------------------------
-template <int NRANKS>
+template <typename T_wire, int NRANKS>
 __global__ void __launch_bounds__(kThreads, 1)
-k_twoshot_f32(
-        RankData * __restrict__ _dp,        // peer staging base pointers (float*)
+k_twoshot(
+        RankData * __restrict__ _dp,        // peer staging base pointers (T_wire*)
         RankSignals              sg,
         Signal *   __restrict__  self_sg,
         const float * __restrict__ input,   // our own input (F32)
@@ -437,23 +521,25 @@ k_twoshot_f32(
         int64_t                  n_elements) {
 
     auto dp = *_dp;
+    using W = wire_traits<T_wire>;
 
     const int64_t slice = n_elements / NRANKS;          // guaranteed divisible
-    const int64_t slice_n_float4 = slice / 4;
+    const int64_t slice_n_vec4 = slice / 4;
     const int64_t my_slice_start = (int64_t) rank * slice;
 
-    // Staging pointers — each rank's staging holds scatter_buf then allgather_buf.
-    // rank r's scatter_buf base   = dp.ptrs[r]              (float*)
-    // rank r's allgather_buf base = dp.ptrs[r] + n_elements (float* stride of n_elements floats)
-    auto scat_ptr = [&](int r) -> float * { return (float *)(uintptr_t) dp.ptrs[r]; };
-    auto ag_ptr   = [&](int r) -> float * { return ((float *)(uintptr_t) dp.ptrs[r]) + n_elements; };
+    // Staging pointers — each rank's staging holds scatter_buf then
+    // allgather_buf (each n_elements T_wire elements).
+    //   rank r's scatter_buf base   = dp.ptrs[r]
+    //   rank r's allgather_buf base = dp.ptrs[r] + n_elements
+    auto scat_ptr = [&](int r) -> typename W::ptr_t { return (typename W::ptr_t)(uintptr_t) dp.ptrs[r]; };
+    auto ag_ptr   = [&](int r) -> typename W::ptr_t { return ((typename W::ptr_t)(uintptr_t) dp.ptrs[r]) + n_elements; };
 
     // ------------------------------------------------------------------------
     // Stage 1 (peer-write scatter): for each non-self target peer, all threads
-    // grid-stride over the target's slice of our input and peer-write F32x4
-    // to the target's scatter_buf at OUR slot. Round-robin target order
-    // (rank+t) % NRANKS spreads PCIe contention so all ranks write to
-    // different targets at the same loop iteration.
+    // grid-stride over the target's slice of our input, convert F32->T_wire and
+    // peer-write the 4-element packs to the target's scatter_buf at OUR slot.
+    // Round-robin target order (rank+t) % NRANKS spreads PCIe contention so
+    // all ranks write to different targets at the same loop iteration.
     // ------------------------------------------------------------------------
     const int64_t my_slot_offset = (int64_t) rank * slice;
 #pragma unroll
@@ -461,11 +547,11 @@ k_twoshot_f32(
         const int target = (rank + t) % NRANKS;
         const int64_t target_slice_start_f4 = ((int64_t) target * slice) / 4;
         for (int64_t idx = (int64_t)blockIdx.x * blockDim.x + threadIdx.x;
-             idx < slice_n_float4;
+             idx < slice_n_vec4;
              idx += (int64_t)gridDim.x * blockDim.x) {
             const float4 v = ((const float4 *) input)[target_slice_start_f4 + idx];
-            float4 * dst   = (float4 *)(scat_ptr(target) + my_slot_offset + idx * 4);
-            *dst = v;       // 16-byte PCIe peer write
+            typename W::ptr_t dst = scat_ptr(target) + my_slot_offset + idx * 4;
+            W::store4(dst, v);   // F32 -> T_wire, 64/128-bit PCIe peer write
         }
     }
 
@@ -476,14 +562,16 @@ k_twoshot_f32(
     barrier_start<NRANKS>(sg, self_sg, rank);
 
     // ------------------------------------------------------------------------
-    // Stage 2 + 3 fused: reduce our slice from scatter_buf + own input, then
-    // peer-write the F32 sum to every rank's allgather_buf at OUR slot.
-    // Self-contribution is read directly from `input` — no precision adjust
-    // needed (peers see our slice as F32 via stage-1 peer write; same value).
+    // Stage 2 + 3 fused: reduce our slice from scatter_buf (T_wire -> F32) +
+    // own input (F32), then convert the F32 sum to T_wire and peer-write it to
+    // every rank's allgather_buf at OUR slot. Self-contribution is read
+    // directly from `input` (F32); peers see our slice as T_wire via stage-1
+    // and we expand it back to F32 before accumulating, so the reduction is
+    // lossless in range (BF16 wire == BF16 exponent range).
     // ------------------------------------------------------------------------
-    const float * own_scat = scat_ptr(rank);
+    typename W::ptr_t own_scat = scat_ptr(rank);
     for (int64_t idx = (int64_t)blockIdx.x * blockDim.x + threadIdx.x;
-         idx < slice_n_float4;
+         idx < slice_n_vec4;
          idx += (int64_t)gridDim.x * blockDim.x) {
         const int64_t local_pos = idx * 4;               // position within slice
         float4 sum = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -493,15 +581,7 @@ k_twoshot_f32(
             if (r == rank) {
                 v = ((const float4 *) input)[my_slice_start / 4 + idx];
             } else {
-                const float4 * base = (const float4 *)(own_scat + (int64_t) r * slice + local_pos);
-#if defined(GGML_USE_HIP)
-                v.x = __builtin_nontemporal_load(((const float *) base) + 0);
-                v.y = __builtin_nontemporal_load(((const float *) base) + 1);
-                v.z = __builtin_nontemporal_load(((const float *) base) + 2);
-                v.w = __builtin_nontemporal_load(((const float *) base) + 3);
-#else
-                v = *base;
-#endif
+                v = W::load4(own_scat + (int64_t) r * slice + local_pos);
             }
             sum.x += v.x;
             sum.y += v.y;
@@ -509,18 +589,18 @@ k_twoshot_f32(
             sum.w += v.w;
         }
 
-        // Allgather peer-write: send our reduced F32 slice to every PEER's
-        // allgather_buf[rank_slot][idx*4]. We do NOT local-write to OWN
+        // Allgather peer-write: send our reduced slice (as T_wire) to every
+        // PEER's allgather_buf[rank_slot]. We do NOT local-write to OWN
         // allgather_buf — on gfx906/PCIe, kernel-initiated local writes to
         // fine-grained memory dwell in L2 until kernel exit, while stage-4
-        // NT-load bypasses L2 and would see stale HBM. Instead we write our
-        // own slice directly to `result` (lossless, no round-trip).
+        // load bypasses L2 and would see stale HBM. Instead write our own
+        // slice directly to `result` (lossless, no round-trip).
         const int64_t slot_off = my_slice_start;
 #pragma unroll
         for (int t = 1; t < NRANKS; t++) {
             const int target = (rank + t) % NRANKS;
-            float4 * dst = (float4 *)(ag_ptr(target) + slot_off + local_pos);
-            *dst = sum;                                  // 16-byte PCIe peer write
+            typename W::ptr_t dst = ag_ptr(target) + slot_off + local_pos;
+            W::store4(dst, sum);                         // F32 -> T_wire peer write
         }
         // Own slice: write F32 sum directly to result.
         ((float4 *) result)[my_slice_start / 4 + idx] = sum;
@@ -532,34 +612,25 @@ k_twoshot_f32(
     // only the first NRANKS threads spin on peer flags. For kernels that READ
     // peer-written data after barrier_end (stage 4), the remaining threads
     // must wait for the spinning threads to confirm peer writes are visible.
-    // Without this sync, threads >= NRANKS run stage-4 NT-loads before peers'
+    // Without this sync, threads >= NRANKS run stage-4 loads before peers'
     // stage-3 writes have arrived, returning stale HBM and corrupting output.
     __syncthreads();
 
     // ------------------------------------------------------------------------
     // Stage 4 (local scatter to F32 result): peer slots only (own slice was
     // written directly to `result` in stage 3). Each peer's allgather_buf
-    // slot is FGP-coherent (peer writes bypass source L2 → land in our HBM)
-    // so NT loads return the freshly-arrived F32 values.
+    // slot is FGP-coherent (peer writes bypass source L2 -> land in our HBM)
+    // so loads return the freshly-arrived T_wire values, expanded to F32.
     // ------------------------------------------------------------------------
-    const float * own_ag = ag_ptr(rank);
+    typename W::ptr_t own_ag = ag_ptr(rank);
 #pragma unroll
     for (int t = 1; t < NRANKS; t++) {
         const int src_slot = (rank + t) % NRANKS;
         const int64_t slot_base = (int64_t) src_slot * slice;
         for (int64_t idx = (int64_t)blockIdx.x * blockDim.x + threadIdx.x;
-             idx < slice_n_float4;
+             idx < slice_n_vec4;
              idx += (int64_t)gridDim.x * blockDim.x) {
-            const float4 * base = (const float4 *)(own_ag + slot_base + idx * 4);
-#if defined(GGML_USE_HIP)
-            float4 v;
-            v.x = __builtin_nontemporal_load(((const float *) base) + 0);
-            v.y = __builtin_nontemporal_load(((const float *) base) + 1);
-            v.z = __builtin_nontemporal_load(((const float *) base) + 2);
-            v.w = __builtin_nontemporal_load(((const float *) base) + 3);
-#else
-            float4 v = *base;
-#endif
+            const float4 v = W::load4(own_ag + slot_base + idx * 4);
             ((float4 *) result)[(slot_base / 4) + idx] = v;
         }
     }
@@ -682,6 +753,20 @@ void tp_custom_ar_init(CustomARContext * ctx, int nranks, const int * dev_ids) {
 void tp_custom_ar_destroy(CustomARContext * ctx) {
     if (!ctx->initialized) return;
 
+    // Dump AR-path statistics when requested, so a run can confirm which wire
+    // type actually executed (and for what sizes).  oneshot is always F32.
+    static const int s_dbg = []{
+        const char * e = getenv("GGML_TP_AR_DEBUG");
+        return (e && e[0] != '\0' && e[0] != '0') ? 1 : 0;
+    }();
+    if (s_dbg) {
+        GGML_LOG_INFO("TP custom AllReduce stats: f32_calls=%llu bf16_calls=%llu "
+                      "max_ne_bf16=%lld\n",
+                      (unsigned long long)ctx->dbg_n_f32,
+                      (unsigned long long)ctx->dbg_n_bf16,
+                      (long long)ctx->dbg_max_ne_bf16);
+    }
+
     for (int rank = 0; rank < ctx->nranks; rank++) {
         ggml_cuda_set_device(ctx->dev_ids[rank]);
         if (ctx->events[rank]) {
@@ -714,6 +799,55 @@ void tp_custom_ar_destroy(CustomARContext * ctx) {
     ctx->initialized = false;
 }
 
+// Per-N kernel launch + nranks dispatch, templated on the wire type T_wire.
+// The compiler folds the recursive N chain into a jump table at -O2; adding
+// ranks just means bumping kMaxRanks.  One-shot (peer-read) kernels stay F32
+// regardless of T_wire, so they are launched whenever s_broadcast is false.
+template <typename T_wire>
+static void tp_custom_ar_launch(CustomARContext * ctx, int nranks, bool s_twoshot, bool s_broadcast,
+                                float ** input_ptrs, float ** output_ptrs, cudaStream_t * streams,
+                                int64_t n_elements, int blocks) {
+    auto launch_peer = [&](auto N_CONST) {
+        constexpr int N = decltype(N_CONST)::value;
+        for (int rank = 0; rank < nranks; rank++) {
+            ggml_cuda_set_device(ctx->dev_ids[rank]);
+            if (s_twoshot) {
+                k_twoshot<T_wire, N><<<blocks, kThreads, 0, streams[rank]>>>(
+                    ctx->d_rank_data[rank], ctx->rank_signals, ctx->d_signals[rank],
+                    input_ptrs[rank], output_ptrs[rank], rank, n_elements);
+            } else {
+                k_broadcast_reduce<T_wire, N><<<blocks, kThreads, 0, streams[rank]>>>(
+                    ctx->d_rank_data[rank], ctx->rank_signals, ctx->d_signals[rank],
+                    input_ptrs[rank], output_ptrs[rank], rank, n_elements);
+            }
+            CUDA_CHECK(cudaGetLastError());
+        }
+    };
+    auto launch_oneshot = [&](auto N_CONST) {
+        constexpr int N = decltype(N_CONST)::value;
+        for (int rank = 0; rank < nranks; rank++) {
+            ggml_cuda_set_device(ctx->dev_ids[rank]);
+            k_cross_device_reduce_1stage<N><<<blocks, kThreads, 0, streams[rank]>>>(
+                ctx->d_rank_data[rank], ctx->rank_signals, ctx->d_signals[rank],
+                output_ptrs[rank], rank, n_elements);
+            CUDA_CHECK(cudaGetLastError());
+        }
+    };
+
+    auto dispatch = [&](auto self, auto N_CONST) -> void {
+        constexpr int N = decltype(N_CONST)::value;
+        if constexpr (N < 2) {
+            GGML_ABORT("TP custom AR: unsupported nranks=%d (must be 2..%d)\n", nranks, kMaxRanks);
+        } else if (nranks == N) {
+            if (s_broadcast) launch_peer(N_CONST);
+            else             launch_oneshot(N_CONST);
+        } else {
+            self(self, std::integral_constant<int, N - 1>{});
+        }
+    };
+    dispatch(dispatch, std::integral_constant<int, kMaxRanks>{});
+}
+
 void tp_custom_ar_allreduce(CustomARContext * ctx,
                             float ** input_ptrs,
                             float ** output_ptrs,
@@ -741,6 +875,15 @@ void tp_custom_ar_allreduce(CustomARContext * ctx,
         return (e[0] != '0') ? 1 : 0;
     }();
     const bool s_broadcast = ctx->broadcast_ok;
+    // Wire format for the peer-write paths. Default F32 keeps existing
+    // behaviour; "bf16" halves PCIe bytes (BF16 carries BF16's 8-bit exponent,
+    // so the reduction stays lossless in range) — see wire_traits above.
+    static const int s_wire_env = []{
+        const char * e = getenv("GGML_TP_AR_WIRE");
+        if (e && (strcmp(e, "bf16") == 0 || strcmp(e, "BF16") == 0)) return 1; // bf16
+        return 0; // f32
+    }();
+    const bool s_wire_bf16 = (s_wire_env == 1);
     // Twoshot needs slice-aligned + float4-aligned data: n_elements % (4*nranks) == 0.
     const bool twoshot_eligible =
         s_broadcast && (n_elements % (int64_t)(4 * nranks) == 0);
@@ -750,10 +893,12 @@ void tp_custom_ar_allreduce(CustomARContext * ctx,
         (s_twoshot_env == 1 || (s_twoshot_env == -1 && n_elements >= twoshot_min_ne));
 
     const size_t bytes_f32 = (size_t) n_elements * sizeof(float);
-    // Broadcast path: F32 staging, N slots per rank (one inbox per peer + unused self slot).
-    // Two-shot path: F32 staging, 2 buffers (scatter_buf + allgather_buf) each
-    //   sized n_elements floats. Total = 2 * n_elements * sizeof(float) bytes.
-    const size_t per_slot   = bytes_f32;
+    const size_t wire_elem = s_wire_bf16 ? sizeof(nv_bfloat16) : sizeof(float);
+    // Broadcast path: wire staging, N slots per rank (one inbox per peer + unused self slot).
+    // Two-shot path: wire staging, 2 buffers (scatter_buf + allgather_buf) each
+    //   sized n_elements wire elements. One-shot path always stages F32 (it
+    //   reads peers' partials directly and never converts on the wire).
+    const size_t per_slot   = s_broadcast ? (n_elements * wire_elem) : bytes_f32;
     const int    need_slots = s_twoshot ? 2 : (s_broadcast ? ctx->nranks : 1);
     const size_t need_bytes = per_slot * need_slots;
 
@@ -837,49 +982,19 @@ void tp_custom_ar_allreduce(CustomARContext * ctx,
     const int64_t packed_size = n_elements / 4;
     int blocks = std::min(blocks_cap, std::max(1, (int)((packed_size + kThreads - 1) / kThreads)));
 
-    // Per-N kernel launches. The dispatcher below recursively matches `nranks`
-    // against compile-time N from kMaxRanks down to 2; the compiler folds the
-    // chain into a jump table at -O2. Adding ranks just means bumping
-    // kMaxRanks — the templates instantiate automatically.
-    auto launch_peer = [&](auto N_CONST) {
-        constexpr int N = decltype(N_CONST)::value;
-        for (int rank = 0; rank < nranks; rank++) {
-            ggml_cuda_set_device(ctx->dev_ids[rank]);
-            if (s_twoshot) {
-                k_twoshot_f32<N><<<blocks, kThreads, 0, streams[rank]>>>(
-                    ctx->d_rank_data[rank], ctx->rank_signals, ctx->d_signals[rank],
-                    input_ptrs[rank], output_ptrs[rank], rank, n_elements);
-            } else {
-                k_broadcast_reduce<N><<<blocks, kThreads, 0, streams[rank]>>>(
-                    ctx->d_rank_data[rank], ctx->rank_signals, ctx->d_signals[rank],
-                    input_ptrs[rank], output_ptrs[rank], rank, n_elements);
-            }
-            CUDA_CHECK(cudaGetLastError());
-        }
-    };
-    auto launch_oneshot = [&](auto N_CONST) {
-        constexpr int N = decltype(N_CONST)::value;
-        for (int rank = 0; rank < nranks; rank++) {
-            ggml_cuda_set_device(ctx->dev_ids[rank]);
-            k_cross_device_reduce_1stage<N><<<blocks, kThreads, 0, streams[rank]>>>(
-                ctx->d_rank_data[rank], ctx->rank_signals, ctx->d_signals[rank],
-                output_ptrs[rank], rank, n_elements);
-            CUDA_CHECK(cudaGetLastError());
-        }
-    };
-
-    auto dispatch = [&](auto self, auto N_CONST) -> void {
-        constexpr int N = decltype(N_CONST)::value;
-        if constexpr (N < 2) {
-            GGML_ABORT("TP custom AR: unsupported nranks=%d (must be 2..%d)\n", nranks, kMaxRanks);
-        } else if (nranks == N) {
-            if (s_broadcast) launch_peer(N_CONST);
-            else             launch_oneshot(N_CONST);
-        } else {
-            self(self, std::integral_constant<int, N - 1>{});
-        }
-    };
-    dispatch(dispatch, std::integral_constant<int, kMaxRanks>{});
+    // Per-N kernel launches. Dispatch on the selected wire type; the helper
+    // recursively matches `nranks` against compile-time N from kMaxRanks down
+    // to 2 and instantiates the broadcast/twoshot kernels for T_wire.
+    if (s_wire_bf16) {
+        ctx->dbg_n_bf16++;
+        if (n_elements > ctx->dbg_max_ne_bf16) ctx->dbg_max_ne_bf16 = n_elements;
+        tp_custom_ar_launch<nv_bfloat16>(ctx, nranks, s_twoshot, s_broadcast,
+                                         input_ptrs, output_ptrs, streams, n_elements, blocks);
+    } else {
+        ctx->dbg_n_f32++;
+        tp_custom_ar_launch<float>(ctx, nranks, s_twoshot, s_broadcast,
+                                   input_ptrs, output_ptrs, streams, n_elements, blocks);
+    }
 }
 
 } // namespace ggml_cuda_tp

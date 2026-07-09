@@ -8,10 +8,15 @@
 // and elimination of host-side ncclGroupStart/ncclGroupEnd overhead.
 //
 // Three kernel variants are provided; tp_custom_ar_allreduce selects between
-// them at call time. All paths are F32-on-wire — fully lossless. The top-level
-// gate in ggml-cuda.cu routes large messages to NCCL (NCCL's BF16 ring beats any
+// them at call time. The reduction is always accumulated in F32, so the AR is
+// lossless in *range*. The wire format (selected by GGML_TP_AR_WIRE, default
+// F32) is what crosses PCIe: F32-on-wire is fully lossless; BF16-on-wire halves
+// the PCIe bytes (BF16 carries BF16's 8-bit exponent, so no element overflows
+// where NCCL's BF16 ring would also be safe) at the cost of BF16 mantissa
+// precision — matching NCCL's BF16-ring loss profile. The top-level gate in
+// ggml-cuda.cu routes large messages to NCCL (NCCL's BF16 ring beats any
 // F32-on-wire kernel at PP-size on PCIe). Hardware without peer-write broadcast
-// support remains on the one-shot path.
+// support remains on the one-shot path (always F32, never converts on the wire).
 //
 //   broadcast (small / TG-size ARs when peer-write coherence is available):
 //       each rank writes its input into every peer's staging slot via PCIe
@@ -23,8 +28,10 @@
 //       reduce-scatter (peer-write our input slice for each target peer)
 //       then allgather (peer-write our reduced slice to every peer's
 //       allgather_buf). Per-rank outbound: 2*(N-1)/N * S — half of broadcast
-//       at scale. Lossless F32 wire; loses 5-10% PP vs NCCL's BF16 ring on
-//       PCIe but kept as scaffold for future quantized-on-wire variants.
+//       at scale. F32 or BF16 on the wire (GGML_TP_AR_WIRE); F32 wire is
+//       lossless, BF16 wire loses 5-10% PP vs NCCL's BF16 ring on PCIe but
+//       pushes half the bytes. Kept as scaffold for future quantized-on-wire
+//       variants.
 //
 //   one-shot (fallback, always correct):
 //       cudaMemcpyAsync stages input into fine-grained buffers, cross-stream
@@ -125,6 +132,14 @@ struct CustomARContext {
     //  - AMD gfx906 (MI50) PCIe: true only when HSA_FORCE_FINE_GRAIN_PCIE=1
     //  - Otherwise: false → runtime falls back to one-shot path
     bool broadcast_ok = false;
+
+    // Debug counters (printed at destroy when GGML_TP_AR_DEBUG is set) so a
+    // run can confirm which wire type / path actually executed.  oneshot is
+    // always F32 (peer-read), so only the broadcast/twoshot peer-write paths
+    // vary by wire type.
+    uint64_t dbg_n_f32   = 0;   // calls dispatched with F32 wire
+    uint64_t dbg_n_bf16  = 0;   // calls dispatched with BF16 wire
+    int64_t  dbg_max_ne_bf16 = 0; // largest ne seen on a BF16-wire call
 
     // Physical CUDA/HIP device id for each rank. The single-stage TP case has
     // dev_ids[r] == r, but multi-stage TP (vLLM-style TP x PP) gives each stage
