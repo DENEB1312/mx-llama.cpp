@@ -4,6 +4,7 @@
 #include "llama-io.h"
 #include "llama-model.h"
 #include "llama-context.h"
+#include "llama-pic.h"
 
 #include <algorithm>
 #include <cassert>
@@ -1130,6 +1131,166 @@ ggml_type llama_kv_cache::type_k() const {
 
 ggml_type llama_kv_cache::type_v() const {
     return layers[0].v->type;
+}
+
+//
+// Position-Independent Caching (PIC) support
+//
+// The blob produced by kv_data_get has the following internal layout (per layer):
+//   K: int32 type, uint64 row_size, [n_cells * row_size] bytes
+//   V: int32 type, uint64 row_size (or uint32 el_size + uint32 n_embd for transposed V),
+//      [n_cells * row_size] bytes
+// kv_data_set consumes a blob with the exact same layout. The layout mirrors
+// state_write_data / state_read_data so that correctness is guaranteed by symmetry.
+//
+
+size_t llama_kv_cache::kv_data_size(uint32_t n_cells) const {
+    GGML_ASSERT(n_cells > 0);
+
+    size_t size = 0;
+
+    const uint32_t v_trans = this->v_trans ? 1 : 0;
+
+    for (const auto & layer : layers) {
+        const uint32_t il = layer.il;
+
+        const uint32_t n_embd_k_gqa = hparams.n_embd_k_gqa(il);
+        const uint32_t n_embd_v_gqa = hparams.n_embd_v_gqa(il);
+
+        const size_t k_size_row = ggml_row_size(layer.k_stream[0]->type, n_embd_k_gqa);
+        size += sizeof(int32_t) + sizeof(uint64_t) + (size_t) n_cells * k_size_row;
+
+        const size_t v_size_row = v_trans
+            ? (size_t) n_embd_v_gqa * ggml_type_size(layer.v_stream[0]->type)
+            : ggml_row_size(layer.v_stream[0]->type, n_embd_v_gqa);
+        // V header: int32 type, uint64 row_size, uint32 n_embd, uint8 transposed
+        size += sizeof(int32_t) + sizeof(uint64_t) + sizeof(uint32_t) + sizeof(uint8_t)
+              + (size_t) n_cells * v_size_row;
+    }
+
+    return size;
+}
+
+void llama_kv_cache::kv_data_get(uint32_t strm, uint32_t i0, uint32_t i1, uint8_t * data) const {
+    GGML_ASSERT(strm < n_stream);
+    GGML_ASSERT(i1 > i0 && i1 <= get_size());
+
+    const uint32_t n_cells = i1 - i0;
+    const uint32_t kv_size = get_size();
+    const uint32_t v_trans = this->v_trans ? 1 : 0;
+
+    uint8_t * p = data;
+
+    for (const auto & layer : layers) {
+        const uint32_t il = layer.il;
+
+        const uint32_t n_embd_k_gqa = hparams.n_embd_k_gqa(il);
+        const uint32_t n_embd_v_gqa = hparams.n_embd_v_gqa(il);
+
+        auto * k = layer.k_stream[strm];
+        const size_t k_size_row = ggml_row_size(k->type, n_embd_k_gqa);
+        const int32_t k_type_i  = (int32_t) k->type;
+        const uint64_t k_size_row_u = (uint64_t) k_size_row;
+        memcpy(p, &k_type_i,      sizeof(k_type_i));     p += sizeof(k_type_i);
+        memcpy(p, &k_size_row_u,  sizeof(k_size_row_u)); p += sizeof(k_size_row_u);
+        ggml_backend_tensor_get(k, p, (size_t) i0 * k_size_row, (size_t) n_cells * k_size_row);
+        p += (size_t) n_cells * k_size_row;
+
+        auto * v = layer.v_stream[strm];
+        const int32_t v_type_i = (int32_t) v->type;
+        const size_t v_size_row = v_trans
+            ? (size_t) n_embd_v_gqa * ggml_type_size(v->type)
+            : ggml_row_size(v->type, n_embd_v_gqa);
+        const llama_pic_v_hdr vh = { v_type_i, (uint64_t) v_size_row, n_embd_v_gqa, (uint8_t) (v_trans ? 1 : 0) };
+        memcpy(p, &vh, sizeof(vh)); p += sizeof(vh);
+
+        if (!v_trans) {
+            ggml_backend_tensor_get(v, p, (size_t) i0 * v_size_row, (size_t) n_cells * v_size_row);
+            p += (size_t) n_cells * v_size_row;
+        } else {
+            const size_t v_size_el = ggml_type_size(v->type);
+            for (uint32_t j = 0; j < n_embd_v_gqa; ++j) {
+                const size_t src_offset = ((size_t) i0 + (size_t) j * kv_size) * v_size_el;
+                ggml_backend_tensor_get(v, p, src_offset, (size_t) n_cells * v_size_el);
+                p += (size_t) n_cells * v_size_el;
+            }
+        }
+    }
+
+    GGML_ASSERT((size_t) (p - data) == kv_data_size(n_cells));
+}
+
+void llama_kv_cache::kv_data_set(uint32_t strm, uint32_t i0, uint32_t i1, const uint8_t * data) {
+    GGML_ASSERT(strm < n_stream);
+    GGML_ASSERT(i1 > i0 && i1 <= get_size());
+
+    const uint32_t n_cells = i1 - i0;
+    const uint32_t kv_size = get_size();
+    const uint32_t v_trans = this->v_trans ? 1 : 0;
+
+    const uint8_t * p = data;
+
+    for (const auto & layer : layers) {
+        const uint32_t il = layer.il;
+
+        const uint32_t n_embd_k_gqa = hparams.n_embd_k_gqa(il);
+
+        auto * k = layer.k_stream[strm];
+        int32_t  k_type_i_ref;
+        uint64_t k_size_row_u;
+        memcpy(&k_type_i_ref,   p, sizeof(k_type_i_ref));   p += sizeof(k_type_i_ref);
+        memcpy(&k_size_row_u,   p, sizeof(k_size_row_u));   p += sizeof(k_size_row_u);
+        GGML_ASSERT((int32_t) k->type == k_type_i_ref);
+        const size_t k_size_row = ggml_row_size(k->type, n_embd_k_gqa);
+        GGML_ASSERT(k_size_row == k_size_row_u);
+        ggml_backend_tensor_set(k, p, (size_t) i0 * k_size_row, (size_t) n_cells * k_size_row);
+        p += (size_t) n_cells * k_size_row;
+
+        auto * v = layer.v_stream[strm];
+        llama_pic_v_hdr vh;
+        memcpy(&vh, p, sizeof(vh)); p += sizeof(vh);
+        GGML_ASSERT((int32_t) v->type == vh.type);
+        GGML_ASSERT(v_trans == (vh.transposed != 0));
+        const size_t v_size_row = v_trans
+            ? (size_t) vh.n_embd * ggml_type_size(v->type)
+            : ggml_row_size(v->type, vh.n_embd);
+        GGML_ASSERT(v_size_row == vh.row_size);
+
+        if (!v_trans) {
+            ggml_backend_tensor_set(v, p, (size_t) i0 * v_size_row, (size_t) n_cells * v_size_row);
+            p += (size_t) n_cells * v_size_row;
+        } else {
+            const size_t v_size_el = ggml_type_size(v->type);
+            for (uint32_t j = 0; j < vh.n_embd; ++j) {
+                const size_t dst_offset = ((size_t) i0 + (size_t) j * kv_size) * v_size_el;
+                ggml_backend_tensor_set(v, p, dst_offset, (size_t) n_cells * v_size_el);
+                p += (size_t) n_cells * v_size_el;
+            }
+        }
+    }
+
+    GGML_ASSERT((size_t) (p - data) == kv_data_size(n_cells));
+}
+
+void llama_kv_cache::set_cell_range(uint32_t strm, uint32_t i0, uint32_t i1,
+                                    const std::vector<llama_pos> & pos, llama_seq_id seq) {
+    GGML_ASSERT(strm < n_stream);
+    GGML_ASSERT(pos.size() == i1 - i0);
+
+    auto & cells = v_cells[strm];
+
+    for (uint32_t i = i0; i < i1; ++i) {
+        // cells must be empty before they can receive a position (see llama_kv_cells::pos_set)
+        if (cells.seq_has(i, seq)) {
+            cells.seq_rm(i, seq);
+        }
+        cells.pos_set(i, pos[i - i0]);
+        cells.seq_add(i, seq);
+    }
+
+    if (v_heads[strm] < i1) {
+        v_heads[strm] = i1;
+    }
 }
 
 uint32_t llama_kv_cache::get_n_kv(const slot_info & sinfo) const {

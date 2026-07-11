@@ -272,6 +272,16 @@ task_params server_task::params_from_json_cmpl(
     params.n_discard        = std::max(0, params.n_discard);
     params.n_cmpl           = json_value(data,       "n_cmpl",             json_value(data, "n", 1));
     params.n_cache_reuse    = json_value(data,       "n_cache_reuse",      defaults.n_cache_reuse);
+
+    // EPIC / Position-Independent Context Caching
+    if (data.contains("cache_ids") && data.at("cache_ids").is_array()) {
+        for (const auto & v : data.at("cache_ids")) {
+            if (v.is_string()) {
+                params.cache_ids.push_back(v.get<std::string>());
+            }
+        }
+    }
+    params.pic_k = json_value(data, "pic_k", 4u);
     //params.t_max_prompt_ms  = json_value(data,       "t_max_prompt_ms",    defaults.t_max_prompt_ms); // TODO: implement
     params.t_max_predict_ms = json_value(data,       "t_max_predict_ms",   defaults.t_max_predict_ms);
     params.response_fields  = json_value(data,       "response_fields",    std::vector<std::string>());

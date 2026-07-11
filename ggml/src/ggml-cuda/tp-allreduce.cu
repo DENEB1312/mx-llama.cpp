@@ -229,6 +229,27 @@ struct wire_traits<float> {
     }
     static __device__ __forceinline__ void store1(float * p, float v) { *p = v; }
     static __device__ __forceinline__ float load1(const float * p) { return *p; }
+    // Non-temporal load variants: bypass L1/L2 to avoid stale entries on
+    // fine-grained peer memory (MI50/PCIe without XGMI coherence).
+    // On non-HIP platforms the NT hint is a no-op (falls back to cached).
+    static __device__ __forceinline__ float4 load4_nt(const float * p) {
+#if defined(GGML_USE_HIP)
+        const float x = __builtin_nontemporal_load(p + 0);
+        const float y = __builtin_nontemporal_load(p + 1);
+        const float z = __builtin_nontemporal_load(p + 2);
+        const float w = __builtin_nontemporal_load(p + 3);
+        return make_float4(x, y, z, w);
+#else
+        return *reinterpret_cast<const float4 *>(p);
+#endif
+    }
+    static __device__ __forceinline__ float load1_nt(const float * p) {
+#if defined(GGML_USE_HIP)
+        return __builtin_nontemporal_load(p);
+#else
+        return *p;
+#endif
+    }
 };
 
 template <>
@@ -254,6 +275,37 @@ struct wire_traits<nv_bfloat16> {
     }
     static __device__ __forceinline__ void store1(nv_bfloat16 * p, float v) { *p = f32_to_wire<nv_bfloat16>(v); }
     static __device__ __forceinline__ float load1(const nv_bfloat16 * p) { return wire_to_f32<nv_bfloat16>(*p); }
+    // Non-temporal load variants: bypass L1/L2 on fine-grained peer memory.
+    // On non-HIP platforms falls back to cached loads.
+    // Use 16-bit NT loads to avoid misaligned 32-bit accesses and OOB reads
+    // at the tail of the staging buffer (bf16 elements are 2-byte aligned).
+    static __device__ __forceinline__ float4 load4_nt(const nv_bfloat16 * p) {
+#if defined(GGML_USE_HIP)
+        const uint16_t * q = reinterpret_cast<const uint16_t *>(p);
+        const uint16_t a0 = __builtin_nontemporal_load(q + 0);
+        const uint16_t a1 = __builtin_nontemporal_load(q + 1);
+        const uint16_t a2 = __builtin_nontemporal_load(q + 2);
+        const uint16_t a3 = __builtin_nontemporal_load(q + 3);
+        return make_float4(
+            bf16_raw_to_f32(a0), bf16_raw_to_f32(a1),
+            bf16_raw_to_f32(a2), bf16_raw_to_f32(a3));
+#else
+        const uint2 u = *reinterpret_cast<const uint2 *>(p);
+        return make_float4(
+            bf16_raw_to_f32((uint16_t)(u.x & 0xFFFF)),
+            bf16_raw_to_f32((uint16_t)(u.x >> 16)),
+            bf16_raw_to_f32((uint16_t)(u.y & 0xFFFF)),
+            bf16_raw_to_f32((uint16_t)(u.y >> 16)));
+#endif
+    }
+    static __device__ __forceinline__ float load1_nt(const nv_bfloat16 * p) {
+#if defined(GGML_USE_HIP)
+        const uint16_t w = __builtin_nontemporal_load(reinterpret_cast<const uint16_t *>(p));
+        return bf16_raw_to_f32(w);
+#else
+        return wire_to_f32<nv_bfloat16>(*p);
+#endif
+    }
 };
 
 // ============================================================================
@@ -292,6 +344,7 @@ k_cross_device_reduce_1stage(
     // for peer reads on HIP — peer data is one-shot (no reuse) and normal
     // cached loads can return stale L2 entries from prior ARs on MI50 without
     // XGMI cache coherence. NT loads go direct to HBM over PCIe.
+    using W = wire_traits<float>;
     const int64_t n_float4 = n_elements / 4;
     for (int64_t idx = (int64_t)blockIdx.x * blockDim.x + threadIdx.x;
          idx < n_float4;
@@ -300,20 +353,11 @@ k_cross_device_reduce_1stage(
         float4 sum = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 #pragma unroll
         for (int r = 0; r < NRANKS; r++) {
-#if defined(GGML_USE_HIP)
-            const float * base = ((const float *)dp.ptrs[r]) + idx * 4;
-            const float x = __builtin_nontemporal_load(base + 0);
-            const float y = __builtin_nontemporal_load(base + 1);
-            const float z = __builtin_nontemporal_load(base + 2);
-            const float w = __builtin_nontemporal_load(base + 3);
-#else
-            const float4 v = ((const float4 *)dp.ptrs[r])[idx];
-            const float x = v.x, y = v.y, z = v.z, w = v.w;
-#endif
-            sum.x += x;
-            sum.y += y;
-            sum.z += z;
-            sum.w += w;
+            const float4 v = W::load4_nt(((const float *)dp.ptrs[r]) + idx * 4);
+            sum.x += v.x;
+            sum.y += v.y;
+            sum.z += v.z;
+            sum.w += v.w;
         }
         ((float4 *)result)[idx] = sum;
     }
@@ -327,11 +371,7 @@ k_cross_device_reduce_1stage(
         float sum = 0.0f;
 #pragma unroll
         for (int r = 0; r < NRANKS; r++) {
-#if defined(GGML_USE_HIP)
-            sum += __builtin_nontemporal_load(((const float *)dp.ptrs[r]) + idx);
-#else
-            sum += ((const float *)dp.ptrs[r])[idx];
-#endif
+            sum += W::load1_nt(((const float *)dp.ptrs[r]) + idx);
         }
         result[idx] = sum;
     }
@@ -440,10 +480,10 @@ k_broadcast_reduce(
         for (int r = 0; r < NRANKS; r++) {
             float4 v;
             if (r == rank) {
-                v = ((const float4 *) input)[idx];   // self contribution
+                v = ((const float4 *) input)[idx];   // self contribution (cached, L2-coherent)
             } else {
                 const typename W::ptr_t base = local_staging + (int64_t)r * n_elements + idx * 4;
-                v = W::load4(base);
+                v = W::load4_nt(base);               // peer read: NT to avoid stale L1 on MI50
             }
             sum.x += v.x;
             sum.y += v.y;
@@ -462,7 +502,7 @@ k_broadcast_reduce(
             if (r == rank) {
                 v = input[idx];
             } else {
-                v = W::load1(local_staging + (int64_t)r * n_elements + idx);
+                v = W::load1_nt(local_staging + (int64_t)r * n_elements + idx); // peer read: NT
             }
             sum += v;
         }
@@ -579,9 +619,9 @@ k_twoshot(
         for (int r = 0; r < NRANKS; r++) {
             float4 v;
             if (r == rank) {
-                v = ((const float4 *) input)[my_slice_start / 4 + idx];
+                v = ((const float4 *) input)[my_slice_start / 4 + idx];   // self (cached)
             } else {
-                v = W::load4(own_scat + (int64_t) r * slice + local_pos);
+                v = W::load4_nt(own_scat + (int64_t) r * slice + local_pos); // peer: NT
             }
             sum.x += v.x;
             sum.y += v.y;
@@ -630,7 +670,7 @@ k_twoshot(
         for (int64_t idx = (int64_t)blockIdx.x * blockDim.x + threadIdx.x;
              idx < slice_n_vec4;
              idx += (int64_t)gridDim.x * blockDim.x) {
-            const float4 v = W::load4(own_ag + slot_base + idx * 4);
+            const float4 v = W::load4_nt(own_ag + slot_base + idx * 4); // peer: NT
             ((float4 *) result)[(slot_base / 4) + idx] = v;
         }
     }
@@ -770,7 +810,7 @@ void tp_custom_ar_destroy(CustomARContext * ctx) {
     for (int rank = 0; rank < ctx->nranks; rank++) {
         ggml_cuda_set_device(ctx->dev_ids[rank]);
         if (ctx->events[rank]) {
-            CUDA_CHECK(cudaEventDestroy(ctx->events[rank]));
+            CUDA_CHECK(hipEventDestroy(ctx->events[rank]));
             ctx->events[rank] = nullptr;
         }
         if (ctx->d_signals[rank]) {

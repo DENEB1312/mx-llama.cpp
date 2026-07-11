@@ -3500,18 +3500,31 @@ static __device__ __forceinline__ void mul_mat_q_process_tile(
     constexpr int              nwarps     = mmq_get_nwarps_device_type<type>();
     constexpr int              qk         = ggml_cuda_type_traits<type>::qk;
     constexpr int              mmq_y      = get_mmq_y_device();
-    constexpr load_tiles_mmq_t load_tiles = mmq_type_traits<mmq_x, mmq_y, need_check, type>::load_tiles;
 
     extern __shared__ int data_mul_mat_q[];
     int * tile_y = data_mul_mat_q + mmq_x;
     int * tile_x = tile_y + GGML_PAD(mmq_x*MMQ_TILE_Y_K, nwarps*warp_size);
 
+    constexpr mmq_write_back_t write_back =
 #if defined(AMD_MFMA_AVAILABLE) || defined(TURING_MMA_AVAILABLE) || defined(AMD_WMMA_AVAILABLE)
-    constexpr vec_dot_mmq_t    vec_dot    = mmq_type_traits<mmq_x, mmq_y, need_check, type>::vec_dot_mma;
-    constexpr mmq_write_back_t write_back = mmq_write_back_mma<type, mmq_x, mmq_y, need_check>;
+        mmq_write_back_mma<type, mmq_x, mmq_y, need_check>;
 #else
-    constexpr vec_dot_mmq_t    vec_dot    = mmq_type_traits<mmq_x, mmq_y, need_check, type>::vec_dot_dp4a;
-    constexpr mmq_write_back_t write_back = mmq_write_back_dp4a<mmq_x, mmq_y, need_check, mmq_get_nwarps_compile<type>()>;
+        mmq_write_back_dp4a<mmq_x, mmq_y, need_check, mmq_get_nwarps_compile<type>()>;
+#endif // defined(AMD_MFMA_AVAILABLE) || defined(TURING_MMA_AVAILABLE) || defined(AMD_WMMA_AVAILABLE)
+
+    // P7: pre-select both the bounds-unchecked (interior) and bounds-checked (boundary)
+    // variants so the K-loop can run the cheap path for every full tile and only pay the
+    // bounds-check cost on the final partial tile.  On GCN (gfx906, 16 KiB L1I) this shrinks
+    // the hot-loop instruction footprint, improving IPC.  Numerically identical to the original
+    // need_check path because the check is a no-op on in-bounds tiles.
+    constexpr load_tiles_mmq_t load_tiles_interior = mmq_type_traits<mmq_x, mmq_y, false, type>::load_tiles;
+    constexpr load_tiles_mmq_t load_tiles_boundary = mmq_type_traits<mmq_x, mmq_y, true,  type>::load_tiles;
+#if defined(AMD_MFMA_AVAILABLE) || defined(TURING_MMA_AVAILABLE) || defined(AMD_WMMA_AVAILABLE)
+    constexpr vec_dot_mmq_t vec_dot_interior = mmq_type_traits<mmq_x, mmq_y, false, type>::vec_dot_mma;
+    constexpr vec_dot_mmq_t vec_dot_boundary = mmq_type_traits<mmq_x, mmq_y, true,  type>::vec_dot_mma;
+#else
+    constexpr vec_dot_mmq_t vec_dot_interior = mmq_type_traits<mmq_x, mmq_y, false, type>::vec_dot_dp4a;
+    constexpr vec_dot_mmq_t vec_dot_boundary = mmq_type_traits<mmq_x, mmq_y, true,  type>::vec_dot_dp4a;
 #endif // defined(AMD_MFMA_AVAILABLE) || defined(TURING_MMA_AVAILABLE) || defined(AMD_WMMA_AVAILABLE)
 
 #if defined(BLACKWELL_MMA_AVAILABLE)
@@ -3528,8 +3541,14 @@ static __device__ __forceinline__ void mul_mat_q_process_tile(
 
     constexpr int sz = sizeof(block_q8_1_mmq) / sizeof(int);
 
-    for (int kb0 = kb0_start; kb0 < kb0_stop; kb0 += blocks_per_iter) {
-        load_tiles(x, tile_x, offset_x + kb0, tile_x_max_i, stride_row_x);
+    // P7: split the K-loop into a checked-free interior and a single checked boundary tile.
+    // When need_check is false the whole range is full, so the interior loop covers it all and
+    // the boundary block below is skipped.  When need_check is true only the final (partial)
+    // tile needs bounds checking.
+    const int kb0_end = need_check ? (kb0_stop - blocks_per_iter) : kb0_stop;
+
+    for (int kb0 = kb0_start; kb0 < kb0_end; kb0 += blocks_per_iter) {
+        load_tiles_interior(x, tile_x, offset_x + kb0, tile_x_max_i, stride_row_x);
         {
             const int * by0 = y + ncols_y * (kb0 * qk / ne_block) * sz;
 #pragma unroll
@@ -3542,7 +3561,7 @@ static __device__ __forceinline__ void mul_mat_q_process_tile(
 
         __syncthreads();
 
-        vec_dot(tile_x, tile_y, sum, 0);
+        vec_dot_interior(tile_x, tile_y, sum, 0);
 
         __syncthreads();
 
@@ -3558,7 +3577,46 @@ static __device__ __forceinline__ void mul_mat_q_process_tile(
 
         __syncthreads();
 
-        vec_dot(tile_x, tile_y, sum, MMQ_TILE_NE_K);
+        vec_dot_interior(tile_x, tile_y, sum, MMQ_TILE_NE_K);
+
+        __syncthreads();
+    }
+
+    // Final (partial) tile: only present when need_check is true.  When the whole range is
+    // smaller than one tile there are no interior tiles, so the boundary tile starts at
+    // kb0_start and simply spans the (partial) range.
+    if (need_check) {
+        const int kb0 = (kb0_end >= kb0_start) ? kb0_end : kb0_start;
+        load_tiles_boundary(x, tile_x, offset_x + kb0, tile_x_max_i, stride_row_x);
+        {
+            const int * by0 = y + ncols_y * (kb0 * qk / ne_block) * sz;
+#pragma unroll
+            for (int l0 = 0; l0 < mmq_x * MMQ_TILE_Y_K; l0 += nwarps * warp_size) {
+                int l = l0 + threadIdx.y*warp_size + threadIdx.x;
+
+                tile_y[l] = by0[l];
+            }
+        }
+
+        __syncthreads();
+
+        vec_dot_boundary(tile_x, tile_y, sum, 0);
+
+        __syncthreads();
+
+        {
+            const int * by0 = y + ncols_y * ((kb0 * qk / ne_block) * sz + sz);
+#pragma unroll
+            for (int l0 = 0; l0 < mmq_x * MMQ_TILE_Y_K; l0 += nwarps * warp_size) {
+                int l = l0 + threadIdx.y*warp_size + threadIdx.x;
+
+                tile_y[l] = by0[l];
+            }
+        }
+
+        __syncthreads();
+
+        vec_dot_boundary(tile_x, tile_y, sum, MMQ_TILE_NE_K);
 
         __syncthreads();
     }

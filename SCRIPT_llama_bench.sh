@@ -38,6 +38,8 @@ export HSA_FORCE_FINE_GRAIN_PCIE=1
 export GPU_MAX_HW_QUEUES=8
 export GGML_TP_AR_TWOSHOT=0
 export GGML_TP_AR_BLOCKS=36
+export GGML_CUDA_REPACK=1
+export GGML_CUDA_REPACK_Q8_0=0
 # K-sharding (GGML_MMVQ_KSHARD) regresses decode on gfx906 for this MoE workload; off by default.
 # Opt back in experimentally with: GGML_MMVQ_KSHARD_MAXROWS=<row ceiling>
 export GGML_MMVQ_KSHARD_MAXROWS=0

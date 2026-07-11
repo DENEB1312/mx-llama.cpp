@@ -905,6 +905,49 @@ extern "C" {
            llama_state_seq_flags   flags);
 
     //
+    // Position-Independent Caching (PIC)
+    //
+    // These functions implement the KV-cache primitive behind Position-Independent Caching
+    // (see EPIC, arXiv:2410.15332): they let a caller extract the raw K/V data of a contiguous
+    // cell range and re-insert it at any position in (the same or another) context, enabling
+    // modular, prefix-independent reuse of precomputed chunk KV caches.
+    //
+    // The blob format produced/consumed by these functions is internal; always size the
+    // destination buffer with llama_pic_kv_data_size().
+    //
+
+    // Number of bytes required to store the K and V of `n_tokens` cells across all layers.
+    LLAMA_API size_t llama_pic_kv_data_size(
+            struct llama_context * ctx,
+                      uint32_t   n_tokens);
+
+    // Returns true if `ctx`'s memory backend is the standard llama_kv_cache, which is the only
+    // memory type that supports the relocatable KV primitive. Hybrid/recurrent models
+    // (e.g. Qwen3.6, DeepSeek-V3) and the unified KV memory are not supported.
+    LLAMA_API bool llama_pic_supported(
+            struct llama_context * ctx);
+
+    // Extract the K/V of `n_tokens` cells starting at cell offset `i_start` of `seq_id` into `data`.
+    LLAMA_API void llama_pic_kv_data_get(
+            struct llama_context * ctx,
+                    llama_seq_id   seq_id,
+                      uint32_t   i_start,
+                      uint32_t   n_tokens,
+                       uint8_t * data);
+
+    // Insert K/V from `data` into `n_tokens` cells starting at cell offset `i_start` of `seq_id`.
+    // `pos` provides the absolute position of each injected cell (used for RoPE-based attention);
+    // the cell metadata (position + sequence ownership) must already be valid for `seq_id`
+    // (e.g. the cells were allocated by a previous llama_decode of the full sequence).
+    LLAMA_API void llama_pic_kv_data_set(
+            struct llama_context * ctx,
+                    llama_seq_id   seq_id,
+                      uint32_t   i_start,
+                      uint32_t   n_tokens,
+                const uint8_t * data,
+              const llama_pos * pos);
+
+    //
     // Decoding
     //
 

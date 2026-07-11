@@ -782,8 +782,8 @@ static __global__ void flash_attn_stream_k_fixup_uniform(
         const float diff_val = max_val - max_val_new;
         const float diff_add = tmp.x   - max_val_new;
 
-        const float scale_val = diff_val >= SOFTMAX_FTZ_THRESHOLD ? expf(diff_val) : 0.0f;
-        const float scale_add = diff_add >= SOFTMAX_FTZ_THRESHOLD ? expf(diff_add) : 0.0f;
+        const float scale_val = diff_val >= SOFTMAX_FTZ_THRESHOLD ? ggml_cuda_fast_exp(diff_val) : 0.0f;
+        const float scale_add = diff_add >= SOFTMAX_FTZ_THRESHOLD ? ggml_cuda_fast_exp(diff_add) : 0.0f;
 
         dst_val = scale_val*dst_val + scale_add*dst_add;
         rowsum  = scale_val*rowsum  + scale_add*tmp.y;
@@ -884,8 +884,8 @@ static __global__ void flash_attn_stream_k_fixup_general(
         const float diff_val = max_val - max_val_new;
         const float diff_add = tmp.x   - max_val_new;
 
-        const float scale_val = diff_val >= SOFTMAX_FTZ_THRESHOLD ? expf(diff_val) : 0.0f;
-        const float scale_add = diff_add >= SOFTMAX_FTZ_THRESHOLD ? expf(diff_add) : 0.0f;
+        const float scale_val = diff_val >= SOFTMAX_FTZ_THRESHOLD ? ggml_cuda_fast_exp(diff_val) : 0.0f;
+        const float scale_add = diff_add >= SOFTMAX_FTZ_THRESHOLD ? ggml_cuda_fast_exp(diff_add) : 0.0f;
 
         dst_val = scale_val*dst_val + scale_add*dst_add;
         rowsum  = scale_val*rowsum  + scale_add*tmp.y;
@@ -950,7 +950,7 @@ static __global__ void flash_attn_combine_results(
     float VKQ_numerator   = 0.0f;
     float VKQ_denominator = 0.0f;
     for (int l = 0; l < parallel_blocks; ++l) {
-        const float KQ_max_scale = expf(meta[l].x - kqmax);
+        const float KQ_max_scale = ggml_cuda_fast_exp(meta[l].x - kqmax);
 
         VKQ_numerator   += KQ_max_scale * VKQ_parts[l*D + tid];
         VKQ_denominator += KQ_max_scale * meta[l].y;

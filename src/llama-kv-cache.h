@@ -154,10 +154,36 @@ public:
     uint32_t get_size()     const;
     uint32_t get_n_stream() const;
 
+    // map a sequence id to its physical stream index
+    uint32_t seq_to_stream_id(llama_seq_id seq_id) const {
+        GGML_ASSERT(seq_id >= 0 && (size_t) seq_id < seq_to_stream.size());
+        return seq_to_stream[seq_id];
+    }
+
     bool get_has_shift() const;
 
     ggml_type type_k() const;
     ggml_type type_v() const;
+
+    //
+    // Position-Independent Caching (PIC) support
+    // Extract / insert raw KV cache data for an arbitrary cell range so that precomputed chunk KV
+    // caches can be reused at any position inside a prompt (see EPIC, arXiv:2410.15332).
+    // The blob format is internal; always size the destination buffer with kv_data_size().
+    //
+
+    // number of bytes required to store K and V for `n_cells` cells across all layers
+    size_t kv_data_size(uint32_t n_cells) const;
+
+    // copy K/V of cells [i0, i1) of stream `strm` into a host buffer of size kv_data_size(i1 - i0)
+    void kv_data_get(uint32_t strm, uint32_t i0, uint32_t i1, uint8_t * data) const;
+
+    // copy K/V from a host buffer (produced by kv_data_get) into cells [i0, i1) of stream `strm`
+    void kv_data_set(uint32_t strm, uint32_t i0, uint32_t i1, const uint8_t * data);
+
+    // assign positions and `seq` ownership to an injected cell range (call after kv_data_set)
+    void set_cell_range(uint32_t strm, uint32_t i0, uint32_t i1,
+                        const std::vector<llama_pos> & pos, llama_seq_id seq);
 
     //
     // graph_build API

@@ -62,6 +62,13 @@ struct task_params {
 
     int32_t n_cache_reuse = 0; // min chunk size to attempt reusing from the cache via KV shifting (0 = disabled)
 
+    // EPIC / Position-Independent Context Caching (arXiv:2410.15332):
+    // reuse precomputed chunk KV caches (from POST /v1/context_cache) at request time.
+    // `cache_ids` lists the chunks (in assembly order); `pic_k` is the LegoLink link-token count
+    // (0 selects LegoLink-0, the zero-overhead variant).
+    std::vector<std::string> cache_ids;
+    uint32_t                 pic_k = 4;
+
     // number of prompt tokens before the latest user message
     int32_t n_before_user = -1;
 

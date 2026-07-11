@@ -185,7 +185,8 @@ int llama_server(int argc, char ** argv) {
     ctx_http.post("/completions",              ex_wrapper(routes.post_completions));
     ctx_http.post("/v1/completions",           ex_wrapper(routes.post_completions_oai));
     ctx_http.post("/chat/completions",         ex_wrapper(routes.post_chat_completions));
-    ctx_http.post("/v1/chat/completions",      ex_wrapper(routes.post_chat_completions));
+        ctx_http.post("/v1/chat/completions",      ex_wrapper(routes.post_chat_completions));
+        ctx_http.post("/v1/context_cache",         ex_wrapper(routes.post_context_cache));
     ctx_http.post("/v1/chat/completions/control", ex_wrapper(routes.post_control));
     ctx_http.post("/v1/responses",             ex_wrapper(routes.post_responses_oai));
     ctx_http.post("/responses",                ex_wrapper(routes.post_responses_oai));

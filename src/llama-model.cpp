@@ -990,10 +990,11 @@ static buft_list_t make_gpu_buft_list(ggml_backend_dev_t dev, llama_split_mode s
         }
     }
 
-    // add the device default buffer type
-    buft_list.emplace_back(dev, ggml_backend_dev_buffer_type(dev));
-
-    // add the device extra buffer type (if any)
+    // add the device extra buffer types (e.g. GCN weight-repacking) BEFORE
+    // the default so select_weight_buft prefers them for tensors they
+    // support. ggml_backend_dev_supports_op rejects the repack buffer for
+    // any tensor it cannot repack, so non-repackable weights (F32 norms,
+    // embeddings, ...) fall through to the default below.
     ggml_backend_reg_t reg = ggml_backend_dev_backend_reg(dev);
     if (reg) {
         auto ggml_backend_dev_get_extra_bufts_fn = (ggml_backend_dev_get_extra_bufts_t)
@@ -1005,6 +1006,19 @@ static buft_list_t make_gpu_buft_list(ggml_backend_dev_t dev, llama_split_mode s
                 buft_list.emplace_back(dev, *extra_bufts);
                 ++extra_bufts;
             }
+        }
+    }
+
+    // add the device default buffer type (fallback for everything else)
+    buft_list.emplace_back(dev, ggml_backend_dev_buffer_type(dev));
+
+    {
+        FILE * f = fopen("/tmp/repack_dbg.log", "a");
+        if (f) {
+            fprintf(f, "BUFT_LIST dev=%s:", ggml_backend_dev_name(dev));
+            for (auto & e : buft_list) { fprintf(f, " %p(%s)", (void*)e.second, ggml_backend_buft_name(e.second)); }
+            fprintf(f, "\n");
+            fclose(f);
         }
     }
 
@@ -1532,6 +1546,18 @@ bool llama_model_base::load_tensors(llama_model_loader & ml) {
 
     for (auto & [buft, ctx_ptr] : ml.ctx_map) {
         ggml_context * ctx = ctx_ptr.get();
+
+        {
+            int n = 0;
+            for (auto * t = ggml_get_first_tensor(ctx); t; t = ggml_get_next_tensor(ctx, t)) n++;
+            FILE * f = fopen("/tmp/repack_dbg.log", "a");
+            if (f) {
+                fprintf(f, "CTX_MAP buft=%p(%s) n_tensors=%d first_name=%s\n",
+                    (void*)buft, ggml_backend_buft_name(buft), n,
+                    ggml_get_first_tensor(ctx) ? ggml_get_name(ggml_get_first_tensor(ctx)) : "(none)");
+                fclose(f);
+            }
+        }
 
         // skip contexts without tensors
         if (ggml_get_first_tensor(ctx) == nullptr) {

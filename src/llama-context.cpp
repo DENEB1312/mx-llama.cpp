@@ -7,6 +7,7 @@
 #include "llama-batch.h"
 #include "llama-io.h"
 #include "llama-memory.h"
+#include "llama-kv-cache.h"
 #include "llama-mmap.h"
 #include "llama-model.h"
 #include "llama-ext.h"
@@ -3989,6 +3990,58 @@ size_t llama_state_seq_set_data_ext(llama_context * ctx, const uint8_t * src, si
     ctx->synchronize();
 
     return ctx->state_seq_set_data(seq_id, src, size, flags);
+}
+
+//
+// Position-Independent Caching (PIC)
+//
+// The KV cache is exposed through the llama_memory_i abstraction; for the standard transformer
+// memory this is a llama_kv_cache, which provides the relocatable KV get/set primitive.
+//
+static llama_kv_cache * llama_pic_get_kv(llama_context * ctx) {
+    auto * kv = dynamic_cast<llama_kv_cache *>(llama_get_memory(ctx));
+    GGML_ASSERT(kv != nullptr && "PIC is only supported with the standard KV cache memory");
+    return kv;
+}
+
+size_t llama_pic_kv_data_size(llama_context * ctx, uint32_t n_tokens) {
+    GGML_ASSERT(ctx != nullptr);
+    GGML_ASSERT(n_tokens > 0);
+
+    return llama_pic_get_kv(ctx)->kv_data_size(n_tokens);
+}
+
+bool llama_pic_supported(llama_context * ctx) {
+    if (ctx == nullptr) {
+        return false;
+    }
+    return dynamic_cast<llama_kv_cache *>(llama_get_memory(ctx)) != nullptr;
+}
+
+void llama_pic_kv_data_get(llama_context * ctx, llama_seq_id seq_id, uint32_t i_start, uint32_t n_tokens, uint8_t * data) {
+    GGML_ASSERT(ctx != nullptr);
+
+    ctx->synchronize();
+
+    auto * kv = llama_pic_get_kv(ctx);
+    const uint32_t strm = kv->seq_to_stream_id(seq_id);
+    kv->kv_data_get(strm, i_start, i_start + n_tokens, data);
+}
+
+void llama_pic_kv_data_set(llama_context * ctx, llama_seq_id seq_id, uint32_t i_start, uint32_t n_tokens, const uint8_t * data, const llama_pos * pos) {
+    GGML_ASSERT(ctx != nullptr);
+    GGML_ASSERT(pos != nullptr);
+
+    ctx->synchronize();
+
+    auto * kv = llama_pic_get_kv(ctx);
+    const uint32_t strm = kv->seq_to_stream_id(seq_id);
+    kv->kv_data_set(strm, i_start, i_start + n_tokens, data);
+
+    // the injected K/V already carries correct RoPE (baked into K during the original prefill),
+    // so we only need to make sure the cell metadata reflects the requested absolute positions
+    std::vector<llama_pos> pos_vec(pos, pos + n_tokens);
+    kv->set_cell_range(strm, i_start, i_start + n_tokens, pos_vec, seq_id);
 }
 
 size_t llama_state_seq_save_file(llama_context * ctx, const char * filepath, llama_seq_id seq_id, const llama_token * tokens, size_t n_token_count) {

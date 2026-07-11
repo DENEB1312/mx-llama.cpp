@@ -8,6 +8,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -2169,15 +2170,85 @@ bool ggml_backend_buft_is_cuda_repack(ggml_backend_buffer_type_t buft) {
 static void ggml_backend_cuda_repack_buffer_set_tensor(
         ggml_backend_buffer_t buffer, ggml_tensor * tensor,
         const void * data, size_t offset, size_t size) {
-    GGML_ASSERT(offset == 0);
-    GGML_ASSERT(size == ggml_nbytes(tensor));
+    {
+        static long long g_n = 0;
+        if (g_n < 50) {
+            FILE * f = fopen("/tmp/repack_dbg.log", "a");
+            if (f) {
+                fprintf(f, "REPACK_ENTER[%lld] dev=%d name=%s type=%d off=%zu size=%zu nbytes=%zu ne=[%lld,%lld,%lld,%lld]\n",
+                    g_n, ((ggml_backend_cuda_repack_buffer_type_context *)buffer->buft->context)->device,
+                    tensor->name ? tensor->name : "(null)", (int)tensor->type,
+                    offset, size, ggml_nbytes(tensor),
+                    (long long)tensor->ne[0], (long long)tensor->ne[1],
+                    (long long)tensor->ne[2], (long long)tensor->ne[3]);
+                fclose(f);
+            }
+        }
+        g_n++;
+    }
+
+    const size_t t_nbytes = ggml_nbytes(tensor);
+
+    // Multi-segment upload (e.g. QKV split under TP): the meta backend
+    // calls us multiple times with increasing offset (one per row slice);
+    // we buffer the host data and repack once the final call arrives.
+    if (offset != 0 || size != t_nbytes) {
+        static std::map<void*, std::vector<uint8_t>> staging;
+        void * key = tensor->data;
+        auto & staged = staging[key];
+
+        if (offset == 0 && staged.empty()) {
+            staged.resize(t_nbytes, 0);
+        }
+
+        GGML_ASSERT(offset + size <= t_nbytes);
+        memcpy(staged.data() + offset, data, size);
+
+        if (offset + size < t_nbytes) {
+            return; // more segments to come
+        }
+
+        // All segments collected; repack the full shard.
+        GGML_ASSERT(ggml_cuda_repack_tensor_supported(tensor));
+        const int64_t ne0 = tensor->ne[0];
+        const int64_t ne1 = tensor->ne[1];
+        const int64_t ne2 = tensor->ne[2];
+
+        const size_t src_stride = t_nbytes / ne2;
+        const size_t dst_stride = repack_gcn_nbytes(tensor->type, ne0, ne1);
+        std::vector<uint8_t> repacked(dst_stride * ne2);
+        for (int64_t e = 0; e < ne2; e++) {
+            const uint8_t * src_e = staged.data() + e * src_stride;
+            uint8_t       * dst_e = repacked.data() + e * dst_stride;
+            switch (tensor->type) {
+                case GGML_TYPE_Q3_K: repack_q3k_host ((const block_q3_K *) src_e, dst_e, ne0, ne1); break;
+                case GGML_TYPE_Q4_K: repack_q4k_host ((const block_q4_K *) src_e, dst_e, ne0, ne1); break;
+                case GGML_TYPE_Q5_K: repack_q5k_host ((const block_q5_K *) src_e, dst_e, ne0, ne1); break;
+                case GGML_TYPE_Q6_K: repack_q6k_host ((const block_q6_K *) src_e, dst_e, ne0, ne1); break;
+                case GGML_TYPE_Q8_0: repack_q8_0_host((const block_q8_0 *) src_e, dst_e, ne0, ne1); break;
+                default:             GGML_ABORT("unsupported repack type");
+            }
+        }
+
+        ggml_backend_cuda_repack_buffer_type_context * ctx =
+            (ggml_backend_cuda_repack_buffer_type_context *) buffer->buft->context;
+        ggml_cuda_set_device(ctx->device);
+        CUDA_CHECK(cudaMemcpyAsync(tensor->data, repacked.data(), repacked.size(),
+            cudaMemcpyHostToDevice, cudaStreamPerThread));
+        CUDA_CHECK(cudaStreamSynchronize(cudaStreamPerThread));
+
+        staging.erase(key);
+        return;
+    }
+
+    // Single-segment (full-shard) upload: repack directly.
     GGML_ASSERT(ggml_cuda_repack_tensor_supported(tensor));
 
     const int64_t ne0 = tensor->ne[0];
     const int64_t ne1 = tensor->ne[1];
     const int64_t ne2 = tensor->ne[2]; // experts (1 for plain 2D weights)
 
-    const size_t src_stride = ggml_nbytes(tensor) / ne2;
+    const size_t src_stride = t_nbytes / ne2;
     const size_t dst_stride = repack_gcn_nbytes(tensor->type, ne0, ne1);
     std::vector<uint8_t> staged(dst_stride * ne2);
     for (int64_t e = 0; e < ne2; e++) {

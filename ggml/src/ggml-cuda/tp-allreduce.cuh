@@ -44,12 +44,8 @@
 
 namespace ggml_cuda_tp {
 
-constexpr int kMaxBlocks = 36;
-#ifdef GGML_USE_HIP
-constexpr int kDefaultBlocks = 16;
-#else
+constexpr int kMaxBlocks = 120;
 constexpr int kDefaultBlocks = 36;
-#endif
 // Upper bound on supported rank count. Sets compile-time array sizes for
 // the Signal/RankData/RankSignals structs. 16 is "any realistic single-host
 // PCIe topology"; bumping costs ~300 bytes Signal-struct + 3 template

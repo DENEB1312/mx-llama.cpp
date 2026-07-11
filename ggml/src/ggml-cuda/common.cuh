@@ -40,6 +40,31 @@
 #include "vendors/cuda.h"
 #endif // defined(GGML_USE_HIP)
 
+// gfx906 (GCN) fast-math helpers.
+// On AMD GCN/Vega, exp2f() lowers to the v_exp_f32 SFU instruction (~4 cycles) whereas
+// expf() is a much slower multi-step sequence; rcp_f32 is the SFU reciprocal (v_rcp_f32).
+// These are only swapped in for HIP; CUDA keeps the standard IEEE paths (expf / divide).
+#ifdef GGML_USE_HIP
+__device__ __forceinline__ float ggml_cuda_fast_exp(float x) {
+    return exp2f(x * 1.4426950408889634f);
+}
+__device__ __forceinline__ float ggml_cuda_fast_silu(float x) {
+    const float d = 1.0f + exp2f(-x * 1.4426950408889634f);
+    float r;
+    // v_rcp_f32 is the SFU reciprocal (single-step, ~1 ULP); the __builtin_amdgcn_rcp_f32
+    // intrinsic is not exposed by this LLVM/ROCm toolchain, so emit the instruction directly.
+    __asm__("v_rcp_f32 %0, %1" : "=v"(r) : "v"(d));
+    return x * r;
+}
+#else
+__device__ __forceinline__ float ggml_cuda_fast_exp(float x) {
+    return expf(x);
+}
+__device__ __forceinline__ float ggml_cuda_fast_silu(float x) {
+    return x / (1.0f + expf(-x));
+}
+#endif
+
 #define STRINGIZE_IMPL(...) #__VA_ARGS__
 #define STRINGIZE(...) STRINGIZE_IMPL(__VA_ARGS__)
 

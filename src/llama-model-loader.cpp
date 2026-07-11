@@ -1031,14 +1031,27 @@ static bool weight_buft_supported(const llama_hparams & hparams, ggml_tensor * w
 // find the first buffer type in the list that can use the tensor
 static ggml_backend_buffer_type_t select_weight_buft(const llama_hparams & hparams, ggml_tensor * tensor, ggml_op op, const buft_list_t * buft_list) {
     GGML_ASSERT(!buft_list->empty());
+    static long long g_n = 0;
+    bool log_this = g_n < 30;
+    g_n++;
     for (const auto & cur : *buft_list) {
         ggml_backend_dev_t cur_dev = cur.first;
         ggml_backend_buffer_type_t cur_buft = cur.second;
-        if (weight_buft_supported(hparams, tensor, op, cur_buft, cur_dev)) {
+        bool sup = weight_buft_supported(hparams, tensor, op, cur_buft, cur_dev);
+        if (log_this) {
+            FILE * f = fopen("/tmp/repack_dbg.log", "a");
+            if (f) {
+                fprintf(f, "SEL_TRY name=%s op=%d buft=%p(%s) dev=%s supported=%d\n",
+                    tensor->name ? tensor->name : "(null)", (int)op,
+                    (void*)cur_buft, ggml_backend_buft_name(cur_buft),
+                    ggml_backend_dev_name(cur_dev), (int)sup);
+                fclose(f);
+            }
+        }
+        if (sup) {
             return cur_buft;
         }
     }
-
     return nullptr;
 }
 
@@ -1207,6 +1220,19 @@ struct ggml_tensor * llama_model_loader::create_tensor(
             n_tensors_moved++;
         }
 
+        {
+            static long long g_bft_n = 0;
+            if (g_bft_n < 30) {
+                FILE * f = fopen("/tmp/repack_dbg.log", "a");
+                if (f) {
+                    fprintf(f, "BUFT_FOR_TENSOR name=%s op=%d final_buft=%p(%s)\n",
+                        t_meta->name ? t_meta->name : "(null)", (int)op,
+                        (void*)buft, ggml_backend_buft_name(buft));
+                    fclose(f);
+                }
+            }
+            g_bft_n++;
+        }
         return buft;
     };
 

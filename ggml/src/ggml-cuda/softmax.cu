@@ -111,7 +111,7 @@ static __global__ void soft_max_f32(
             break;
         }
 
-        const float val = expf(vals[col] - max_val);
+        const float val = ggml_cuda_fast_exp(vals[col] - max_val);
         tmp += val;
         vals[col] = val;
     }
@@ -120,7 +120,7 @@ static __global__ void soft_max_f32(
     tmp = block_reduce<block_reduce_method::SUM, block_size_template>(tmp, buf_iw);
 
     if (sinks) {
-        tmp += expf(sinks[i02] - max_val);
+        tmp += ggml_cuda_fast_exp(sinks[i02] - max_val);
     }
 
     const float inv_sum = 1.0f / tmp;
@@ -200,7 +200,7 @@ static __device__ void soft_max_f32_parallelize_cols_single_row(const float * __
         for (int i = 0; i < n_elem_per_thread; i++) {
             const int idx = col + i * step_size;
             if (idx < p.ncols) {
-                const float tmp = expf(local_vals[i] - local_max);
+                const float tmp = ggml_cuda_fast_exp(local_vals[i] - local_max);
                 tmp_expf += tmp;
                 dst[idx] = tmp;
             }

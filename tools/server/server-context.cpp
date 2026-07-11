@@ -10,6 +10,7 @@
 #include "common.h"
 #include "fit.h"
 #include "llama.h"
+#include "llama-pic.h"
 #include "log.h"
 #include "sampling.h"
 #include "speculative.h"
@@ -123,6 +124,10 @@ struct server_slot {
 
     server_prompt prompt;
 
+    // EPIC / PIC: set once the chunk KV caches have been assembled into this slot's context,
+    // so the normal prompt-prefill path is skipped and generation continues from the assembled state.
+    bool pic_assembled = false;
+
     void prompt_save(server_prompt_cache & prompt_cache) const {
         GGML_ASSERT(prompt.data.size() == 0);
 
@@ -199,6 +204,8 @@ struct server_slot {
         SLT_DBG(*this, "%s", "\n");
 
         n_prompt_tokens_cache = 0;
+
+        pic_assembled = false;
 
         last_nl_pos    = 0;
         generated_text = "";
@@ -631,6 +638,37 @@ struct server_metrics {
         t_tokens_generation       = 0;
     }
 };
+
+//
+// EPIC / Position-Independent Context Caching — shared content-addressed KV store.
+//
+// One in-memory store per loaded model (keyed by model description). Both the encode
+// endpoint (POST /v1/context_cache) and the request-time assemble path (update_slots) use
+// this same store so a chunk encoded in one request can be reused in any later request.
+//
+static std::map<std::string, llama_kv_store> & pic_stores() {
+    static std::map<std::string, llama_kv_store> stores;
+    return stores;
+}
+
+static std::mutex & pic_stores_mutex() {
+    static std::mutex m;
+    return m;
+}
+
+static llama_kv_store & pic_store_for(const llama_model * model) {
+    char model_desc[256];
+    llama_model_desc(model, model_desc, sizeof(model_desc));
+    auto & stores = pic_stores();
+    std::lock_guard<std::mutex> lock(pic_stores_mutex());
+    auto it = stores.find(model_desc);
+    if (it == stores.end()) {
+        it = stores.emplace(std::piecewise_construct,
+                            std::forward_as_tuple(std::string(model_desc)),
+                            std::forward_as_tuple(std::string(model_desc))).first;
+    }
+    return it->second;
+}
 
 
 //
@@ -2631,6 +2669,143 @@ private:
 
                         slot.state = SLOT_STATE_PROCESSING_PROMPT;
 
+                        // ---- EPIC / Position-Independent Context Caching (request-time reuse) ----
+                        // A request carrying `cache_ids` reuses precomputed chunk KV caches. We assemble
+                        // the chunks (in order) + the dynamic query directly into this slot's context via
+                        // LegoLink, then jump straight to DONE_PROMPT so the normal prompt prefill is skipped.
+                        if (!slot.task->params.cache_ids.empty() && !slot.pic_assembled) {
+                            if (spec) {
+                                SLT_ERR(slot, "%s", "PIC (cache_ids) is not compatible with speculative decoding\n");
+                                send_error(slot, "PIC (cache_ids) is not compatible with speculative decoding", ERROR_TYPE_INVALID_REQUEST);
+                                slot.release();
+                                continue;
+                            }
+
+                            const llama_model * model = llama_get_model(ctx_tgt);
+                            auto & store = pic_store_for(model);
+
+                            // resolve the requested chunks from the store
+                            const llama_tokens query = slot.task->tokens.get_tokens();
+                            std::vector<llama_pic_chunk> chunks;
+                            chunks.reserve(slot.task->params.cache_ids.size());
+                            bool missing = false;
+                            size_t total = query.size();
+                            for (const auto & id : slot.task->params.cache_ids) {
+                                const llama_pic_chunk * c = store.get(id);
+                                if (c == nullptr) {
+                                    SLT_ERR(slot, "PIC: unknown cache_id '%s'\n", id.c_str());
+                                    missing = true;
+                                    break;
+                                }
+                                total += c->n_tokens();
+                                chunks.push_back(*c);
+                            }
+                            if (missing) {
+                                send_error(slot, "PIC: one or more cache_ids are not present in the KV store", ERROR_TYPE_INVALID_REQUEST);
+                                slot.release();
+                                continue;
+                            }
+                            if (total == 0) {
+                                send_error(slot, "PIC: empty assembly (no chunks and empty prompt)", ERROR_TYPE_INVALID_REQUEST);
+                                slot.release();
+                                continue;
+                            }
+                            if ((int32_t) total > slot.n_ctx) {
+                                send_error(slot,
+                                           string_format("PIC: assembled prompt (%zu tokens) exceeds the max context size (%d tokens)",
+                                                         total, slot.n_ctx),
+                                           ERROR_TYPE_EXCEED_CONTEXT_SIZE);
+                                slot.release();
+                                continue;
+                            }
+
+                            // Two assemble modes, selected by how the chunk was encoded:
+                            //  - prefix-cache (seq_state, hybrid/recurrent models): compose an ordered
+                            //    CHAIN of cached prefixes by reusing the longest cached combined snapshot
+                            //    and decoding only the novel suffix (recurrent state is order-dependent,
+                            //    so chunks are chained in fixed order, not reordered/independently composed).
+                            //  - relocatable KV (standard models): full EPIC/LegoLink assembly of any
+                            //    number of chunks in any order.
+                            const bool prefix_mode = chunks[0].seq_state;
+
+                            if (prefix_mode) {
+                                if (query.empty()) {
+                                    SLT_ERR(slot, "%s", "PIC prefix-cache requires a non-empty prompt\n");
+                                    send_error(slot, "PIC prefix-cache (hybrid/recurrent model) requires a non-empty prompt after the cached prefix", ERROR_TYPE_INVALID_REQUEST);
+                                    slot.release();
+                                    continue;
+                                }
+                                // all chained chunks must be seq_state (same model -> same kind, but guard)
+                                bool mixed = false;
+                                for (const auto & c : chunks) { if (!c.seq_state) { mixed = true; break; } }
+                                if (mixed) {
+                                    SLT_ERR(slot, "%s", "PIC: cannot mix relocatable and seq_state chunks\n");
+                                    send_error(slot, "PIC: cannot mix relocatable and prefix-cache chunks in one request", ERROR_TYPE_INVALID_REQUEST);
+                                    slot.release();
+                                    continue;
+                                }
+                            } else if (!llama_pic_supported(ctx_tgt)) {
+                                // relocatable chunk but the serving context can't relocate KV
+                                SLT_ERR(slot, "%s", "PIC (cache_ids) requires a standard transformer KV cache\n");
+                                send_error(slot, "PIC (cache_ids) is only supported for standard transformer models", ERROR_TYPE_NOT_SUPPORTED);
+                                slot.release();
+                                continue;
+                            }
+
+                            // clear any leftover KV for this sequence, then inject the assembled KV
+                            llama_memory_seq_rm(llama_get_memory(ctx_tgt), slot.id, 0, -1);
+
+                            uint32_t pos_next;
+                            if (prefix_mode) {
+                                // Compose the ordered chain of cached prefixes, decode the query EXCEPT
+                                // its last token; the last token is added to the batch below (recurrent
+                                // state cannot be safely rewound with seq_rm, so we never decode it here).
+                                llama_tokens q_head(query.begin(), query.end() - 1);
+                                pos_next = llama_pic_assemble_state_chain(ctx_tgt, store,
+                                                                          slot.task->params.cache_ids, q_head, slot.id);
+                            } else {
+                                pos_next = llama_pic_assemble(ctx_tgt, chunks, query, slot.task->params.pic_k, slot.id);
+                            }
+                            GGML_UNUSED(pos_next);
+
+                            // rebuild the prompt bookkeeping to the full assembled sequence
+                            // (chunks concatenated in order, then the dynamic query)
+                            llama_tokens full;
+                            full.reserve(total);
+                            for (const auto & c : chunks) {
+                                full.insert(full.end(), c.tokens.begin(), c.tokens.end());
+                            }
+                            full.insert(full.end(), query.begin(), query.end());
+
+                            slot.prompt.tokens = server_tokens(full, false);
+                            slot.pic_assembled = true;
+
+                            slot.n_prompt_tokens_cache     = 0;
+                            slot.n_prompt_tokens_processed = (int32_t) full.size();
+
+                            // add the final token to the batch so its logits are produced for sampling.
+                            // Relocatable mode: llama_pic_assemble already decoded the whole query, so the
+                            // KV for the last token occupies position (n_full - 1). Re-adding it would collide
+                            // with the cached KV ("inconsistent sequence positions"), so we drop that one
+                            // position and re-decode it (identical KV, correct first-token logits).
+                            // Prefix mode: the last token was intentionally NOT decoded inside assemble
+                            // (recurrent state can't be rewound), so there is nothing to remove.
+                            const int32_t n_full = (int32_t) full.size();
+                            if (!prefix_mode) {
+                                llama_memory_seq_rm(llama_get_memory(ctx_tgt), slot.id, n_full - 1, n_full);
+                            }
+                            common_batch_add(batch, full[n_full - 1], (llama_pos) (n_full - 1), { slot.id }, slot.need_embd());
+
+                            slot.state      = SLOT_STATE_DONE_PROMPT;
+                            batch.logits[batch.n_tokens - 1] = true;
+                            slot.n_decoded  = 0;
+                            slot.i_batch    = batch.n_tokens - 1;
+                            slot.init_sampler();
+
+                            continue;
+                        }
+                        // ---- end PIC ----
+
                         SLT_TRC(slot, "new prompt, n_ctx_slot = %d, n_keep = %d, task.n_tokens = %d\n",
                                 slot.n_ctx, slot.task->params.n_keep, slot.task->n_tokens());
 
@@ -4439,6 +4614,100 @@ void server_routes::init_routes() {
             meta->chat_params,
             files);
         res->ok({{ "prompt", std::move(data.at("prompt")) }});
+        return res;
+    };
+
+    // EPIC (arXiv:2410.15332) — Position-Independent Context Caching: KVGen endpoint.
+    // Accepts a list of static text chunks, precomputes each chunk's KV cache (encode) and stores
+    // it in a content-addressed KV store, returning one cache id per chunk. The returned ids can
+    // later be combined (in any order) with dynamic tokens via the LegoLink assemble step.
+    this->post_context_cache = [this](const server_http_req & req) {
+        auto res = create_response();
+
+        llama_model * model = ctx_server.model_tgt;
+        if (model == nullptr) {
+            res->error(format_error_response("model is not available (sleeping?)", ERROR_TYPE_NOT_SUPPORTED));
+            return res;
+        }
+        const llama_vocab * vocab = ctx_server.vocab;
+
+        json data = json::parse(req.body, nullptr, false);
+        if (data.is_discarded() || !data.contains("chunks") || !data.at("chunks").is_array()) {
+            res->error(format_error_response("\"chunks\" (array of strings) is required", ERROR_TYPE_INVALID_REQUEST));
+            return res;
+        }
+
+        const bool add_bos = json_value(data, "add_bos", true);
+
+        // per-model content-addressed store (in-memory; add persist_dir to make it durable).
+        // Shared with the request-time assemble path so chunks are reusable across requests.
+        auto & store = pic_store_for(model);
+
+        // a scratch context used to prefill/encode each chunk (separate from serving slots)
+        auto cparams = llama_context_default_params();
+        cparams.n_ctx = 8192;
+        // a chunk is prefilled in a single decode, so the batch must be able to hold the
+        // largest chunk we may be asked to encode (up to the whole context).
+        cparams.n_batch   = cparams.n_ctx;
+        cparams.n_ubatch  = cparams.n_ctx;
+        llama_context * enc = llama_init_from_model(model, cparams);
+        if (enc == nullptr) {
+            res->error(format_error_response("failed to allocate context for encoding", ERROR_TYPE_SERVER));
+            return res;
+        }
+
+        // Two encoding modes:
+        //  - relocatable KV (standard llama_kv_cache): position-independent chunks that can be
+        //    reordered/composed at assemble time (full EPIC/LegoLink).
+        //  - prefix-cache (hybrid/recurrent memory, e.g. Qwen3.6): the KV primitive cannot relocate
+        //    per-token state, so we snapshot the whole per-sequence state and reuse it as a fixed
+        //    position-0 prefix (exact order, single chunk at assemble time).
+        const bool relocatable = llama_pic_supported(enc);
+
+        const uint32_t n_ctx_enc = cparams.n_ctx;
+
+        std::vector<std::string> ids;
+        bool failed = false;
+        for (size_t ci = 0; ci < data.at("chunks").size(); ++ci) {
+            const auto & chunk = data.at("chunks").at(ci);
+            if (!chunk.is_string()) {
+                res->error(format_error_response("each chunk must be a string", ERROR_TYPE_INVALID_REQUEST));
+                failed = true;
+                break;
+            }
+            const std::string text = chunk.get<std::string>();
+            std::vector<llama_token> tokens(1 + text.size());
+            int n = llama_tokenize(vocab, text.c_str(), text.size(), tokens.data(), tokens.size(),
+                                    (ci == 0 && add_bos), false);
+            if (n < 0) {
+                tokens.resize(tokens.size() * 2);
+                n = llama_tokenize(vocab, text.c_str(), text.size(), tokens.data(), tokens.size(),
+                                    (ci == 0 && add_bos), false);
+            }
+            if (n <= 0) {
+                res->error(format_error_response("failed to tokenize chunk", ERROR_TYPE_INVALID_REQUEST));
+                failed = true;
+                break;
+            }
+            tokens.resize(n);
+            if ((uint32_t) tokens.size() > n_ctx_enc) {
+                res->error(format_error_response(
+                    string_format("chunk %zu has %zu tokens, exceeding the max chunk size of %u",
+                                  ci, (size_t) tokens.size(), n_ctx_enc),
+                    ERROR_TYPE_INVALID_REQUEST));
+                failed = true;
+                break;
+            }
+            ids.push_back(relocatable ? store.put(enc, tokens) : store.put_state(enc, tokens));
+        }
+
+        llama_free(enc);
+
+        if (failed) {
+            return res;
+        }
+
+        res->ok({{ "cache_ids", ids }});
         return res;
     };
 
