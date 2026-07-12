@@ -1110,7 +1110,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q4k_repacked(
     const int tx = t & 15;
     const int ty = t >> 4;
     const uint32_t row0 = blockIdx.x * MMQ_RP_BM;
-    uint32_t tok0 = blockIdx.y * (16 * TN_);
+    uint32_t tok0 = blockIdx.y * (64 * TN_);
     uint32_t a_base = 0, a_end = 0;
     if constexpr (HAS_IDS) {
         if (blockIdx.y >= (uint32_t) tile_off[n_expert]) {
@@ -1266,7 +1266,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q5k_repacked(
     const int tx = t & 15;
     const int ty = t >> 4;
     const uint32_t row0 = blockIdx.x * MMQ_RP_BM;
-    uint32_t tok0 = blockIdx.y * (16 * TN_);
+    uint32_t tok0 = blockIdx.y * (64 * TN_);
     uint32_t a_base = 0, a_end = 0;
     if constexpr (HAS_IDS) {
         if (blockIdx.y >= (uint32_t) tile_off[n_expert]) {
@@ -1425,7 +1425,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q6k_repacked(
     const int tx = t & 15;
     const int ty = t >> 4;
     const uint32_t row0 = blockIdx.x * MMQ_RP_BM;
-    uint32_t tok0 = blockIdx.y * (16 * TN_);
+    uint32_t tok0 = blockIdx.y * (64 * TN_);
     uint32_t a_base = 0, a_end = 0;
     if constexpr (HAS_IDS) {
         if (blockIdx.y >= (uint32_t) tile_off[n_expert]) {
@@ -1590,7 +1590,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q3k_repacked(
     const int tx = t & 15;
     const int ty = t >> 4;
     const uint32_t row0 = blockIdx.x * MMQ_RP_BM;
-    uint32_t tok0 = blockIdx.y * (16 * TN_);
+    uint32_t tok0 = blockIdx.y * (64 * TN_);
     uint32_t a_base = 0, a_end = 0;
     if constexpr (HAS_IDS) {
         if (blockIdx.y >= (uint32_t) tile_off[n_expert]) {
@@ -1771,7 +1771,7 @@ template <bool HAS_IDS, int TN_>
     const int tx = threadIdx.x;          // 0..63 column lane
     const int ty = threadIdx.y;          // 0..7  row lane
     const uint32_t row0 = blockIdx.x * MMQ_RP_Q8_BM;
-    uint32_t tok0 = blockIdx.y * (16 * TN_);
+    uint32_t tok0 = blockIdx.y * (64 * TN_);
     uint32_t a_base = 0, a_end = 0;
     if constexpr (HAS_IDS) {
         if (blockIdx.y >= (uint32_t) tile_off[n_expert]) {
@@ -1804,11 +1804,12 @@ template <bool HAS_IDS, int TN_>
     // Weights staged through LDS (read per-row inside the K-loop, transient)
     // so per-thread VGPR ~=36 fits 8 waves on gfx906's 65K VGPR/CU. LDS reads
     // are far cheaper than re-fetching weights from global every K-step.
-    const int w_elm = MMQ_RP_Q8_BM * MMQ_RP_Q8_BK;   // 1024
-    const int x_elm = MMQ_RP_Q8_BN * MMQ_RP_Q8_BK;   // 512
+    constexpr int NTHREADS = 64 * MMQ_RP_Q8_NROW_LANES;
+    const int w_elm = MMQ_RP_Q8_BM * MMQ_RP_Q8_BK;
+    const int x_elm = MMQ_RP_Q8_BN * MMQ_RP_Q8_BK;
 
     for (uint32_t sb0 = 0; sb0 < n_sub; sb0 += MMQ_RP_Q8_BK) {
-        for (int e = t; e < w_elm; e += 512) {
+        for (int e = t; e < w_elm; e += NTHREADS) {
             const int lr = e / MMQ_RP_Q8_BK;
             const int lk = e % MMQ_RP_Q8_BK;
             const uint32_t sb   = sb0 + lk;
@@ -1822,7 +1823,7 @@ template <bool HAS_IDS, int TN_>
                 sWd[lr][lk] = 0.0f;
             }
         }
-        for (int e = t; e < x_elm; e += 512) {
+        for (int e = t; e < x_elm; e += NTHREADS) {
             const int lr = e / MMQ_RP_Q8_BK;
             const int lk = e % MMQ_RP_Q8_BK;
             const uint32_t sb = sb0 + lk;
