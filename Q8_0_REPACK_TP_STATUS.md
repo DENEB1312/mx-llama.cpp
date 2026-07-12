@@ -211,9 +211,16 @@ pp2048 (within noise) and beats it by ~4% on tg128**.
   REPACK_Q8_0=1 (repack):   pp2048 ≈ 1289 t/s ±18  tg128 ≈ 109.1 t/s   (tied pp, +3.8% tg)
   ```
 
-  Post-Plan-A (mmq-quantizer rewrite, decode rerouted to canonical quantizer —
-  see Performance): **PP WINS ~+10% (1425 vs 1297 t/s) and TG RECOVERED to ~102
-  t/s** (== native). Single-GPU path now viable end-to-end; TP Track B open.
+   Post-Plan-A (mmq-quantizer rewrite, decode rerouted to canonical quantizer —
+   see Performance): **PP WINS ~+10% (1425 vs 1297 t/s) and TG RECOVERED to ~102
+   t/s** (== native). Single-GPU path now viable end-to-end; TP Track B open.
+
+   NOTE: a later "Post-ILP" 1779/125 result (split lo/hi dp4a accumulators)
+   was a **measurement artifact** — the GPU power limit was raised between
+   runs, inflating both PP and TG; at equal power the split variant was
+   actually SLOWER (1407.18 t/s) and has been reverted. See
+   `REPACK_Q8_PP_MMQ_OPTIMIZATION.md` §0 and Attempt D. The valid best state
+   remains the Post-Plan-A 1425/102 baseline.
 
 **Why it was slower and what fixed it.**  The original inner K-loop read
 the W plane (`sW_lo` + `sW_hi` + `sWd`) on every (kk, n, r) triple, but
@@ -308,13 +315,19 @@ Single MI60, Qwen3-4B Q8_0, -ngl 99 -fa 1, pp2048/tg128
                                             slow quantize_q8_1 GONE)
     -> repack PP ~ -8.6% GPU time vs native; GEMM 4199 vs 4700 ms
 
-  Combined bench (single MI60, 4B Q8_0, pp2048 / tg128):
-    REPACK_Q8_0=0 (native):  pp2048 ≈ 1296.98 t/s   tg128 ≈ 105.12 t/s
-    REPACK_Q8_0=1 (repack):  pp2048 ≈ 1425.27 t/s   tg128 ≈ 102.03 t/s   <-- FIXED
+   Combined bench (single MI60, 4B Q8_0, pp2048 / tg128):
+     REPACK_Q8_0=0 (native):  pp2048 ≈ 1296.98 t/s   tg128 ≈ 105.12 t/s
+     REPACK_Q8_0=1 (repack):  pp2048 ≈ 1425.27 t/s   tg128 ≈ 102.03 t/s   <-- FIXED
 
-  PP WINS (+9.9% t/s, matches kernel discovery).  TG RECOVERED (~native level;
-  was 43.42 pre-fix).
+   PP WINS (+9.9% t/s, matches kernel discovery).  TG RECOVERED (~native level;
+   was 43.42 pre-fix).
 ```
+
+> Retracted: an earlier draft appended a "POST-ILP" 1778.63/125.45 block
+> here. That result was a power-limit measurement artifact (see §0 of
+> `REPACK_Q8_PP_MMQ_OPTIMIZATION.md` and Attempt D). The split-accumulator
+> change was reverted; the valid best state is the 1425.27 / 102.03 above.
+
 
 **PP is now a clear win and the activation-quantizer bottleneck is eliminated**
 (Plan A: dense dispatch switched from `quantize_row_q8_1_cuda` — the slow

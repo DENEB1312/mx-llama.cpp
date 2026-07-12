@@ -29,13 +29,16 @@ export HSA_FORCE_FINE_GRAIN_PCIE=1
 export GPU_MAX_HW_QUEUES=8
 export GGML_LOG_LEVEL=1
 export TURBOPREFILL=1
-export GGML_CUDA_REPACK=1
-# A/B: set REPACK_Q8_0 via arg "repack" (on) / "native" (off); default runs both.
-if [ "$1" = "repack" ]; then REPACK_VAL=1; shift; elif [ "$1" = "native" ]; then REPACK_VAL=0; shift; else REPACK_VAL=2; fi
-export GGML_CUDA_REPACK_Q8_0=${REPACK_VAL:-1}
+# A/B repack toggle:
+#   arg "repack" -> run only WITH repack (GGML_CUDA_REPACK=1, GGML_CUDA_REPACK_Q8_0=1)
+#   arg "native" -> run only WITHOUT repack (GGML_CUDA_REPACK=0, GGML_CUDA_REPACK_Q8_0=0)
+#   no arg       -> run A/B: both native then repack
+if [ "$1" = "repack" ]; then MODES=(1); shift
+elif [ "$1" = "native" ]; then MODES=(0); shift
+else MODES=(0 1); fi
 # K-sharding (GGML_MMVQ_KSHARD) regresses decode on gfx906 for this MoE workload; off by default.
 # Opt back in experimentally with: GGML_MMVQ_KSHARD_MAXROWS=<row ceiling>
-export GGML_MMVQ_KSHARD_MAXROWS=0
+export GGML_MMVQ_KSHARD_MAXROWS=1
 # Install RCCL tuner config for gfx906 (if not already present)
 TUNER_DIR="$DEVEL_PATH/share/rccl/tuner"
 TUNER_FILE="$TUNER_DIR/rccl_tuner_gfx906.csv"
@@ -49,7 +52,9 @@ fi
 
 #MODEL_PATH="/path/..."
 LOG_FILE="bench_results.md"
+MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-27B-Q8_0.gguf"
 MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3-4B-Instruct-2507-Q8_0.gguf"
+#MODEL_PATH="/media/iacopo/LLMs/llms/Qwen_Qwen3.5-4B-Q8_0.gguf"
 BENCH_PARAMS=(
     -m "$MODEL_PATH"       # Model path
     -ngl 99                # Number of GPU layers (all on GPU)
@@ -58,9 +63,8 @@ BENCH_PARAMS=(
     -ctk f16              # KV cache key type (q8_0 quantization)
     -ctv f16               # KV cache value type (f16 precision)
     --progress             # Show progress during benchmark
-    -r 3                   # Number of repetitions
-    -b 2048                # Batch size
-    -ub 2048               # Micro-batch size
+    -r 1                   # Number of repetitions
+    -ub "16-2048*2"               # Micro-batch size
     -mmp 0 
     #--spec-type draft-mtp --spec-draft-n-max 2 
     #-d 8192               # Context size
@@ -70,7 +74,7 @@ BENCH_PARAMS=(
 
 #BENCH_TESTS="-p 0 -n 2048"
 #BENCH_TESTS="-p 2048 -n 0"
-BENCH_TESTS="-p 2048 -n 128"
+BENCH_TESTS="-p 128,2048 -n 0"
 #BENCH_TESTS="-p 512 -n 128"
 
 echo "=== Benchmark ==="
@@ -83,22 +87,25 @@ cd "$(dirname "$0")" || exit
 SCRIPT_ARGS=("$@")
 
 run_one() {
-    local rv="$1"
-    export GGML_CUDA_REPACK_Q8_0="$rv"
-    local tag
-    if [ "$rv" = "1" ]; then tag="REPACK_Q8_0=on"; else tag="REPACK_Q8_0=off(native)"; fi
+    local repack="$1"
+    if [ "$repack" = "1" ]; then
+        export GGML_CUDA_REPACK=1
+        export GGML_CUDA_REPACK_Q8_0=1
+        tag="repack(on)"
+    else
+        export GGML_CUDA_REPACK=0
+        export GGML_CUDA_REPACK_Q8_0=0
+        tag="native(off)"
+    fi
     echo "" >> "$LOG_FILE"
-    echo "### $(date +%H:%M:%S) $tag pp2048/tg128" >> "$LOG_FILE"
-    echo ">>> $tag"
+    echo "### $(date +%H:%M:%S) [$tag] pp2048/tg128" >> "$LOG_FILE"
+    echo ">>> [$tag]"
     ./build/bin/llama-bench "${BENCH_PARAMS[@]}" $BENCH_TESTS "${SCRIPT_ARGS[@]}" 2>&1 | tee -a "$LOG_FILE"
 }
 
-if [ "$REPACK_VAL" = "2" ]; then
-    run_one 0
-    run_one 1
-else
-    run_one "$REPACK_VAL"
-fi
+for mode in "${MODES[@]}"; do
+    run_one "$mode"
+done
 
 echo ""
 echo "Output saved to: $LOG_FILE"

@@ -4,11 +4,14 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 LLAMA_BENCH_SCRIPT = "./SCRIPT_llama_bench.sh"
+# Repack settings are intentionally NOT defined here: they are owned by
+# SCRIPT_llama_bench.sh (GGML_CUDA_REPACK / GGML_CUDA_REPACK_Q8_0), which we
+# invoke with a "repack" or "native" arg so this script inherits them.
 GFX906_ENV = {
-    # Must match the GPUs the benchmark actually uses (SCRIPT_llama_bench.sh forces 0,1),
-    # otherwise rocprofv3 only attaches to GPU 0 and silently drops GPU 1's TP kernels.
-    'HSA_OVERRIDE_GFX_VERSION': '9.0.6', 'HIP_VISIBLE_DEVICES': '0,1',
-    'ROCR_VISIBLE_DEVICES': '0,1',
+    # Must match the GPUs the benchmark actually uses (SCRIPT_llama_bench.sh
+    # forces HIP_VISIBLE_DEVICES=0, i.e. single-GPU discovery).
+    'HSA_OVERRIDE_GFX_VERSION': '9.0.6', 'HIP_VISIBLE_DEVICES': '0',
+    'ROCR_VISIBLE_DEVICES': '0',
     'GGML_BACKEND_HIP': '1', 'HCC_AMDGPU_TARGET': 'gfx906',
     # Graphs OFF reveals individual per-layer kernels (better for discovery). This is NOT the
     # production config (graphs are on there); re-enable by deleting this line to profile the
@@ -21,11 +24,14 @@ COLORS = {
                  '#7b2cbf', '#9d4edd', '#c77dff', '#e0aaff'],
 }
 
-def run_rocprofv3(command: str, output_dir: Path) -> Path:
+def run_rocprofv3(mode: str, output_dir: Path) -> Path:
     env = os.environ.copy()
     env.update(GFX906_ENV)
+    # Pass the repack mode straight to SCRIPT_llama_bench.sh so it sets the
+    # GGML_CUDA_REPACK* env vars itself (single source of truth).
+    command = [LLAMA_BENCH_SCRIPT, mode]
     cmd = ["rocprofv3", "--kernel-trace", "--stats", "-d", str(output_dir),
-            "-o", "kernels", "--output-format", "csv", "--"] + command.split()
+            "-o", "kernels", "--output-format", "csv", "--"] + command
     print(f"Running: {' '.join(cmd)}\nThis may take several minutes...")
     subprocess.run(cmd, env=env, timeout=1200)
     return next(output_dir.glob("*kernel_stats.csv"))
@@ -133,14 +139,17 @@ def save_results(analysis: dict, output_dir: Path):
 
 def main():
     p = argparse.ArgumentParser(description='Discover GPU kernels using rocprofv3')
-    p.add_argument('-o', '--output', default='./discovery-results')
+    p.add_argument('mode', nargs='?', choices=['repack', 'native'], default='repack',
+                   help='repack mode passed to SCRIPT_llama_bench.sh (default: repack)')
+    p.add_argument('-o', '--output', default=None,
+                   help='output dir (default: ./discovery-<mode>)')
     p.add_argument('-t', '--threshold', type=float, default=1.0)
     p.add_argument('-n', '--top', type=int, default=20)
     p.add_argument('-e', '--existing', metavar='CSV')
     args = p.parse_args()
-    output_dir = Path(args.output).resolve()
+    output_dir = Path(args.output or f'./discovery-{args.mode}').resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    stats_file = Path(args.existing) if args.existing else run_rocprofv3(LLAMA_BENCH_SCRIPT, output_dir)
+    stats_file = Path(args.existing) if args.existing else run_rocprofv3(args.mode, output_dir)
     analysis = analyze_kernels(parse_stats_csv(stats_file), args.threshold)
     print_report(analysis, args.top)
     save_results(analysis, output_dir)

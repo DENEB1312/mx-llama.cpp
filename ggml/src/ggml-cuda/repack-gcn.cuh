@@ -39,6 +39,10 @@ bool ggml_cuda_repack_tensor_supported(const ggml_tensor * t);
 // MUL_MAT with src0 in the repack buffer type. ne11 == 1 runs the
 // repacked dp4a matvec; larger ne11 runs the repacked int8 MMQ GEMM.
 // 3D/4D src1 broadcasts the 2D weight per slice.
+// NOTE: the Q8_0 MMQ uses a single fixed tile (BM=128, BN=128) chosen only
+// by quant type, not by N (ubatch) — unlike the native mul_mat_q<Q8_0>,
+// which selects its tile width per N. This is the known limitation that
+// makes repack win only at large N (see repack-gcn.cu top-of-file doc).
 void ggml_cuda_mul_mat_repacked(ggml_backend_cuda_context & ctx,
     const ggml_tensor * src0, const ggml_tensor * src1, ggml_tensor * dst);
 
