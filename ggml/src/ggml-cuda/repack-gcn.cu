@@ -533,9 +533,13 @@ __device__ __forceinline__ block_q8_1 rp_xq_from_mmq(
     } else {
         out.ds = make_half2(__float2half(m.d4[sb & 3]), __float2half(0.0f));
     }
+    // Vectorized 128-bit copy of the 32 activation int8 for this sub-block
+    // (replaces 32 scalar byte loads with 2x uint4).
+    const uint4 * qsp = reinterpret_cast<const uint4 *>(m.qs + (sb & 3) * QK8_1);
+    uint4       * oqp = reinterpret_cast<uint4       *>(out.qs);
     #pragma unroll
-    for (int k = 0; k < QK8_1; k++) {
-        out.qs[k] = m.qs[(sb & 3) * QK8_1 + k];
+    for (int k = 0; k < QK8_1 / 16; k++) {
+        oqp[k] = qsp[k];
     }
     return out;
 }
@@ -1737,7 +1741,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q3k_repacked(
 // Q8_0 MMQ — 32 qs bytes per sub-block staged as two uint4s; no offset
 // term, so the accumulate is just dsc * dx * idot.
 template <bool HAS_IDS, int TN_>
-static __global__ void __launch_bounds__(512, 1) mmq_gemm_q8_0_repacked(
+    static __global__ void __launch_bounds__(512, 1) mmq_gemm_q8_0_repacked(
         const uint8_t * __restrict__ wbase, const block_q8_1 * __restrict__ xq,
         float * __restrict__ y, const uint32_t ne0, const uint32_t ne1,
         const uint32_t n_tok, const uint32_t x_stride,
@@ -1839,6 +1843,27 @@ static __global__ void __launch_bounds__(512, 1) mmq_gemm_q8_0_repacked(
             // (n, r) order the same 16 weights were re-read per n,
             // doubling the LDS read count for the W plane. The
             // activation read still depends on n and stays inside.
+            // Activation scale dx, and the 32-byte qs, depend only on
+            // (n, kk), not on r -> hoist them out of the r loop into
+            // registers so the 16 r-iterations reuse one cached copy of
+            // the activation instead of re-reading sX 16 times.
+            float   dx[TN_];
+            int xq32_cached[TN_][8];
+            for (int n = 0; n < TN_; n++) {
+                const block_q8_1 * xb = &sX[tx + n * 64][kk];
+                dx[n] = __low2float(xb->ds);
+                const uint4 * qs4 = reinterpret_cast<const uint4 *>(xb->qs);
+                uint4 q0 = qs4[0];
+                uint4 q1 = qs4[1];
+                xq32_cached[n][0] = q0.x;
+                xq32_cached[n][1] = q0.y;
+                xq32_cached[n][2] = q0.z;
+                xq32_cached[n][3] = q0.w;
+                xq32_cached[n][4] = q1.x;
+                xq32_cached[n][5] = q1.y;
+                xq32_cached[n][6] = q1.z;
+                xq32_cached[n][7] = q1.w;
+            }
             for (int r = 0; r < NROW; r++) {
                 const int row = ty + r * MMQ_RP_Q8_NROW_LANES;
                 uint4 wlo = sW_lo[row][kk];
@@ -1847,16 +1872,14 @@ static __global__ void __launch_bounds__(512, 1) mmq_gemm_q8_0_repacked(
                 const uint32_t lo[4] = { wlo.x, wlo.y, wlo.z, wlo.w };
                 const uint32_t hi[4] = { whi.x, whi.y, whi.z, whi.w };
                 for (int n = 0; n < TN_; n++) {
-                    const block_q8_1 * xb = &sX[tx + n * 64][kk];
-                    const int * xq32 = reinterpret_cast<const int *>(xb->qs);
-                    const float dx = __low2float(xb->ds);
+                    const int * xq32 = xq32_cached[n];
                     int idot = 0;
 #pragma unroll
                     for (int j = 0; j < 4; j++) {
                         idot = ggml_cuda_dp4a((int) lo[j], xq32[j],     idot);
                         idot = ggml_cuda_dp4a((int) hi[j], xq32[j + 4], idot);
                     }
-                    acc[r][n] += d * dx * (float) idot;
+                    acc[r][n] += d * dx[n] * (float) idot;
                 }
             }
         }
