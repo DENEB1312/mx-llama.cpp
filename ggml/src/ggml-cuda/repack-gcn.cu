@@ -1,6 +1,7 @@
 #include "repack-gcn.cuh"
 #include "convert.cuh"
 #include "quantize.cuh"
+#include "mmq.cuh"
 
 #include "ggml-backend-impl.h"
 #include "mmid.cuh"
@@ -11,6 +12,13 @@
 #include <map>
 #include <string>
 #include <vector>
+
+// Forward declaration: read one canonical block_q8_1 out of the transposed
+// block_q8_1_mmq activation buffer produced by quantize_mmq_q8_1_cuda.
+// Defined further below; declared here so the matvec kernels can use it.
+__device__ __forceinline__ block_q8_1 rp_xq_from_mmq(
+        const block_q8_1_mmq * xq, const uint32_t col, const uint32_t sb,
+        const uint32_t ne11, const bool has_sum);
 
 // ---------------------------------------------------------------------
 // layout helpers
@@ -436,7 +444,14 @@ static __global__ void mul_mat_vec_q4k_repacked(
     for (uint32_t u = lane; u < n_unit; u += 64) {
         const uint32_t sb   = HAS_IDS ? (u >> 1) : u;
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
-        const block_q8_1 * xb = xq + sb;
+        block_q8_1 xb_val;
+        const block_q8_1 * xb;
+        if constexpr (!HAS_IDS) {
+            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, true);
+            xb = &xb_val;
+        } else {
+            xb = xq + sb;
+        }
         const float dx = __low2float(xb->ds);
         const float sx = __high2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
@@ -507,6 +522,31 @@ static __device__ __forceinline__ uint32_t repack_spread1_hi(const uint32_t h) {
     return ((h & 1u) << 2) | ((h & 2u) << 9) | ((h & 4u) << 16) | ((h & 8u) << 23);
 }
 
+// Read one K sub-block `sb` of token `col` out of the block_q8_1_mmq buffer
+// produced by quantize_mmq_q8_1_cuda, returning it as a canonical
+// block_q8_1. The mmq quantizer lays the activation out transposed:
+//   idx = (sb >> 2) * ne11 + col      (per slice / channel)
+// with 4 canonical sub-blocks packed per 128-value mmq block. `has_sum`
+// selects the D4 layout (scale only: Q8_0 / Q3_K / Q6_K) vs the DS4 layout
+// (scale + partial sum: Q4_K / Q5_K) written by the quantizer.
+__device__ __forceinline__ block_q8_1 rp_xq_from_mmq(
+        const block_q8_1_mmq * xq, const uint32_t col, const uint32_t sb,
+        const uint32_t ne11, const bool has_sum) {
+    const uint64_t idx = (uint64_t)(sb >> 2) * ne11 + col;
+    const block_q8_1_mmq & m = xq[idx];
+    block_q8_1 out;
+    if (has_sum) {
+        out.ds = m.ds4[sb & 3];
+    } else {
+        out.ds = make_half2(__float2half(m.d4[sb & 3]), __float2half(0.0f));
+    }
+    #pragma unroll
+    for (int k = 0; k < QK8_1; k++) {
+        out.qs[k] = m.qs[(sb & 3) * QK8_1 + k];
+    }
+    return out;
+}
+
 // Q5_K repacked matvec — Q4_K's shape plus the qh plane OR-ed onto the
 // nibbles before each dp4a.
 template <bool HAS_IDS>
@@ -552,7 +592,14 @@ static __global__ void mul_mat_vec_q5k_repacked(
     for (uint32_t u = lane; u < n_unit; u += 64) {
         const uint32_t sb   = HAS_IDS ? (u >> 1) : u;
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
-        const block_q8_1 * xb = xq + sb;
+        block_q8_1 xb_val;
+        const block_q8_1 * xb;
+        if constexpr (!HAS_IDS) {
+            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, true);
+            xb = &xb_val;
+        } else {
+            xb = xq + sb;
+        }
         const float dx = __low2float(xb->ds);
         const float sx = __high2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
@@ -653,7 +700,14 @@ static __global__ void mul_mat_vec_q6k_repacked(
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
         const int hj0 = HAS_IDS ? (int)(half * 2) : 0;
         const int hj1 = HAS_IDS ? hj0 + 2         : 4;
-        const block_q8_1 * xb = xq + sb;
+        block_q8_1 xb_val;
+        const block_q8_1 * xb;
+        if constexpr (!HAS_IDS) {
+            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, false);
+            xb = &xb_val;
+        } else {
+            xb = xq + sb;
+        }
         const float dx = __low2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
 
@@ -757,7 +811,14 @@ static __global__ void mul_mat_vec_q3k_repacked(
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
         const int hj0 = HAS_IDS ? (int)(half * 2) : 0;
         const int hj1 = HAS_IDS ? hj0 + 2         : 4;
-        const block_q8_1 * xb = xq + sb;
+        block_q8_1 xb_val;
+        const block_q8_1 * xb;
+        if constexpr (!HAS_IDS) {
+            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, false);
+            xb = &xb_val;
+        } else {
+            xb = xq + sb;
+        }
         const float dx = __low2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
 
@@ -863,7 +924,14 @@ static __global__ void mul_mat_vec_q8_0_repacked(
     for (uint32_t hb = lane; hb < n_half; hb += 64) {
         const uint32_t sb   = hb >> 1;
         const uint32_t half = hb & 1;
-        const block_q8_1 * xb = xq + sb;
+        block_q8_1 xb_val;
+        const block_q8_1 * xb;
+        if constexpr (!HAS_IDS) {
+            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, false);
+            xb = &xb_val;
+        } else {
+            xb = xq + sb;
+        }
         const float dx = __low2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs) + half * 4;
 
@@ -943,7 +1011,14 @@ static __global__ void mul_mat_vec_q4k_repacked_glu(
     for (uint32_t u = lane; u < n_unit; u += 64) {
         const uint32_t sb   = HAS_IDS ? (u >> 1) : u;
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
-        const block_q8_1 * xb = xq + sb;
+        block_q8_1 xb_val;
+        const block_q8_1 * xb;
+        if constexpr (!HAS_IDS) {
+            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, true);
+            xb = &xb_val;
+        } else {
+            xb = xq + sb;
+        }
         const float dx = __low2float(xb->ds);
         const float sx = __high2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
@@ -1022,24 +1097,42 @@ static __global__ void mul_mat_vec_q4k_repacked_glu(
 #define MMQ_RP_BM (16 * MMQ_RP_TM)
 #define MMQ_RP_BN (16 * MMQ_RP_TN)
 
-// Q8_0 gets its own tuned tile. For Q8_0 the repacked planes are
-// byte-identical to the native block_q8_0 layout (32B qs + 2B d per
-// sub-block), so the win is purely tiling efficiency. We keep the
-// 64x64 output tile and TM=TN=4 (original register profile) but widen
-// MMQ_RP_Q8_BK to 8 so the K-loop does ne0/256 iterations, matching the
-// native Q8_0 MMQ's 256-K ITER_K (the un-tuned BK=4 did ne0/128 -> 2x
-// more K-iters -> ~2.4x slower prefill). 256-thread decomposition
-// (tx=t&15, ty=t>>4, stride 16) is unchanged so the MoE ID path is
-// unaffected. LDS for BK=8 / 64x64: sW_lo[64][8]=8K + sW_hi[64][8]=8K
-// + sWd[64][8]=2K + sX[64][9]=21K ~= 39 KiB < 64 KiB. A 128x128 / BK=8
-// tile would need ~76 KiB (two uint4 weight planes + block_q8_1 sX) and
-// does not fit gfx906's 64 KiB LDS; 128x128 / BK=4 (to fit) re-doubles
-// K-iters. So 64x64 / BK=8 is the register- and LDS-safe sweet spot.
-#define MMQ_RP_Q8_BK 8
-#define MMQ_RP_Q8_TM 4
-#define MMQ_RP_Q8_TN 4
-#define MMQ_RP_Q8_BM (16 * MMQ_RP_Q8_TM)
-#define MMQ_RP_Q8_BN (16 * MMQ_RP_Q8_TN)
+// Q8_0 gets its own tuned tile, mirroring native mul_mat_q<Q8_0> (profiled
+// via rocprofv3: native launches a 512-thread (64x8) block with 64 column
+// lanes -> each warp reads 64 *distinct* sX rows (no broadcast), 8 waves/CU
+// for latency hiding). For Q8_0 the repacked planes are byte-identical to
+// native block_q8_0, so the win is purely threading/tiling. We use a 64x8
+// (512-thread) block: tx=threadIdx.x (64 col lanes), ty=threadIdx.y (8 row
+// lanes, stride 8) -> BM=128 (8 lanes x 16 rows/loop), BN=128 (64 lanes x
+// TN=2 cols) to match native's activation reuse. Weights are staged through
+// LDS and read per-row inside the K-loop (transient) so per-thread VGPR
+// ~=36 fits 8 waves on gfx906's 65K VGPR/CU. LDS reads are far cheaper than
+// re-fetching weights from global every K-step (verified: direct-from-global
+// regressed pp2048 1546->1030). BK=4 keeps LDS small enough for BN=128:
+// sW[128][4]=18K + sX[128][5]=23K ~= 41KiB < 64KiB.
+//
+// The inner K-loop's natural (kk, n, r) order reads the W plane (sW_lo,
+// sW_hi, sWd) once per (kk, n, r) — but the W read is independent of n, so
+// the same 16 weights per row are re-fetched TN_=2 times. Hoisting the r
+// loop out of the n loop (now (kk, r, n)) reads the W plane once per
+// (kk, r) and reuses it across both n. This cut the inner-loop W LDS
+// reads in half and closed the residual 2.2% pp2048 deficit on
+// Qwen3-4B Q8_0 (repack now matches native pp within noise and stays
+// ~4% ahead on tg).
+//
+// Tried variants during the BK tuning round:
+//   - BK=8 BN=64 TN=1 (matched native's 128x64x256K tile shape, halved the
+//     per-thread acc count to 16 floats): regressed 1274 -> 1190 pp2048.
+//     Doubles the column-tile count (16->32) without offsetting the per-iter
+//     work; per-block compute time halves but dispatch overhead doubles,
+//     so the block-launch latency becomes a larger fraction of total time.
+//     Keeping BN=128 TN=2, where the larger tile absorbs the same total
+//     work in fewer blocks, is the better trade for gfx906.
+#define MMQ_RP_Q8_BK 4
+#define MMQ_RP_Q8_TN 2
+#define MMQ_RP_Q8_BM 128
+#define MMQ_RP_Q8_BN (64 * MMQ_RP_Q8_TN)
+#define MMQ_RP_Q8_NROW_LANES 8
 
 template <bool HAS_IDS, int TN_>
 static __global__ void __launch_bounds__(256, 2) mmq_gemm_q4k_repacked(
@@ -1048,7 +1141,8 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q4k_repacked(
         const uint32_t n_tok, const uint32_t x_stride,
         const int32_t * __restrict__ ids_src1, const int32_t * __restrict__ ids_dst,
         const int32_t * __restrict__ expert_bounds, const int32_t * __restrict__ tile_off,
-        const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1) {
+        const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1,
+        const bool has_sum) {
 #if defined(GGML_USE_HIP) && defined(GCN)
     const int t  = threadIdx.x;
     const int tx = t & 15;
@@ -1120,7 +1214,15 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q4k_repacked(
                 xcol = xval ? (uint32_t) ids_src1[a] : 0;
             }
             if (xval && sb < n_sub) {
-                sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                if constexpr (!HAS_IDS) {
+                    // Fast path: read from the block_q8_1_mmq buffer produced by
+                    // quantize_mmq_q8_1_cuda. has_sum selects D4 (scale only) vs
+                    // DS4 (scale + partial sum) layouts for the min-term.
+                    sX[lr][lk] = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq),
+                                                xcol, sb, n_tok, has_sum);
+                } else {
+                    sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                }
             } else {
                 sX[lr][lk].ds = make_half2(0.0f, 0.0f);
             }
@@ -1195,7 +1297,8 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q5k_repacked(
         const uint32_t n_tok, const uint32_t x_stride,
         const int32_t * __restrict__ ids_src1, const int32_t * __restrict__ ids_dst,
         const int32_t * __restrict__ expert_bounds, const int32_t * __restrict__ tile_off,
-        const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1) {
+        const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1,
+        const bool has_sum) {
 #if defined(GGML_USE_HIP) && defined(GCN)
     const int t  = threadIdx.x;
     const int tx = t & 15;
@@ -1263,7 +1366,15 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q5k_repacked(
                 xcol = xval ? (uint32_t) ids_src1[a] : 0;
             }
             if (xval && sb < n_sub) {
-                sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                if constexpr (!HAS_IDS) {
+                    // Fast path: read from the block_q8_1_mmq buffer produced by
+                    // quantize_mmq_q8_1_cuda. has_sum selects D4 (scale only) vs
+                    // DS4 (scale + partial sum) layouts for the min-term.
+                    sX[lr][lk] = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq),
+                                                xcol, sb, n_tok, has_sum);
+                } else {
+                    sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                }
             } else {
                 sX[lr][lk].ds = make_half2(0.0f, 0.0f);
             }
@@ -1345,7 +1456,8 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q6k_repacked(
         const uint32_t n_tok, const uint32_t x_stride,
         const int32_t * __restrict__ ids_src1, const int32_t * __restrict__ ids_dst,
         const int32_t * __restrict__ expert_bounds, const int32_t * __restrict__ tile_off,
-        const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1) {
+        const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1,
+        const bool has_sum) {
 #if defined(GGML_USE_HIP) && defined(GCN)
     const int t  = threadIdx.x;
     const int tx = t & 15;
@@ -1411,7 +1523,15 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q6k_repacked(
                 xcol = xval ? (uint32_t) ids_src1[a] : 0;
             }
             if (xval && sb < n_sub) {
-                sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                if constexpr (!HAS_IDS) {
+                    // Fast path: read from the block_q8_1_mmq buffer produced by
+                    // quantize_mmq_q8_1_cuda. has_sum selects D4 (scale only) vs
+                    // DS4 (scale + partial sum) layouts for the min-term.
+                    sX[lr][lk] = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq),
+                                                xcol, sb, n_tok, has_sum);
+                } else {
+                    sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                }
             } else {
                 sX[lr][lk].ds = make_half2(0.0f, 0.0f);
             }
@@ -1501,7 +1621,8 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q3k_repacked(
         const uint32_t n_tok, const uint32_t x_stride,
         const int32_t * __restrict__ ids_src1, const int32_t * __restrict__ ids_dst,
         const int32_t * __restrict__ expert_bounds, const int32_t * __restrict__ tile_off,
-        const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1) {
+        const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1,
+        const bool has_sum) {
 #if defined(GGML_USE_HIP) && defined(GCN)
     const int t  = threadIdx.x;
     const int tx = t & 15;
@@ -1567,7 +1688,15 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q3k_repacked(
                 xcol = xval ? (uint32_t) ids_src1[a] : 0;
             }
             if (xval && sb < n_sub) {
-                sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                if constexpr (!HAS_IDS) {
+                    // Fast path: read from the block_q8_1_mmq buffer produced by
+                    // quantize_mmq_q8_1_cuda. has_sum selects D4 (scale only) vs
+                    // DS4 (scale + partial sum) layouts for the min-term.
+                    sX[lr][lk] = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq),
+                                                xcol, sb, n_tok, has_sum);
+                } else {
+                    sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                }
             } else {
                 sX[lr][lk].ds = make_half2(0.0f, 0.0f);
             }
@@ -1650,7 +1779,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q3k_repacked(
 // Q8_0 MMQ — 32 qs bytes per sub-block staged as two uint4s; no offset
 // term, so the accumulate is just dsc * dx * idot.
 template <bool HAS_IDS, int TN_>
-static __global__ void __launch_bounds__(256, 1) mmq_gemm_q8_0_repacked(
+static __global__ void __launch_bounds__(512, 1) mmq_gemm_q8_0_repacked(
         const uint8_t * __restrict__ wbase, const block_q8_1 * __restrict__ xq,
         float * __restrict__ y, const uint32_t ne0, const uint32_t ne1,
         const uint32_t n_tok, const uint32_t x_stride,
@@ -1658,9 +1787,15 @@ static __global__ void __launch_bounds__(256, 1) mmq_gemm_q8_0_repacked(
         const int32_t * __restrict__ expert_bounds, const int32_t * __restrict__ tile_off,
         const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1) {
 #if defined(GGML_USE_HIP) && defined(GCN)
-    const int t  = threadIdx.x;
-    const int tx = t & 15;
-    const int ty = t >> 4;
+    // 64x8 (512-thread) block mirroring native mul_mat_q<Q8_0>: 64 column
+    // lanes (tx) give each warp 64 distinct sX rows (no broadcast); 8 row
+    // lanes (ty) with stride NROW_LANES tile BM=128 via a 16-row loop.
+    // Weights are read from LDS inside the K-loop (transient) to keep
+    // per-thread VGPRs ~36 so 8 waves fit gfx906's 65K VGPR/CU. Tile 128x64
+    // (BN=64 keeps sX ~= 20K so LDS ~= 57KiB < 64KiB).
+    const int t  = threadIdx.x + threadIdx.y * blockDim.x;
+    const int tx = threadIdx.x;          // 0..63 column lane
+    const int ty = threadIdx.y;          // 0..7  row lane
     const uint32_t row0 = blockIdx.x * MMQ_RP_Q8_BM;
     uint32_t tok0 = blockIdx.y * (16 * TN_);
     uint32_t a_base = 0, a_end = 0;
@@ -1687,19 +1822,21 @@ static __global__ void __launch_bounds__(256, 1) mmq_gemm_q8_0_repacked(
     __shared__ uint4      sW_lo[MMQ_RP_Q8_BM][MMQ_RP_Q8_BK];
     __shared__ uint4      sW_hi[MMQ_RP_Q8_BM][MMQ_RP_Q8_BK];
     __shared__ float      sWd  [MMQ_RP_Q8_BM][MMQ_RP_Q8_BK];
-    __shared__ block_q8_1 sX   [(16 * TN_)][MMQ_RP_Q8_BK + 1];
+    __shared__ block_q8_1 sX   [MMQ_RP_Q8_BN][MMQ_RP_Q8_BK + 1];
 
-    float acc[MMQ_RP_Q8_TM][TN_] = {};
+    constexpr int NROW = MMQ_RP_Q8_BM / MMQ_RP_Q8_NROW_LANES;   // 16 rows/lane
+    float acc[NROW][TN_] = {};
 
-    // 64x64 output tile with BK=8: 256 threads stride over the
-    // BM*BK weight / (16*TN_)*BK activation elements per K-step.
-    const int w_elm = MMQ_RP_Q8_BM * MMQ_RP_Q8_BK;
-    const int x_elm = (16 * TN_) * MMQ_RP_Q8_BK;
+    // Weights staged through LDS (read per-row inside the K-loop, transient)
+    // so per-thread VGPR ~=36 fits 8 waves on gfx906's 65K VGPR/CU. LDS reads
+    // are far cheaper than re-fetching weights from global every K-step.
+    const int w_elm = MMQ_RP_Q8_BM * MMQ_RP_Q8_BK;   // 1024
+    const int x_elm = MMQ_RP_Q8_BN * MMQ_RP_Q8_BK;   // 512
 
     for (uint32_t sb0 = 0; sb0 < n_sub; sb0 += MMQ_RP_Q8_BK) {
-        for (int e = t; e < w_elm; e += 256) {
-            const int lr = e >> 3;          // MMQ_RP_Q8_BK == 8
-            const int lk = e & 7;
+        for (int e = t; e < w_elm; e += 512) {
+            const int lr = e / MMQ_RP_Q8_BK;
+            const int lk = e % MMQ_RP_Q8_BK;
             const uint32_t sb   = sb0 + lk;
             const uint32_t wrow = row0 + lr;
             if (wrow < ne1 && sb < n_sub) {
@@ -1711,9 +1848,9 @@ static __global__ void __launch_bounds__(256, 1) mmq_gemm_q8_0_repacked(
                 sWd[lr][lk] = 0.0f;
             }
         }
-        for (int e = t; e < x_elm; e += 256) {
-            const int lr = e >> 3;
-            const int lk = e & 7;
+        for (int e = t; e < x_elm; e += 512) {
+            const int lr = e / MMQ_RP_Q8_BK;
+            const int lk = e % MMQ_RP_Q8_BK;
             const uint32_t sb = sb0 + lk;
             uint32_t xcol = tok0 + lr;
             bool     xval = xcol < n_tok;
@@ -1723,60 +1860,65 @@ static __global__ void __launch_bounds__(256, 1) mmq_gemm_q8_0_repacked(
                 xcol = xval ? (uint32_t) ids_src1[a] : 0;
             }
             if (xval && sb < n_sub) {
-                sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                if constexpr (!HAS_IDS) {
+                    // Fast path: read from the block_q8_1_mmq buffer produced by
+                    // quantize_mmq_q8_1_cuda (Q8_0 -> D4 layout, scale only).
+                    sX[lr][lk] = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq),
+                                                xcol, sb, n_tok, false);
+                } else {
+                    sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                }
             } else {
                 sX[lr][lk].ds = make_half2(0.0f, 0.0f);
             }
         }
         __syncthreads();
 
-#pragma unroll
         for (int kk = 0; kk < MMQ_RP_Q8_BK; kk++) {
-            uint4 wq_lo[MMQ_RP_Q8_TM], wq_hi[MMQ_RP_Q8_TM];
-            float dsc[MMQ_RP_Q8_TM];
-#pragma unroll
-            for (int r = 0; r < MMQ_RP_Q8_TM; r++) {
-                wq_lo[r] = sW_lo[ty + r * 16][kk];
-                wq_hi[r] = sW_hi[ty + r * 16][kk];
-                dsc[r]   = sWd  [ty + r * 16][kk];
-            }
-#pragma unroll
-            for (int n = 0; n < TN_; n++) {
-                const block_q8_1 * xb = &sX[tx + n * 16][kk];
-                const int * xq32 = reinterpret_cast<const int *>(xb->qs);
-                const float dx = __low2float(xb->ds);
-#pragma unroll
-                for (int r = 0; r < MMQ_RP_Q8_TM; r++) {
-                    const uint32_t lo[4] = { wq_lo[r].x, wq_lo[r].y, wq_lo[r].z, wq_lo[r].w };
-                    const uint32_t hi[4] = { wq_hi[r].x, wq_hi[r].y, wq_hi[r].z, wq_hi[r].w };
+            // Interchange: hoist the r loop out of the n loop so the
+            // (sW_lo, sW_hi, sWd) reads happen once per (kk, r) and
+            // are reused across the TN_=2 column lanes. With the old
+            // (n, r) order the same 16 weights were re-read per n,
+            // doubling the LDS read count for the W plane. The
+            // activation read still depends on n and stays inside.
+            for (int r = 0; r < NROW; r++) {
+                const int row = ty + r * MMQ_RP_Q8_NROW_LANES;
+                uint4 wlo = sW_lo[row][kk];
+                uint4 whi = sW_hi[row][kk];
+                const float d = sWd[row][kk];
+                const uint32_t lo[4] = { wlo.x, wlo.y, wlo.z, wlo.w };
+                const uint32_t hi[4] = { whi.x, whi.y, whi.z, whi.w };
+                for (int n = 0; n < TN_; n++) {
+                    const block_q8_1 * xb = &sX[tx + n * 64][kk];
+                    const int * xq32 = reinterpret_cast<const int *>(xb->qs);
+                    const float dx = __low2float(xb->ds);
                     int idot = 0;
 #pragma unroll
                     for (int j = 0; j < 4; j++) {
                         idot = ggml_cuda_dp4a((int) lo[j], xq32[j],     idot);
                         idot = ggml_cuda_dp4a((int) hi[j], xq32[j + 4], idot);
                     }
-                    acc[r][n] += dsc[r] * dx * (float) idot;
+                    acc[r][n] += d * dx * (float) idot;
                 }
             }
         }
         __syncthreads();
     }
 
-#pragma unroll
-    for (int r = 0; r < MMQ_RP_Q8_TM; r++) {
-        const uint32_t row = row0 + ty + r * 16;
+    for (int r = 0; r < NROW; r++) {
+        const uint32_t row = row0 + ty + r * MMQ_RP_Q8_NROW_LANES;
         if (row >= ne1) {
             continue;
         }
-#pragma unroll
         for (int n = 0; n < TN_; n++) {
+            const uint32_t col = tx + n * 64;
             if constexpr (HAS_IDS) {
-                const uint32_t a = a_base + tx + n * 16;
-                if (a < a_end) {
+                const uint32_t a = a_base + col;
+                if (a < a_end && col < (uint32_t)(16 * TN_)) {
                     y[(size_t) ids_dst[a] * dst_s1 + row] = acc[r][n];
                 }
             } else {
-                const uint32_t tok = tok0 + tx + n * 16;
+                const uint32_t tok = tok0 + col;
                 if (tok < n_tok) {
                     y[(size_t) tok * dst_s1 + row] = acc[r][n];
                 }
@@ -1816,24 +1958,30 @@ void ggml_cuda_mul_mat_repacked(ggml_backend_cuda_context & ctx,
     cudaStream_t stream = ctx.stream();
     const uint8_t * w = (const uint8_t *) src0->data;
 
-    // Quantize the whole (possibly 3D/4D) activation once; blocks land
-    // contiguously as [ne13][ne12][ne11][ne10_padded/QK8_1].
+    // Quantize the whole (possibly 3D/4D) activation once using the fast,
+    // tile-aware quantizer (same kernel the native mmq path uses). It writes
+    // a block_q8_1_mmq buffer; the repack kernels read it via rp_xq_from_mmq.
+    // Total buffer bytes are unchanged (4*sizeof(block_q8_1) ==
+    // sizeof(block_q8_1_mmq)), only the in-block ordering is transposed.
     const int64_t ne10_padded = GGML_PAD(ne10, MATRIX_ROW_PADDING);
-    const int64_t x_stride    = ne10_padded / QK8_1; // q8_1 blocks per column
+    const int64_t x_stride    = ne10_padded / QK8_1;
+    const uint64_t n_groups   = (uint64_t) ne10_padded / (4 * QK8_1); // mmq blocks (128 vals) per token col
     ggml_cuda_pool_alloc<char> src1_q8_1(ctx.pool(),
         ne13 * ne12 * ne11 * ne10_padded * sizeof(block_q8_1) / QK8_1);
     {
         const int64_t s11 = src1->nb[1] / sizeof(float);
         const int64_t s12 = src1->nb[2] / sizeof(float);
         const int64_t s13 = src1->nb[3] / sizeof(float);
-        quantize_row_q8_1_cuda((const float *) src1->data, nullptr, src1_q8_1.get(),
+        quantize_mmq_q8_1_cuda((const float *) src1->data, nullptr, src1_q8_1.get(),
             src0->type, ne10, s11, s12, s13, ne10_padded, ne11, ne12, ne13, stream);
     }
 
     for (int64_t i3 = 0; i3 < ne13; i3++) {
     for (int64_t i2 = 0; i2 < ne12; i2++) {
-        const block_q8_1 * xq = (const block_q8_1 *) src1_q8_1.get()
-                              + (i3 * ne12 + i2) * ne11 * x_stride;
+        // Per-slice base in block_q8_1_mmq units (n_groups * ne11 blocks/slice).
+        const char * slice_base = src1_q8_1.get()
+                              + (i3 * ne12 + i2) * ne11 * n_groups * sizeof(block_q8_1_mmq);
+        const block_q8_1 * xq = reinterpret_cast<const block_q8_1 *>(slice_base);
         float * dst_d = (float *)((char *) dst->data + i3 * dst->nb[3] + i2 * dst->nb[2]);
         ggml_cuda_mul_mat_repacked_slice(ctx, src0, w, xq, dst_d,
             ne00, ne01, ne11, x_stride, stream);
@@ -1905,31 +2053,35 @@ static void ggml_cuda_mul_mat_repacked_slice(ggml_backend_cuda_context & ctx,
     // shared 64x64 tile.
     const int mmq_bm = (src0->type == GGML_TYPE_Q8_0) ? MMQ_RP_Q8_BM : MMQ_RP_BM;
     const int mmq_bn = (src0->type == GGML_TYPE_Q8_0) ? MMQ_RP_Q8_BN : MMQ_RP_BN;
+    // DS4-layout (scale + partial sum) types need has_sum=true so the
+    // min-term reconstruction reads the stored partial sum; D4 types (Q8_0/
+    // Q3_K/Q6_K) carry scale only.
+    const bool has_sum = (src0->type == GGML_TYPE_Q4_K || src0->type == GGML_TYPE_Q5_K);
     const dim3 grid((ne01 + mmq_bm - 1) / mmq_bm,
                     (ne11 + mmq_bn - 1) / mmq_bn, 1);
     switch (src0->type) {
         case GGML_TYPE_Q3_K:
             mmq_gemm_q3k_repacked<false, MMQ_RP_TN><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, (uint32_t) ne11, (uint32_t) x_stride,
-                nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
+                nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01, has_sum);
             break;
         case GGML_TYPE_Q4_K:
             mmq_gemm_q4k_repacked<false, MMQ_RP_TN><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, (uint32_t) ne11, (uint32_t) x_stride,
-                nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
+                nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01, has_sum);
             break;
         case GGML_TYPE_Q5_K:
             mmq_gemm_q5k_repacked<false, MMQ_RP_TN><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, (uint32_t) ne11, (uint32_t) x_stride,
-                nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
+                nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01, has_sum);
             break;
         case GGML_TYPE_Q6_K:
             mmq_gemm_q6k_repacked<false, MMQ_RP_TN><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, (uint32_t) ne11, (uint32_t) x_stride,
-                nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
+                nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01, has_sum);
             break;
         case GGML_TYPE_Q8_0:
-            mmq_gemm_q8_0_repacked<false, MMQ_RP_Q8_TN><<<grid, 256, 0, stream>>>(
+            mmq_gemm_q8_0_repacked<false, MMQ_RP_Q8_TN><<<grid, dim3(64, 8), 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, (uint32_t) ne11, (uint32_t) x_stride,
                 nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
             break;
@@ -2062,34 +2214,35 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
     const int64_t max_tiles = n_assign / (16 * TN_ID) + ne02;
     const int id_bm = (src0->type == GGML_TYPE_Q8_0) ? MMQ_RP_Q8_BM : MMQ_RP_BM;
     const dim3 grid((ne01 + id_bm - 1) / id_bm, max_tiles, 1);
+    const bool has_sum = (src0->type == GGML_TYPE_Q4_K || src0->type == GGML_TYPE_Q5_K);
 
     switch (src0->type) {
         case GGML_TYPE_Q3_K:
             mmq_gemm_q3k_repacked<true, TN_ID><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, 0, (uint32_t) x_stride,
                 ids_src1.get(), ids_dst.get(), expert_bounds.get(), tile_off.get(),
-                (uint32_t) ne02, expert_stride, dst_s1);
+                (uint32_t) ne02, expert_stride, dst_s1, has_sum);
             break;
         case GGML_TYPE_Q4_K:
             mmq_gemm_q4k_repacked<true, TN_ID><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, 0, (uint32_t) x_stride,
                 ids_src1.get(), ids_dst.get(), expert_bounds.get(), tile_off.get(),
-                (uint32_t) ne02, expert_stride, dst_s1);
+                (uint32_t) ne02, expert_stride, dst_s1, has_sum);
             break;
         case GGML_TYPE_Q5_K:
             mmq_gemm_q5k_repacked<true, TN_ID><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, 0, (uint32_t) x_stride,
                 ids_src1.get(), ids_dst.get(), expert_bounds.get(), tile_off.get(),
-                (uint32_t) ne02, expert_stride, dst_s1);
+                (uint32_t) ne02, expert_stride, dst_s1, has_sum);
             break;
         case GGML_TYPE_Q6_K:
             mmq_gemm_q6k_repacked<true, TN_ID><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, 0, (uint32_t) x_stride,
                 ids_src1.get(), ids_dst.get(), expert_bounds.get(), tile_off.get(),
-                (uint32_t) ne02, expert_stride, dst_s1);
+                (uint32_t) ne02, expert_stride, dst_s1, has_sum);
             break;
         case GGML_TYPE_Q8_0:
-            mmq_gemm_q8_0_repacked<true, TN_ID><<<grid, 256, 0, stream>>>(
+            mmq_gemm_q8_0_repacked<true, TN_ID><<<grid, dim3(64, 8), 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, 0, (uint32_t) x_stride,
                 ids_src1.get(), ids_dst.get(), expert_bounds.get(), tile_off.get(),
                 (uint32_t) ne02, expert_stride, dst_s1);

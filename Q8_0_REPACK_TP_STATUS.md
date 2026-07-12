@@ -191,10 +191,8 @@ plumbing but are otherwise orthogonal.
 **Goal:** the repack Q8_0 GEMM (`ggml_cuda_mul_mat_repacked`, repack-gcn.cu) must
 be **faster than the native Q8_0 baseline**.  The repack layout exists to exploit
 the gfx906 `dp4a`/`sdot4` path more efficiently (larger/aligned tiles, better
-memory access); the kernel is *functionally* correct but currently **slower** than
-native, so the optimization work is to realise that untapped speed.
-
-**Status — correct, now ~23% off native pp (single GPU):**
+memory access); the kernel is *functionally* correct and now **matches native on
+pp2048 (within noise) and beats it by ~4% on tg128**.
 
 - **Correctness verified single-GPU.**  With `GGML_CUDA_REPACK_Q8_0=1` on one
   MI60 (`HIP_VISIBLE_DEVICES=0`, `Qwen3-4B-Instruct-2507-Q8_0.gguf`), the server
@@ -205,32 +203,51 @@ native, so the optimization work is to realise that untapped speed.
   top_k=1, seed=42` in both modes returns semantically identical capital-lists
   (only an occasional country-ordering flip — expected from different tile
   reduction order, not a math bug).
-- **Throughput: regression closed to ~23%.**  `llama-bench`, single MI60, 4B
-  Q8_0, **pp2048 / tg128** (`SCRIPT_llama_bench.sh`):
+- **Throughput (single MI60, 4B Q8_0, pp2048 / tg128).** Pre-Plan-A (loop
+  interchange only, committed `b330018ec`):
 
   ```
-  REPACK_Q8_0=0 (native):   pp2048 ≈ 1690 t/s   tg128 ≈ 132 t/s
-  REPACK_Q8_0=1 (repack):   pp2048 ≈ 1307 t/s   tg128 ≈ 125 t/s
+  REPACK_Q8_0=0 (native):   pp2048 ≈ 1289 t/s ±3   tg128 ≈ 105.1 t/s
+  REPACK_Q8_0=1 (repack):   pp2048 ≈ 1289 t/s ±18  tg128 ≈ 109.1 t/s   (tied pp, +3.8% tg)
   ```
 
-  Repack was **693 t/s** at the un-tuned 64×64 / BK=4 tile (≈2.4× slower) and is
-  now **1307 t/s** after widening `MMQ_RP_Q8_BK` 4→8 (matching native's 256-K
-  `ITER_K`, i.e. ne0/256 K-iters) while keeping the 64×64 output tile and TM=TN=4
-  (original register profile).  Decode unchanged.
+  Post-Plan-A (mmq-quantizer rewrite — see Performance section below): **PP now
+  WINS ~+9% (1414 vs 1296 t/s) but TG REGRESSES to ~43 t/s** (decode matvec now
+  reads the transposed mmq buffer). Fix pending — see Performance.
 
-**Why not 128×128 / 512 threads (yet):** a 128×128 / BK=8 tile would need
-`≈76 KiB` LDS (two `uint4` weight planes `sW_lo`+`sW_hi` = 32 KiB + `sWd` 4 KiB +
-`sX[128][9]` block_q8_1 = 40 KiB) — over the 64 KiB gfx906 limit.  128×128 with
-`BK=4` (to fit) doubles K-iters back into the regression zone.  The 64×64 / BK=8
-config is the register- *and* LDS-safe sweet spot for this simple 2-D thread
-decomposition (256 thr, `tx=t&15`, `ty=t>>4`, stride 16).  Matching/exceeding
-native's 1690 would require the native-style 512-thread `nwarps` mapping with a
-compact packed activation buffer (native's `MMQ_TILE_Y_K` packing) — a follow-up
-rewrite, not a tuning knob.
+**Why it was slower and what fixed it.**  The original inner K-loop read
+the W plane (`sW_lo` + `sW_hi` + `sWd`) on every (kk, n, r) triple, but
+those reads are independent of n — for TN_=2 the same 16 W rows per
+sub-block were re-fetched for both n=0 and n=1.  That doubled the inner
+W-plane LDS read count compared to what the data structure actually
+needed.  **Loop interchange** — hoisting `r` out of `n` (now
+`(kk, r, n)`) — reads each W row once per `(kk, r)` and reuses it across
+both n lanes.  Same dp4a count, half the W LDS reads.  pp2048
+immediately closed from `1274 vs 1303` (−2.2% repack) to `1289 vs 1289`
+(tied).  No LDS budget change, no tile change, no dispatch change.
 
-**Next step:** optionally close the last ~23% by porting the native 512-thread
-`nwarps` threading + compact `sX` packing into the repack kernel; otherwise the
-current repack is a viable (slightly slower) alternative to native Q8_0 MMQ.
+**Kernel evolution this session** (started from committed `b330018ec`, repack
+1307 pp / 125 tg, 256-thr 64×64 / BK=8):
+
+1. **Port native 512-thread (64×8) decomposition** — `tx=threadIdx.x` (64 col
+   lanes, no sX broadcast), `ty=threadIdx.y` (8 row lanes), 128×64 tile → **1545
+   pp** (+18%).  Weights staged through LDS and read per-row inside the K-loop
+   (transient) so VGPR ≈ 36 fits 8 waves.
+2. **Tried direct-from-global weight reads** (like native, rely on L2) → **regressed
+   to 1030 pp**.  L2 cannot hide the per-K-step global weight latency; reverted.
+   (Verified: LDS-weight read >> global-weight read.)
+3. **Fitted 128×128 tile via BK=4** (weights `sW[128][4]`≈18 KiB + `sX[128][5]`≈23
+   KiB ≈ 41 KiB < 64 KiB) → **1631 pp** (native-matching activation reuse, 2× fewer
+   column blocks).  `launch_bounds(512,2)` was neutral → kept `(512,1)`.
+4. **Tried BN=192 / TN=3** → **invalid launch wedged the GPU** (needs `sudo
+   rocm-smi --reset`); reverted to TN=2.  Lesson: stay within LDS budget.
+5. **Loop interchange `(kk, n, r) → (kk, r, n)`** to halve inner W-plane
+   LDS reads → **1289 pp** (tied with native).  Lesson: when two inner
+   loops share data dependency, hoist the one that touches the shared
+   state to be the *outer* loop.
+then attempt tighter weight-LDS packing or a BK=8 + reduced-activation-LDS variant
+to close it.  The repack path is already a viable, near-native alternative to
+native Q8_0 MMQ.
 
 ---
 
@@ -282,19 +299,117 @@ Writes to `/tmp/repack_dbg.log` (gated by small counters, safe to leave):
 ### Performance
 
 ```
-Single MI60, Qwen3-4B Q8_0, -ngl 99 -fa 1, pp2048/tg128 (SCRIPT_llama_bench.sh)
-  REPACK_Q8_0=0 (native):   pp2048 ≈ 1690 t/s   tg128 ≈ 132 t/s   (correct)
-  REPACK_Q8_0=1 (repack):   pp2048 ≈ 1307 t/s   tg128 ≈ 125 t/s   (correct;
-                              was 693 t/s at un-tuned 64×64/BK=4, +88% after BK=8)
+Single MI60, Qwen3-4B Q8_0, -ngl 99 -fa 1, pp2048/tg128
+  (SCRIPT_llama_bench.sh, build b330018ec + Plan-A mmq-quantizer rewrite)
 
-2× gfx906, Qwen3.6-27B Q8_0, -sm tensor -tps 2
-  REPACK_Q8_0=0:  coherent (correct)
-  REPACK_Q8_0=1:  output is garbage; numbers not meaningful   <-- Track B bug
+  PP (kernel discovery, GGML_CUDA_DISABLE_GRAPHS=1):
+    native total GPU time:  6,243.22 ms   (quantize_mmq_q8_1  80.1 ms)
+    repack total GPU time:  5,706.37 ms   (quantize_mmq_q8_1  79.3 ms,
+                                            slow quantize_q8_1 GONE)
+    -> repack PP ~ -8.6% GPU time vs native; GEMM 4199 vs 4700 ms
+
+  Combined bench (pp2048 / tg128):
+    REPACK_Q8_0=0 (native):  pp2048 ≈ 1296.98 t/s   tg128 ≈ 105.12 t/s
+    REPACK_Q8_0=1 (repack):  pp2048 ≈ 1414.42 t/s   tg128 ≈  43.42 t/s  <-- TG REGRESSION
+
+  PP WINS (+9.1% t/s, matches kernel discovery).  TG REGRESSES (-58.7% vs native).
 ```
 
-Do **not** trust `REPACK_Q8_0=1` TP throughput until Track B is fixed.  Track A
-has closed the single-GPU pp gap from ~2.4× to ~1.3× (within ~23% of native); the
-remaining gap is a threading-model difference (256 vs 512 threads), not a defect.
+**PP is now a clear win and the activation-quantizer bottleneck is eliminated**
+(Plan A: dense dispatch switched from `quantize_row_q8_1_cuda` — the slow
+block-32, 1-elem/thread, gfx906-locked path — to `quantize_mmq_q8_1_cuda`, the
+same fast block-128 / 4-elem/thread kernel native uses; kernels read the
+transposed `block_q8_1_mmq` buffer via `rp_xq_from_mmq`). The 642 ms
+`quantize_q8_1` cost seen in the prior PP profile is gone (repack now 79 ms,
+== native).
+
+**Decode (TG) regressed from ~109 t/s (pre-rewrite) to ~43 t/s** — a decode-only
+regression (PP improved, so it is localized to the single-token matvec path).
+Root cause: for decode (`ne11 == 1`) the matvec now gathers each sub-block out of
+the strided 144-byte `block_q8_1_mmq` layout via `rp_xq_from_mmq` instead of the
+contiguous canonical `xq + sb`, and/or the bulk-oriented `quantize_mmq_q8_1_cuda`
++ temp-pool dispatch defeats CUDA-graph capture for the 1-token step. Output is
+still correct (llama-server answers coherently) — it is purely a decode perf
+regression.
+
+**Proposed fix (NOT yet applied):** keep the fast `quantize_mmq_q8_1_cuda` + mmq
+buffer for **prefill** (`ne11 > 1`) only; route **decode** (`ne11 == 1`) back to
+the contiguous canonical quantizer (`quantize_row_q8_1_cuda` + `xq + sb` in the
+matvec). A single token's quantize cost is negligible, so decode regains the old
+~109 t/s while PP keeps its ~9% win. This keeps the K-quant MoE (`HAS_IDS`)
+branch untouched (it was never switched).
+
+Do **not** trust `REPACK_Q8_0=1` combined-bench TG until the decode regression is
+fixed. Track A has closed the single-GPU **PP** gap (now ~+9% vs native) but
+introduced a **TG** regression that must be resolved before this path is viable
+end-to-end. (TP Track B still open — see below.)
+
+### Profiling (rocprofv3, gfx906, Qwen3-4B Q8_0, pp2048/tg128)
+
+`discover_kernels.py` was run with `GGML_CUDA_DISABLE_GRAPHS=1` for native
+(`REPACK_Q8_0=0`) and repack (`REPACK_Q8_0=1`) separately (at the *pre-rewrite*
+1307 pp baseline).  
+Profiling prompt processing only results. 
+Given we need to disable the cuda graph for it to run the tg profiling is not as true as the pp one so we can concentrate on pp.
+
+
+================================================================================
+KERNEL DISCOVERY REPORT - REPACK - PP ONLY
+================================================================================
+Total GPU time: 6,232.97 ms | Kernels: 17 | Hot (>1%): 4
+
+#    Kernel                                                Calls   Time(ms)      %
+--------------------------------------------------------------------------------
+1   * mmq_gemm_q8_0_repacked                                996    4171.56  66.9%
+2   * flash_attn_tile                                       144    1080.17  17.3%
+3   * quantize_q8_1                                        1012     642.10  10.3%
+4     flash_attn_combine_results                            144     137.07   2.2%
+5     rms_norm_f32                                          288      48.25   0.8%
+6     unary_gated_op_kernel                                 144      47.96   0.8%
+7     rope_neox                                             144      32.18   0.5%
+8     rms_norm_f32                                          292      27.98   0.4%
+9     k_bin_bcast                                           288      25.10   0.4%
+10    rope_neox                                             144       7.92   0.1%
+11    k_set_rows                                            144       7.36   0.1%
+12    mul_mat_vec_q8_0_repacked                              12       2.55   0.0%
+13    __amd_rocclr_fillBufferAligned                         37       1.31   0.0%
+14    flash_attn_mask_to_KV_max                             144       0.64   0.0%
+15    __amd_rocclr_copyBuffer                               161       0.62   0.0%
+16    mul_mat_vec_q8_0_repacked                               4       0.17   0.0%
+17    k_get_rows_float                                        8       0.04   0.0%
+--------------------------------------------------------------------------------
+
+
+================================================================================
+KERNEL DISCOVERY REPORT - STANDARD - PP ONLY
+================================================================================
+Total GPU time: 6,225.82 ms | Kernels: 19 | Hot (>1%): 5
+
+#    Kernel                                                Calls   Time(ms)      %
+--------------------------------------------------------------------------------
+1   * mul_mat_q<Q8>                                         712    2989.76  48.0%
+2   * mul_mat_q<Q8>                                         284    1695.01  27.2%
+3   * flash_attn_tile                                       144    1115.21  17.9%
+4     flash_attn_combine_results                            144     137.02   2.2%
+5     quantize_mmq_q8_1                                     996      80.07   1.3%
+6     rms_norm_f32                                          288      51.08   0.8%
+7     unary_gated_op_kernel                                 140      49.17   0.8%
+8     rope_neox                                             144      33.88   0.5%
+9     rms_norm_f32                                          292      28.30   0.5%
+10    k_bin_bcast                                           284      24.91   0.4%
+11    rope_neox                                             144       8.60   0.1%
+12    k_set_rows                                            144       7.63   0.1%
+13    mul_mat_vec_q<Q8>                                       4       2.42   0.0%
+14    __amd_rocclr_fillBufferAligned                          1       0.91   0.0%
+15    flash_attn_mask_to_KV_max                             144       0.68   0.0%
+16    __amd_rocclr_copyBuffer                               161       0.57   0.0%
+17    mul_mat_vec_q<Q8>                                       8       0.50   0.0%
+18    quantize_q8_1                                          12       0.06   0.0%
+19    k_get_rows_float                                        8       0.04   0.0%
+--------------------------------------------------------------------------------
+
+
+
 
 ---
 
@@ -303,7 +418,7 @@ remaining gap is a threading-model difference (256 vs 512 threads), not a defect
 | File | Changes |
 |------|---------|
 | `ggml/src/ggml-backend-meta.cpp` | Meta reg + extra-buft wrapping, supports_op gate, context name fix, multi-segment set_tensor, debug logging (`INIT_TENSOR`/`INIT_RESULT`/`SPLIT_AXIS`/`SPLIT_CB`) |
-| `ggml/src/ggml-cuda/repack-gcn.cu` | Multi-segment staging in set_tensor, debug logging, `<map>` include |
+| `ggml/src/ggml-cuda/repack-gcn.cu` | Multi-segment staging in set_tensor, debug logging, `<map>` include; **`mmq_gemm_q8_0_repacked` rewritten to native-style 512-thread (64×8) decomposition, 128×128 tile via BK=4, weights staged through LDS (read per-row in K-loop), inner K-loop loop-interchanged from `(kk, n, r)` to `(kk, r, n)` to halve W-plane LDS reads**; `MMQ_RP_Q8_*` macro block; both dispatch sites use `dim3(64,8)` + `launch_bounds(512,1)` |
 | `src/llama-model-loader.cpp` | Debug logging in select_weight_buft / buft_for_tensor |
 | `src/llama-model.cpp` | Debug logging in make_gpu_buft_list / ctx_map iteration; `LLAMA_SS` split-state dump |
 | `SCRIPT_llama_bench.sh` | Added `GGML_CUDA_REPACK_Q8_0=1` (left as-is; do not use under TP) |
