@@ -22,24 +22,17 @@ export DEVEL_PATH="$VENV_ROOT/lib/python3.12/site-packages/_rocm_sdk_devel"
 export LIBS_PATH="$VENV_ROOT/lib/python3.12/site-packages/_rocm_sdk_libraries_gfx906/lib"
 export LD_LIBRARY_PATH="$CORE_PATH/lib:$DEVEL_PATH/lib/llvm/lib:$DEVEL_PATH/lib:$LIBS_PATH:$LD_LIBRARY_PATH"
 export HSA_OVERRIDE_GFX_VERSION=9.0.6
-export HIP_VISIBLE_DEVICES=0,1
-unset RCCL_ENABLE_GFX9_CHEAP_FENCE
-export NCCL_DEBUG=1
+export HIP_VISIBLE_DEVICES=0
 export GGML_CUDA_P2P=1
 export GGML_ENABLE_CUSTOM_AR=1
-export GGML_TP_AR_WIRE=bf16
 export HSA_FORCE_FINE_GRAIN_PCIE=1
 export GPU_MAX_HW_QUEUES=8
 export GGML_LOG_LEVEL=1
-export GGML_TP_AR_FORCE=1
-export TURBOPREFILL=1 
-export GGML_ENABLE_CUSTOM_AR=1
-export HSA_FORCE_FINE_GRAIN_PCIE=1
-export GPU_MAX_HW_QUEUES=8
-export GGML_TP_AR_TWOSHOT=0
-export GGML_TP_AR_BLOCKS=36
+export TURBOPREFILL=1
 export GGML_CUDA_REPACK=1
-export GGML_CUDA_REPACK_Q8_0=0
+# A/B: set REPACK_Q8_0 via arg "repack" (on) / "native" (off); default runs both.
+if [ "$1" = "repack" ]; then REPACK_VAL=1; shift; elif [ "$1" = "native" ]; then REPACK_VAL=0; shift; else REPACK_VAL=2; fi
+export GGML_CUDA_REPACK_Q8_0=${REPACK_VAL:-1}
 # K-sharding (GGML_MMVQ_KSHARD) regresses decode on gfx906 for this MoE workload; off by default.
 # Opt back in experimentally with: GGML_MMVQ_KSHARD_MAXROWS=<row ceiling>
 export GGML_MMVQ_KSHARD_MAXROWS=0
@@ -56,9 +49,7 @@ fi
 
 #MODEL_PATH="/path/..."
 LOG_FILE="bench_results.md"
-MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-27B-Q8_0.gguf"
-#MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3-4B-Instruct-2507-Q4_0.gguf"
-MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-35B-A3B-Q8_0.gguf"
+MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3-4B-Instruct-2507-Q8_0.gguf"
 BENCH_PARAMS=(
     -m "$MODEL_PATH"       # Model path
     -ngl 99                # Number of GPU layers (all on GPU)
@@ -67,11 +58,10 @@ BENCH_PARAMS=(
     -ctk f16              # KV cache key type (q8_0 quantization)
     -ctv f16               # KV cache value type (f16 precision)
     --progress             # Show progress during benchmark
-    -r 1                   # Number of repetitions
+    -r 3                   # Number of repetitions
     -b 2048                # Batch size
     -ub 2048               # Micro-batch size
     -mmp 0 
-    -sm tensor 
     #--spec-type draft-mtp --spec-draft-n-max 2 
     #-d 8192               # Context size
     #-v                     # Verbose output (show llama.cpp internal logs)
@@ -90,7 +80,25 @@ echo ""
 cd "$(dirname "$0")" || exit
 [ ! -f "./build/bin/llama-bench" ] && echo "Error: llama-bench not found" && exit 1
 
-./build/bin/llama-bench "${BENCH_PARAMS[@]}" $BENCH_TESTS "$@" 2>&1 | tee -a "$LOG_FILE"
+SCRIPT_ARGS=("$@")
+
+run_one() {
+    local rv="$1"
+    export GGML_CUDA_REPACK_Q8_0="$rv"
+    local tag
+    if [ "$rv" = "1" ]; then tag="REPACK_Q8_0=on"; else tag="REPACK_Q8_0=off(native)"; fi
+    echo "" >> "$LOG_FILE"
+    echo "### $(date +%H:%M:%S) $tag pp2048/tg128" >> "$LOG_FILE"
+    echo ">>> $tag"
+    ./build/bin/llama-bench "${BENCH_PARAMS[@]}" $BENCH_TESTS "${SCRIPT_ARGS[@]}" 2>&1 | tee -a "$LOG_FILE"
+}
+
+if [ "$REPACK_VAL" = "2" ]; then
+    run_one 0
+    run_one 1
+else
+    run_one "$REPACK_VAL"
+fi
 
 echo ""
 echo "Output saved to: $LOG_FILE"

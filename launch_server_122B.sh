@@ -28,7 +28,7 @@ export LIBS_PATH="$VENV_ROOT/lib/python3.12/site-packages/_rocm_sdk_libraries_gf
 export LD_LIBRARY_PATH="$CORE_PATH/lib:$DEVEL_PATH/lib/llvm/lib:$DEVEL_PATH/lib:$LIBS_PATH:$LD_LIBRARY_PATH"
 #export NCCL_DEBUG=INFO
 export HSA_OVERRIDE_GFX_VERSION=9.0.6
-export HIP_VISIBLE_DEVICES=0,1
+export HIP_VISIBLE_DEVICES=0
 export GGML_CUDA_P2P=1 
 export TURBOPREFILL=1 
 export GGML_ENABLE_CUSTOM_AR=1
@@ -39,7 +39,7 @@ export GGML_TP_AR_BLOCKS=60
 export GGML_TP_AR_FORCE=1
 export GGML_TP_AR_WIRE=bf16
 export GGML_CUDA_REPACK=1
-export GGML_CUDA_REPACK_Q8_0=0
+export GGML_CUDA_REPACK_Q8_0=1
 # Install RCCL tuner config for gfx906 (if not already present)
 TUNER_DIR="$DEVEL_PATH/share/rccl/tuner"
 TUNER_FILE="$TUNER_DIR/rccl_tuner_gfx906.csv"
@@ -55,7 +55,7 @@ fi
 #MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-35B-A3B-Q8_0.gguf"
 #MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3-4B-Instruct-2507-Q8_0.gguf"
 #MODEL_PATH="/home/iacopo/Downloads/deepreinforce-ai_Ornith-1.0-35B-Q8_0.gguf"
-MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-27B-Q8_0.gguf"
+MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3-4B-Instruct-2507-Q8_0.gguf"
 #MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-Q8_K_P.gguf"
 # Vision projector path (uncomment for multimodal models)
 #MMPROJ_PATH="/media/iacopo/LLMs/llms/mmproj-F16_35B.gguf"
@@ -79,11 +79,9 @@ MMPROJ_PATH="/media/iacopo/LLMs/llms/mmproj-F16_27B.gguf"
     -ctv f16 \
     --host 0.0.0.0 \
     --port 8080 \
-    -c 262144 \
+    -c 8192 \
     --jinja \
     --no-mmap \
-    -sm tensor \
-    -tps 2 \
     -fit off \
     --models-dir /media/iacopo/LLMs/llms/ \
     --chat-template-kwargs '{"preserve_thinking": true}' \
@@ -91,8 +89,8 @@ MMPROJ_PATH="/media/iacopo/LLMs/llms/mmproj-F16_27B.gguf"
     --top-p 0.95 \
     --top-k 20 \
     --min-p 0.00 \
-    -b 2048 -ub 2048 --image-min-tokens 2048 --image-max-tokens 32000 \
-    -lv 5 --metrics --mmproj "$MMPROJ_PATH" > server.log 2>&1 \
+    -b 2048 -ub 2048 \
+    -lv 5 --metrics > server.log 2>&1 \
 
 
 

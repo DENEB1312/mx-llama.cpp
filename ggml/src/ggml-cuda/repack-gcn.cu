@@ -1022,6 +1022,25 @@ static __global__ void mul_mat_vec_q4k_repacked_glu(
 #define MMQ_RP_BM (16 * MMQ_RP_TM)
 #define MMQ_RP_BN (16 * MMQ_RP_TN)
 
+// Q8_0 gets its own tuned tile. For Q8_0 the repacked planes are
+// byte-identical to the native block_q8_0 layout (32B qs + 2B d per
+// sub-block), so the win is purely tiling efficiency. We keep the
+// 64x64 output tile and TM=TN=4 (original register profile) but widen
+// MMQ_RP_Q8_BK to 8 so the K-loop does ne0/256 iterations, matching the
+// native Q8_0 MMQ's 256-K ITER_K (the un-tuned BK=4 did ne0/128 -> 2x
+// more K-iters -> ~2.4x slower prefill). 256-thread decomposition
+// (tx=t&15, ty=t>>4, stride 16) is unchanged so the MoE ID path is
+// unaffected. LDS for BK=8 / 64x64: sW_lo[64][8]=8K + sW_hi[64][8]=8K
+// + sWd[64][8]=2K + sX[64][9]=21K ~= 39 KiB < 64 KiB. A 128x128 / BK=8
+// tile would need ~76 KiB (two uint4 weight planes + block_q8_1 sX) and
+// does not fit gfx906's 64 KiB LDS; 128x128 / BK=4 (to fit) re-doubles
+// K-iters. So 64x64 / BK=8 is the register- and LDS-safe sweet spot.
+#define MMQ_RP_Q8_BK 8
+#define MMQ_RP_Q8_TM 4
+#define MMQ_RP_Q8_TN 4
+#define MMQ_RP_Q8_BM (16 * MMQ_RP_Q8_TM)
+#define MMQ_RP_Q8_BN (16 * MMQ_RP_Q8_TN)
+
 template <bool HAS_IDS, int TN_>
 static __global__ void __launch_bounds__(256, 2) mmq_gemm_q4k_repacked(
         const uint8_t * __restrict__ wbase, const block_q8_1 * __restrict__ xq,
@@ -1631,7 +1650,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q3k_repacked(
 // Q8_0 MMQ — 32 qs bytes per sub-block staged as two uint4s; no offset
 // term, so the accumulate is just dsc * dx * idot.
 template <bool HAS_IDS, int TN_>
-static __global__ void __launch_bounds__(256, 2) mmq_gemm_q8_0_repacked(
+static __global__ void __launch_bounds__(256, 1) mmq_gemm_q8_0_repacked(
         const uint8_t * __restrict__ wbase, const block_q8_1 * __restrict__ xq,
         float * __restrict__ y, const uint32_t ne0, const uint32_t ne1,
         const uint32_t n_tok, const uint32_t x_stride,
@@ -1642,7 +1661,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q8_0_repacked(
     const int t  = threadIdx.x;
     const int tx = t & 15;
     const int ty = t >> 4;
-    const uint32_t row0 = blockIdx.x * MMQ_RP_BM;
+    const uint32_t row0 = blockIdx.x * MMQ_RP_Q8_BM;
     uint32_t tok0 = blockIdx.y * (16 * TN_);
     uint32_t a_base = 0, a_end = 0;
     if constexpr (HAS_IDS) {
@@ -1665,28 +1684,37 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q8_0_repacked(
     const uint16_t * dp  = reinterpret_cast<const uint16_t *>(
         wbase + (size_t) ne1 * nsp * 32);
 
-    __shared__ uint4      sW_lo[MMQ_RP_BM][MMQ_RP_BK];
-    __shared__ uint4      sW_hi[MMQ_RP_BM][MMQ_RP_BK];
-    __shared__ float      sWd  [MMQ_RP_BM][MMQ_RP_BK];
-    __shared__ block_q8_1 sX   [(16 * TN_)][MMQ_RP_BK + 1];
+    __shared__ uint4      sW_lo[MMQ_RP_Q8_BM][MMQ_RP_Q8_BK];
+    __shared__ uint4      sW_hi[MMQ_RP_Q8_BM][MMQ_RP_Q8_BK];
+    __shared__ float      sWd  [MMQ_RP_Q8_BM][MMQ_RP_Q8_BK];
+    __shared__ block_q8_1 sX   [(16 * TN_)][MMQ_RP_Q8_BK + 1];
 
-    float acc[MMQ_RP_TM][TN_] = {};
+    float acc[MMQ_RP_Q8_TM][TN_] = {};
 
-    const int lr = t >> 2;
-    const int lk = t & 3;
+    // 64x64 output tile with BK=8: 256 threads stride over the
+    // BM*BK weight / (16*TN_)*BK activation elements per K-step.
+    const int w_elm = MMQ_RP_Q8_BM * MMQ_RP_Q8_BK;
+    const int x_elm = (16 * TN_) * MMQ_RP_Q8_BK;
 
-    for (uint32_t sb0 = 0; sb0 < n_sub; sb0 += MMQ_RP_BK) {
-        const uint32_t sb   = sb0 + lk;
-        const uint32_t wrow = row0 + lr;
-        if (wrow < ne1 && sb < n_sub) {
-            sW_lo[lr][lk] = qsp[(size_t)(wrow * nsp + sb) * 2];
-            sW_hi[lr][lk] = qsp[(size_t)(wrow * nsp + sb) * 2 + 1];
-            const uint16_t d_bits = dp[(size_t) wrow * nsp + sb];
-            sWd[lr][lk] = __half2float(*reinterpret_cast<const __half *>(&d_bits));
-        } else {
-            sWd[lr][lk] = 0.0f;
+    for (uint32_t sb0 = 0; sb0 < n_sub; sb0 += MMQ_RP_Q8_BK) {
+        for (int e = t; e < w_elm; e += 256) {
+            const int lr = e >> 3;          // MMQ_RP_Q8_BK == 8
+            const int lk = e & 7;
+            const uint32_t sb   = sb0 + lk;
+            const uint32_t wrow = row0 + lr;
+            if (wrow < ne1 && sb < n_sub) {
+                sW_lo[lr][lk] = qsp[(size_t)(wrow * nsp + sb) * 2];
+                sW_hi[lr][lk] = qsp[(size_t)(wrow * nsp + sb) * 2 + 1];
+                const uint16_t d_bits = dp[(size_t) wrow * nsp + sb];
+                sWd[lr][lk] = __half2float(*reinterpret_cast<const __half *>(&d_bits));
+            } else {
+                sWd[lr][lk] = 0.0f;
+            }
         }
-        if (lr < (16 * TN_)) {
+        for (int e = t; e < x_elm; e += 256) {
+            const int lr = e >> 3;
+            const int lk = e & 7;
+            const uint32_t sb = sb0 + lk;
             uint32_t xcol = tok0 + lr;
             bool     xval = xcol < n_tok;
             if constexpr (HAS_IDS) {
@@ -1703,11 +1731,11 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q8_0_repacked(
         __syncthreads();
 
 #pragma unroll
-        for (int kk = 0; kk < MMQ_RP_BK; kk++) {
-            uint4 wq_lo[MMQ_RP_TM], wq_hi[MMQ_RP_TM];
-            float dsc[MMQ_RP_TM];
+        for (int kk = 0; kk < MMQ_RP_Q8_BK; kk++) {
+            uint4 wq_lo[MMQ_RP_Q8_TM], wq_hi[MMQ_RP_Q8_TM];
+            float dsc[MMQ_RP_Q8_TM];
 #pragma unroll
-            for (int r = 0; r < MMQ_RP_TM; r++) {
+            for (int r = 0; r < MMQ_RP_Q8_TM; r++) {
                 wq_lo[r] = sW_lo[ty + r * 16][kk];
                 wq_hi[r] = sW_hi[ty + r * 16][kk];
                 dsc[r]   = sWd  [ty + r * 16][kk];
@@ -1718,7 +1746,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q8_0_repacked(
                 const int * xq32 = reinterpret_cast<const int *>(xb->qs);
                 const float dx = __low2float(xb->ds);
 #pragma unroll
-                for (int r = 0; r < MMQ_RP_TM; r++) {
+                for (int r = 0; r < MMQ_RP_Q8_TM; r++) {
                     const uint32_t lo[4] = { wq_lo[r].x, wq_lo[r].y, wq_lo[r].z, wq_lo[r].w };
                     const uint32_t hi[4] = { wq_hi[r].x, wq_hi[r].y, wq_hi[r].z, wq_hi[r].w };
                     int idot = 0;
@@ -1735,7 +1763,7 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q8_0_repacked(
     }
 
 #pragma unroll
-    for (int r = 0; r < MMQ_RP_TM; r++) {
+    for (int r = 0; r < MMQ_RP_Q8_TM; r++) {
         const uint32_t row = row0 + ty + r * 16;
         if (row >= ne1) {
             continue;
@@ -1872,9 +1900,13 @@ static void ggml_cuda_mul_mat_repacked_slice(ggml_backend_cuda_context & ctx,
         return;
     }
 
-    // prefill: int8 MMQ tile GEMM straight from the repacked planes
-    const dim3 grid((ne01 + MMQ_RP_BM - 1) / MMQ_RP_BM,
-                    (ne11 + MMQ_RP_BN - 1) / MMQ_RP_BN, 1);
+    // prefill: int8 MMQ tile GEMM straight from the repacked planes.
+    // Q8_0 uses its own wider tile (see MMQ_RP_Q8_*); K-quants keep the
+    // shared 64x64 tile.
+    const int mmq_bm = (src0->type == GGML_TYPE_Q8_0) ? MMQ_RP_Q8_BM : MMQ_RP_BM;
+    const int mmq_bn = (src0->type == GGML_TYPE_Q8_0) ? MMQ_RP_Q8_BN : MMQ_RP_BN;
+    const dim3 grid((ne01 + mmq_bm - 1) / mmq_bm,
+                    (ne11 + mmq_bn - 1) / mmq_bn, 1);
     switch (src0->type) {
         case GGML_TYPE_Q3_K:
             mmq_gemm_q3k_repacked<false, MMQ_RP_TN><<<grid, 256, 0, stream>>>(
@@ -1897,7 +1929,7 @@ static void ggml_cuda_mul_mat_repacked_slice(ggml_backend_cuda_context & ctx,
                 nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
             break;
         case GGML_TYPE_Q8_0:
-            mmq_gemm_q8_0_repacked<false, MMQ_RP_TN><<<grid, 256, 0, stream>>>(
+            mmq_gemm_q8_0_repacked<false, MMQ_RP_Q8_TN><<<grid, 256, 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, (uint32_t) ne11, (uint32_t) x_stride,
                 nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
             break;
@@ -2028,7 +2060,8 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
     repack_tile_off<16 * TN_ID><<<1, 1, 0, stream>>>(expert_bounds.get(), tile_off.get(), ne02);
     // over-launch upper bound: every expert can add one partial tile
     const int64_t max_tiles = n_assign / (16 * TN_ID) + ne02;
-    const dim3 grid((ne01 + MMQ_RP_BM - 1) / MMQ_RP_BM, max_tiles, 1);
+    const int id_bm = (src0->type == GGML_TYPE_Q8_0) ? MMQ_RP_Q8_BM : MMQ_RP_BM;
+    const dim3 grid((ne01 + id_bm - 1) / id_bm, max_tiles, 1);
 
     switch (src0->type) {
         case GGML_TYPE_Q3_K:

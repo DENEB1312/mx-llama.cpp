@@ -743,6 +743,21 @@ struct ggml_backend_meta_split_state llama_meta_device_get_split_state(const str
         // The meta backend's compute partitioning derives stage ownership from non-mirrored
         // sources, so this doesn't break correctness.
     }
+    {
+        static long long g_ll = 0;
+        if (g_ll < 40 && tensor->name && strcmp(tensor->name, "output.weight") == 0) {
+            FILE * f = fopen("/tmp/repack_dbg.log", "a");
+            if (f) {
+                fprintf(f, "LLAMA_SS name=%s axis=%d n_stages=%zu n_dev=%zu n_lanes=%zu lane_base=%zu rotation=%u stage=%zu ne_full=%lld segn=%zu ne0=%lld ne1=%lld\n",
+                    tensor->name, (int)split_state.axis, (size_t)ud->n_stages, (size_t)ud->n_devices, (size_t)n_lanes,
+                    (size_t)lane_base, (unsigned)tc.rotation, (size_t)stage,
+                    (long long)tensor->ne[split_state.axis], (size_t)split_state.n_segments,
+                    (long long)split_state.ne[0], (long long)split_state.ne[1]);
+                fclose(f);
+            }
+            g_ll++;
+        }
+    }
     return split_state;
     GGML_UNUSED(userdata);
 }
