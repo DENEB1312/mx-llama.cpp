@@ -1738,6 +1738,18 @@ static __global__ void __launch_bounds__(256, 2) mmq_gemm_q3k_repacked(
 #endif // defined(GGML_USE_HIP) && defined(GCN)
 }
 
+// Permute sX row index within each 64-row half so that lanes tx and tx+32
+// (which are 32 rows apart in the linear layout) map to different LDS bank
+// groups, eliminating the 2-way conflict on the 32-byte qs uint4 reads.
+// Lane tx (tx < 32) → row tx; lane tx (tx >= 32) → row tx^16 (swapped halves).
+// Bank diff becomes 16*45 mod 32 = 16 ≠ 0 → zero conflict.
+static __device__ __forceinline__ int sX_swizzle(int lr) {
+    const int n  = lr >> 6;        // 0 or 1 (upper half)
+    int       tx = lr & 63;        // 0..63 within half
+    tx ^= (tx >> 5) << 4;         // XOR 16 when tx >= 32
+    return (n << 6) | tx;
+}
+
 // Q8_0 MMQ — 32 qs bytes per sub-block staged as two uint4s; no offset
 // term, so the accumulate is just dsc * dx * idot.
 template <bool HAS_IDS, int TN_>
@@ -1821,17 +1833,18 @@ template <bool HAS_IDS, int TN_>
                 xval = a < a_end;
                 xcol = xval ? (uint32_t) ids_src1[a] : 0;
             }
+            const int sXr = sX_swizzle(lr);
             if (xval && sb < n_sub) {
                 if constexpr (!HAS_IDS) {
                     // Fast path: read from the block_q8_1_mmq buffer produced by
                     // quantize_mmq_q8_1_cuda (Q8_0 -> D4 layout, scale only).
-                    sX[lr][lk] = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq),
-                                                xcol, sb, n_tok, false);
+                    sX[sXr][lk] = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq),
+                                                  xcol, sb, n_tok, false);
                 } else {
-                    sX[lr][lk] = xq[(size_t) xcol * x_stride + sb];
+                    sX[sXr][lk] = xq[(size_t) xcol * x_stride + sb];
                 }
             } else {
-                sX[lr][lk].ds = make_half2(0.0f, 0.0f);
+                sX[sXr][lk].ds = make_half2(0.0f, 0.0f);
             }
         }
         __syncthreads();
@@ -1850,7 +1863,7 @@ template <bool HAS_IDS, int TN_>
             float   dx[TN_];
             int xq32_cached[TN_][8];
             for (int n = 0; n < TN_; n++) {
-                const block_q8_1 * xb = &sX[tx + n * 64][kk];
+                const block_q8_1 * xb = &sX[sX_swizzle(tx + n * 64)][kk];
                 dx[n] = __low2float(xb->ds);
                 const uint4 * qs4 = reinterpret_cast<const uint4 *>(xb->qs);
                 uint4 q0 = qs4[0];
