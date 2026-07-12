@@ -444,14 +444,7 @@ static __global__ void mul_mat_vec_q4k_repacked(
     for (uint32_t u = lane; u < n_unit; u += 64) {
         const uint32_t sb   = HAS_IDS ? (u >> 1) : u;
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
-        block_q8_1 xb_val;
-        const block_q8_1 * xb;
-        if constexpr (!HAS_IDS) {
-            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, true);
-            xb = &xb_val;
-        } else {
-            xb = xq + sb;
-        }
+        const block_q8_1 * xb = xq + sb;
         const float dx = __low2float(xb->ds);
         const float sx = __high2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
@@ -592,14 +585,7 @@ static __global__ void mul_mat_vec_q5k_repacked(
     for (uint32_t u = lane; u < n_unit; u += 64) {
         const uint32_t sb   = HAS_IDS ? (u >> 1) : u;
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
-        block_q8_1 xb_val;
-        const block_q8_1 * xb;
-        if constexpr (!HAS_IDS) {
-            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, true);
-            xb = &xb_val;
-        } else {
-            xb = xq + sb;
-        }
+        const block_q8_1 * xb = xq + sb;
         const float dx = __low2float(xb->ds);
         const float sx = __high2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
@@ -700,14 +686,7 @@ static __global__ void mul_mat_vec_q6k_repacked(
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
         const int hj0 = HAS_IDS ? (int)(half * 2) : 0;
         const int hj1 = HAS_IDS ? hj0 + 2         : 4;
-        block_q8_1 xb_val;
-        const block_q8_1 * xb;
-        if constexpr (!HAS_IDS) {
-            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, false);
-            xb = &xb_val;
-        } else {
-            xb = xq + sb;
-        }
+        const block_q8_1 * xb = xq + sb;
         const float dx = __low2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
 
@@ -811,14 +790,7 @@ static __global__ void mul_mat_vec_q3k_repacked(
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
         const int hj0 = HAS_IDS ? (int)(half * 2) : 0;
         const int hj1 = HAS_IDS ? hj0 + 2         : 4;
-        block_q8_1 xb_val;
-        const block_q8_1 * xb;
-        if constexpr (!HAS_IDS) {
-            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, false);
-            xb = &xb_val;
-        } else {
-            xb = xq + sb;
-        }
+        const block_q8_1 * xb = xq + sb;
         const float dx = __low2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
 
@@ -924,14 +896,7 @@ static __global__ void mul_mat_vec_q8_0_repacked(
     for (uint32_t hb = lane; hb < n_half; hb += 64) {
         const uint32_t sb   = hb >> 1;
         const uint32_t half = hb & 1;
-        block_q8_1 xb_val;
-        const block_q8_1 * xb;
-        if constexpr (!HAS_IDS) {
-            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, false);
-            xb = &xb_val;
-        } else {
-            xb = xq + sb;
-        }
+        const block_q8_1 * xb = xq + sb;
         const float dx = __low2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs) + half * 4;
 
@@ -1011,14 +976,7 @@ static __global__ void mul_mat_vec_q4k_repacked_glu(
     for (uint32_t u = lane; u < n_unit; u += 64) {
         const uint32_t sb   = HAS_IDS ? (u >> 1) : u;
         const uint32_t half = HAS_IDS ? (u & 1)  : 0;
-        block_q8_1 xb_val;
-        const block_q8_1 * xb;
-        if constexpr (!HAS_IDS) {
-            xb_val = rp_xq_from_mmq(reinterpret_cast<const block_q8_1_mmq *>(xq), 0, sb, 1, true);
-            xb = &xb_val;
-        } else {
-            xb = xq + sb;
-        }
+        const block_q8_1 * xb = xq + sb;
         const float dx = __low2float(xb->ds);
         const float sx = __high2float(xb->ds);
         const int * xq32 = reinterpret_cast<const int *>(xb->qs);
@@ -1958,34 +1916,61 @@ void ggml_cuda_mul_mat_repacked(ggml_backend_cuda_context & ctx,
     cudaStream_t stream = ctx.stream();
     const uint8_t * w = (const uint8_t *) src0->data;
 
-    // Quantize the whole (possibly 3D/4D) activation once using the fast,
-    // tile-aware quantizer (same kernel the native mmq path uses). It writes
-    // a block_q8_1_mmq buffer; the repack kernels read it via rp_xq_from_mmq.
-    // Total buffer bytes are unchanged (4*sizeof(block_q8_1) ==
-    // sizeof(block_q8_1_mmq)), only the in-block ordering is transposed.
     const int64_t ne10_padded = GGML_PAD(ne10, MATRIX_ROW_PADDING);
     const int64_t x_stride    = ne10_padded / QK8_1;
     const uint64_t n_groups   = (uint64_t) ne10_padded / (4 * QK8_1); // mmq blocks (128 vals) per token col
-    ggml_cuda_pool_alloc<char> src1_q8_1(ctx.pool(),
-        ne13 * ne12 * ne11 * ne10_padded * sizeof(block_q8_1) / QK8_1);
-    {
-        const int64_t s11 = src1->nb[1] / sizeof(float);
-        const int64_t s12 = src1->nb[2] / sizeof(float);
-        const int64_t s13 = src1->nb[3] / sizeof(float);
-        quantize_mmq_q8_1_cuda((const float *) src1->data, nullptr, src1_q8_1.get(),
-            src0->type, ne10, s11, s12, s13, ne10_padded, ne11, ne12, ne13, stream);
-    }
 
-    for (int64_t i3 = 0; i3 < ne13; i3++) {
-    for (int64_t i2 = 0; i2 < ne12; i2++) {
-        // Per-slice base in block_q8_1_mmq units (n_groups * ne11 blocks/slice).
-        const char * slice_base = src1_q8_1.get()
-                              + (i3 * ne12 + i2) * ne11 * n_groups * sizeof(block_q8_1_mmq);
-        const block_q8_1 * xq = reinterpret_cast<const block_q8_1 *>(slice_base);
-        float * dst_d = (float *)((char *) dst->data + i3 * dst->nb[3] + i2 * dst->nb[2]);
-        ggml_cuda_mul_mat_repacked_slice(ctx, src0, w, xq, dst_d,
-            ne00, ne01, ne11, x_stride, stream);
-    }
+    if (ne11 == 1) {
+        // Decode (single token) and any single-row matmul: use the canonical
+        // contiguous quantizer so the matvec reads xq + sb directly. A single
+        // token's quantize cost is negligible, and this restores the pre-rewrite
+        // decode throughput (the transposed block_q8_1_mmq gather regressed TG
+        // ~2.4x). Matvec is only ever invoked for ne11 == 1, so it always sees
+        // this canonical buffer.
+        ggml_cuda_pool_alloc<block_q8_1> src1_q8_1(ctx.pool(),
+            ne13 * ne12 * ne11 * x_stride);
+        {
+            const int64_t s11 = src1->nb[1] / sizeof(float);
+            const int64_t s12 = src1->nb[2] / sizeof(float);
+            const int64_t s13 = src1->nb[3] / sizeof(float);
+            quantize_row_q8_1_cuda((const float *) src1->data, nullptr, src1_q8_1.get(),
+                src0->type, ne10, s11, s12, s13, ne10_padded, ne11, ne12, ne13, stream);
+        }
+        for (int64_t i3 = 0; i3 < ne13; i3++) {
+        for (int64_t i2 = 0; i2 < ne12; i2++) {
+            const block_q8_1 * xq = src1_q8_1.get()
+                                  + (i3 * ne12 + i2) * ne11 * x_stride;
+            float * dst_d = (float *)((char *) dst->data + i3 * dst->nb[3] + i2 * dst->nb[2]);
+            ggml_cuda_mul_mat_repacked_slice(ctx, src0, w, xq, dst_d,
+                ne00, ne01, ne11, x_stride, stream);
+        }
+        }
+    } else {
+        // Prefill: use the fast tile-aware quantizer (same kernel the native
+        // mmq path uses), writing a transposed block_q8_1_mmq buffer; the GEMM
+        // reads it via rp_xq_from_mmq. Total bytes unchanged vs canonical
+        // (4*sizeof(block_q8_1) == sizeof(block_q8_1_mmq)), only the in-block
+        // ordering is transposed. This is what removed the slow gfx906-locked
+        // quantize_q8_1 bottleneck and made repack beat native on PP.
+        ggml_cuda_pool_alloc<block_q8_1_mmq> src1_q8_1(ctx.pool(),
+            ne13 * ne12 * ne11 * n_groups);
+        {
+            const int64_t s11 = src1->nb[1] / sizeof(float);
+            const int64_t s12 = src1->nb[2] / sizeof(float);
+            const int64_t s13 = src1->nb[3] / sizeof(float);
+            quantize_mmq_q8_1_cuda((const float *) src1->data, nullptr, src1_q8_1.get(),
+                src0->type, ne10, s11, s12, s13, ne10_padded, ne11, ne12, ne13, stream);
+        }
+        for (int64_t i3 = 0; i3 < ne13; i3++) {
+        for (int64_t i2 = 0; i2 < ne12; i2++) {
+            const block_q8_1_mmq * slice_base = src1_q8_1.get()
+                                  + (i3 * ne12 + i2) * ne11 * n_groups;
+            const block_q8_1 * xq = reinterpret_cast<const block_q8_1 *>(slice_base);
+            float * dst_d = (float *)((char *) dst->data + i3 * dst->nb[3] + i2 * dst->nb[2]);
+            ggml_cuda_mul_mat_repacked_slice(ctx, src0, w, xq, dst_d,
+                ne00, ne01, ne11, x_stride, stream);
+        }
+        }
     }
 }
 

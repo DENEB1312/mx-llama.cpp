@@ -211,9 +211,9 @@ pp2048 (within noise) and beats it by ~4% on tg128**.
   REPACK_Q8_0=1 (repack):   pp2048 ≈ 1289 t/s ±18  tg128 ≈ 109.1 t/s   (tied pp, +3.8% tg)
   ```
 
-  Post-Plan-A (mmq-quantizer rewrite — see Performance section below): **PP now
-  WINS ~+9% (1414 vs 1296 t/s) but TG REGRESSES to ~43 t/s** (decode matvec now
-  reads the transposed mmq buffer). Fix pending — see Performance.
+  Post-Plan-A (mmq-quantizer rewrite, decode rerouted to canonical quantizer —
+  see Performance): **PP WINS ~+10% (1425 vs 1297 t/s) and TG RECOVERED to ~102
+  t/s** (== native). Single-GPU path now viable end-to-end; TP Track B open.
 
 **Why it was slower and what fixed it.**  The original inner K-loop read
 the W plane (`sW_lo` + `sW_hi` + `sWd`) on every (kk, n, r) triple, but
@@ -308,41 +308,38 @@ Single MI60, Qwen3-4B Q8_0, -ngl 99 -fa 1, pp2048/tg128
                                             slow quantize_q8_1 GONE)
     -> repack PP ~ -8.6% GPU time vs native; GEMM 4199 vs 4700 ms
 
-  Combined bench (pp2048 / tg128):
+  Combined bench (single MI60, 4B Q8_0, pp2048 / tg128):
     REPACK_Q8_0=0 (native):  pp2048 ≈ 1296.98 t/s   tg128 ≈ 105.12 t/s
-    REPACK_Q8_0=1 (repack):  pp2048 ≈ 1414.42 t/s   tg128 ≈  43.42 t/s  <-- TG REGRESSION
+    REPACK_Q8_0=1 (repack):  pp2048 ≈ 1425.27 t/s   tg128 ≈ 102.03 t/s   <-- FIXED
 
-  PP WINS (+9.1% t/s, matches kernel discovery).  TG REGRESSES (-58.7% vs native).
+  PP WINS (+9.9% t/s, matches kernel discovery).  TG RECOVERED (~native level;
+  was 43.42 pre-fix).
 ```
 
 **PP is now a clear win and the activation-quantizer bottleneck is eliminated**
 (Plan A: dense dispatch switched from `quantize_row_q8_1_cuda` — the slow
 block-32, 1-elem/thread, gfx906-locked path — to `quantize_mmq_q8_1_cuda`, the
-same fast block-128 / 4-elem/thread kernel native uses; kernels read the
+same fast block-128 / 4-elem/thread kernel native uses; prefill reads the
 transposed `block_q8_1_mmq` buffer via `rp_xq_from_mmq`). The 642 ms
 `quantize_q8_1` cost seen in the prior PP profile is gone (repack now 79 ms,
 == native).
 
-**Decode (TG) regressed from ~109 t/s (pre-rewrite) to ~43 t/s** — a decode-only
-regression (PP improved, so it is localized to the single-token matvec path).
-Root cause: for decode (`ne11 == 1`) the matvec now gathers each sub-block out of
-the strided 144-byte `block_q8_1_mmq` layout via `rp_xq_from_mmq` instead of the
-contiguous canonical `xq + sb`, and/or the bulk-oriented `quantize_mmq_q8_1_cuda`
-+ temp-pool dispatch defeats CUDA-graph capture for the 1-token step. Output is
-still correct (llama-server answers coherently) — it is purely a decode perf
-regression.
+**Decode regression found and FIXED.** After the first Plan-A cut, TG collapsed
+to ~43 t/s (vs native 105) because decode (`ne11 == 1`) was routed through the
+transposed mmq buffer (the matvec gathered each sub-block out of the strided
+144-byte `block_q8_1_mmq` layout via `rp_xq_from_mmq` instead of the contiguous
+canonical `xq + sb`). Fix: the dense dispatch now branches on `ne11` —
+`ne11 == 1` (decode + single-row matmuls) quantizes with the **canonical**
+`quantize_row_q8_1_cuda` into a contiguous `block_q8_1` buffer and the matvec
+reads `xq + sb`; only `ne11 > 1` (prefill) uses the fast `quantize_mmq_q8_1_cuda`
++ mmq buffer (GEMM reads via `rp_xq_from_mmq`). A single token's quantize cost is
+negligible, so decode is back to ~102 t/s (== native within noise) while PP keeps
+its ~+9% win. The K-quant MoE (`HAS_IDS`) branch was never switched and is
+untouched. Correctness intact (llama-server answers coherently).
 
-**Proposed fix (NOT yet applied):** keep the fast `quantize_mmq_q8_1_cuda` + mmq
-buffer for **prefill** (`ne11 > 1`) only; route **decode** (`ne11 == 1`) back to
-the contiguous canonical quantizer (`quantize_row_q8_1_cuda` + `xq + sb` in the
-matvec). A single token's quantize cost is negligible, so decode regains the old
-~109 t/s while PP keeps its ~9% win. This keeps the K-quant MoE (`HAS_IDS`)
-branch untouched (it was never switched).
-
-Do **not** trust `REPACK_Q8_0=1` combined-bench TG until the decode regression is
-fixed. Track A has closed the single-GPU **PP** gap (now ~+9% vs native) but
-introduced a **TG** regression that must be resolved before this path is viable
-end-to-end. (TP Track B still open — see below.)
+Track A is now viable end-to-end on a single GPU: **PP ~+10% vs native, TG ~native
+level** (was ~109 pre-rewrite, now ~102 after the mmq prefill rewrite). PP is the
+net win; TG is on par with native. (TP Track B still open — see below.)
 
 ### Profiling (rocprofv3, gfx906, Qwen3-4B Q8_0, pp2048/tg128)
 
