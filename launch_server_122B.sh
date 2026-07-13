@@ -40,6 +40,7 @@ export GGML_TP_AR_FORCE=1
 export GGML_TP_AR_WIRE=bf16
 export GGML_CUDA_REPACK=1
 export GGML_CUDA_REPACK_Q8_0=1
+#export GGML_CUDA_DISABLE_GRAPHS=1
 # Install RCCL tuner config for gfx906 (if not already present)
 TUNER_DIR="$DEVEL_PATH/share/rccl/tuner"
 TUNER_FILE="$TUNER_DIR/rccl_tuner_gfx906.csv"
@@ -59,7 +60,9 @@ MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3-4B-Instruct-2507-Q8_0.gguf"
 #MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-Q8_K_P.gguf"
 # Vision projector path (uncomment for multimodal models)
 #MMPROJ_PATH="/media/iacopo/LLMs/llms/mmproj-F16_35B.gguf"
+MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-27B-Q8_0.gguf"
 MMPROJ_PATH="/media/iacopo/LLMs/llms/mmproj-F16_27B.gguf"
+MODEL_PATH="/media/iacopo/LLMs/llms/Qwen_Qwen3.5-4B-Q8_0.gguf"
 
 #ngram settings:
 #        --spec-type ngram-mod \
@@ -78,8 +81,8 @@ MMPROJ_PATH="/media/iacopo/LLMs/llms/mmproj-F16_27B.gguf"
     -ctk f16 \
     -ctv f16 \
     --host 0.0.0.0 \
-    --port 8080 \
-    -c 8192 \
+    --port 8082 \
+    -c 250000 \
     --jinja \
     --no-mmap \
     -fit off \
@@ -90,7 +93,8 @@ MMPROJ_PATH="/media/iacopo/LLMs/llms/mmproj-F16_27B.gguf"
     --top-k 20 \
     --min-p 0.00 \
     -b 2048 -ub 2048 \
-    -lv 5 --metrics > server.log 2>&1 \
+
+    
 
 
 

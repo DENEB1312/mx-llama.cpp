@@ -1,0 +1,11 @@
+mul_mat_q<Q8>  # 33.2%
+mul_mat_q<Q8>  # 17.6%
+gcn_f32_gemm_tn(float const*, float const*, float*, int, int, int, int, int, int)  # 13.0%
+mul_mat_q<Q8>  # 12.3%
+gated_delta_net_chunked_cuda  # 3.5%
+mul_mat_q<Q8>  # 3.4%
+mul_mat_q<Q8>  # 2.8%
+gated_delta_net_cuda  # 2.7%
+concat_f32_non_cont  # 2.5%
+flash_attn_tile  # 1.8%
+quantize_mmq_q8_1  # 1.4%

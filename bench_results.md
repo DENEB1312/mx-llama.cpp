@@ -15966,3 +15966,3665 @@ llama-bench: benchmark 2/2: generation run 1/1
 | qwen35moe 35B.A3B Q8_0         |  34.36 GiB |    34.66 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |           tg128 |         91.12 ± 0.00 |
 
 build: f27f388c3 (9481)
+
+### 14:59:17  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1419.92 ± 0.00 |
+
+build: e78142b60 (9485)
+
+### 14:59:23  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1407.67 ± 0.00 |
+
+build: e78142b60 (9485)
+
+### 14:59:28  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1408.80 ± 0.00 |
+
+build: e78142b60 (9485)
+
+### 15:01:31  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1424.67 ± 0.00 |
+
+build: e78142b60 (9485)
+
+### 15:01:36  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1422.23 ± 0.00 |
+
+build: e78142b60 (9485)
+
+### 15:01:41  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1421.31 ± 0.00 |
+
+build: e78142b60 (9485)
+
+### 15:01:47  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1418.81 ± 0.00 |
+
+build: e78142b60 (9485)
+
+### 15:01:52  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1421.18 ± 0.00 |
+
+build: e78142b60 (9485)
+
+### 15:34:18  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1426.39 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 15:34:24  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1425.36 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 15:34:29  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1423.51 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 15:34:35  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1423.38 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 15:34:40  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1422.45 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 15:35:02  pp2048/tg128
+
+### 15:35:04  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1429.40 ± 0.00 |
+[0;31mE20260712 15:35:11.391458 133949350199680 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_agent_info.csv
+[m[0;31mE20260712 15:35:11.393236 133949350199680 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_stats.csv
+[m[0;31mE20260712 15:35:11.393695 133949350199680 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_trace.csv
+[m[0;31mE20260712 15:35:11.402093 133949350199680 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_domain_stats.csv
+[m
+build: 3c1aa1c44 (9486)
+
+### 15:51:41  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1426.87 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 15:54:30  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: depth run 1/1
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |  pp2048 @ d2048 |       1204.35 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 15:54:43  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=1 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=9728 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/1: depth run 1/1
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |  pp2048 @ d2048 |       1104.89 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 16:17:00  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1428.37 ± 0.00 |
+
+build: 3c1aa1c44 (9486)
+
+### 16:41:21  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1654.38 ± 0.00 |
+
+build: ce9b53952 (9487)
+
+### 16:42:01  pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+| qwen35 27B Q8_0                |  26.62 GiB |    26.90 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |          pp2048 |        571.17 ± 0.00 |
+
+build: ce9b53952 (9487)
+
+### 16:43:55  pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+/home/iacopo/Desktop/mx-llama.cpp-gfx906/ggml/src/ggml-cuda/ggml-cuda.cu:105: ROCm error
+[New LWP 60112]
+[New LWP 60110]
+[New LWP 60109]
+[New LWP 60108]
+[New LWP 60107]
+[New LWP 60106]
+[New LWP 60105]
+[New LWP 60104]
+[New LWP 60101]
+[New LWP 60060]
+[New LWP 60059]
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) [answered N; input not from terminal]
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x000078627a510813 in __GI___wait4 (pid=60113, stat_loc=0x0, options=0, usage=0x0) at ../sysdeps/unix/sysv/linux/wait4.c:30
+warning: 30	../sysdeps/unix/sysv/linux/wait4.c: No such file or directory
+#0  0x000078627a510813 in __GI___wait4 (pid=60113, stat_loc=0x0, options=0, usage=0x0) at ../sysdeps/unix/sysv/linux/wait4.c:30
+30	in ../sysdeps/unix/sysv/linux/wait4.c
+#1  0x0000786282b69a96 in ggml_print_backtrace () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-base.so.0
+#2  0x0000786282b80159 in ggml_abort () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-base.so.0
+#3  0x0000786281b3ba42 in ggml_cuda_error(char const*, char const*, char const*, int, char const*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-hip.so.0
+#4  0x0000786281b4b1c2 in ggml_cuda_compute_forward(ggml_backend_cuda_context&, ggml_tensor*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-hip.so.0
+#5  0x0000786281b488f1 in ggml_cuda_graph_evaluate_and_capture(ggml_backend_cuda_context*, ggml_cgraph*, bool, bool, void const*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-hip.so.0
+#6  0x0000786281b4559d in ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-hip.so.0
+#7  0x0000786282b9209b in ggml_backend_meta_graph_compute(ggml_backend*, ggml_cgraph*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-base.so.0
+#8  0x0000786282b8b585 in ggml_backend_sched_graph_compute_async () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-base.so.0
+#9  0x000078628292bf01 in llama_context::graph_compute(ggml_cgraph*, bool) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama.so.0
+#10 0x000078628292ba99 in llama_context::process_ubatch(llama_ubatch const&, llm_graph_type, llama_memory_context_i*, ggml_status&) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama.so.0
+#11 0x000078628292d374 in llama_context::decode(llama_batch const&) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama.so.0
+#12 0x000078628293275b in llama_decode () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama.so.0
+#13 0x000078628313399b in test_prompt(llama_context*, int, int, int) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama-bench-impl.so
+#14 0x000078628312dc62 in llama_bench(int, char**) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama-bench-impl.so
+#15 0x000078627a42a1ca in __libc_start_call_main (main=main@entry=0x58177b19c880 <main>, argc=argc@entry=28, argv=argv@entry=0x7ffe1ee67e78) at ../sysdeps/nptl/libc_start_call_main.h:58
+warning: 58	../sysdeps/nptl/libc_start_call_main.h: No such file or directory
+#16 0x000078627a42a28b in __libc_start_main_impl (main=0x58177b19c880 <main>, argc=28, argv=0x7ffe1ee67e78, init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>, stack_end=0x7ffe1ee67e68) at ../csu/libc-start.c:360
+warning: 360	../csu/libc-start.c: No such file or directory
+#17 0x000058177b19c7e5 in _start ()
+[Inferior 1 (process 60057) detached]
+
+### 16:44:23  pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+/home/iacopo/Desktop/mx-llama.cpp-gfx906/ggml/src/ggml-cuda/ggml-cuda.cu:105: ROCm error
+[New LWP 60199]
+[New LWP 60196]
+[New LWP 60195]
+[New LWP 60194]
+[New LWP 60193]
+[New LWP 60192]
+[New LWP 60191]
+[New LWP 60190]
+[New LWP 60189]
+[New LWP 60162]
+[New LWP 60161]
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) [answered N; input not from terminal]
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x0000760016110813 in __GI___wait4 (pid=60200, stat_loc=0x0, options=0, usage=0x0) at ../sysdeps/unix/sysv/linux/wait4.c:30
+warning: 30	../sysdeps/unix/sysv/linux/wait4.c: No such file or directory
+#0  0x0000760016110813 in __GI___wait4 (pid=60200, stat_loc=0x0, options=0, usage=0x0) at ../sysdeps/unix/sysv/linux/wait4.c:30
+30	in ../sysdeps/unix/sysv/linux/wait4.c
+#1  0x000076001e769a96 in ggml_print_backtrace () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-base.so.0
+#2  0x000076001e780159 in ggml_abort () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-base.so.0
+#3  0x000076001d73ba42 in ggml_cuda_error(char const*, char const*, char const*, int, char const*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-hip.so.0
+#4  0x000076001d74b1c2 in ggml_cuda_compute_forward(ggml_backend_cuda_context&, ggml_tensor*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-hip.so.0
+#5  0x000076001d7488f1 in ggml_cuda_graph_evaluate_and_capture(ggml_backend_cuda_context*, ggml_cgraph*, bool, bool, void const*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-hip.so.0
+#6  0x000076001d74559d in ggml_backend_cuda_graph_compute(ggml_backend*, ggml_cgraph*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-hip.so.0
+#7  0x000076001e79209b in ggml_backend_meta_graph_compute(ggml_backend*, ggml_cgraph*) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-base.so.0
+#8  0x000076001e78b585 in ggml_backend_sched_graph_compute_async () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libggml-base.so.0
+#9  0x000076001e52bf01 in llama_context::graph_compute(ggml_cgraph*, bool) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama.so.0
+#10 0x000076001e52ba99 in llama_context::process_ubatch(llama_ubatch const&, llm_graph_type, llama_memory_context_i*, ggml_status&) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama.so.0
+#11 0x000076001e52d374 in llama_context::decode(llama_batch const&) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama.so.0
+#12 0x000076001e53275b in llama_decode () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama.so.0
+#13 0x000076001ed0899b in test_prompt(llama_context*, int, int, int) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama-bench-impl.so
+#14 0x000076001ed02c62 in llama_bench(int, char**) () from /home/iacopo/Desktop/mx-llama.cpp-gfx906/build/bin/libllama-bench-impl.so
+#15 0x000076001602a1ca in __libc_start_call_main (main=main@entry=0x59d9db4b5880 <main>, argc=argc@entry=28, argv=argv@entry=0x7ffe4a03fc08) at ../sysdeps/nptl/libc_start_call_main.h:58
+warning: 58	../sysdeps/nptl/libc_start_call_main.h: No such file or directory
+#16 0x000076001602a28b in __libc_start_main_impl (main=0x59d9db4b5880 <main>, argc=28, argv=0x7ffe4a03fc08, init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>, stack_end=0x7ffe4a03fbf8) at ../csu/libc-start.c:360
+warning: 360	../csu/libc-start.c: No such file or directory
+#17 0x000059d9db4b57e5 in _start ()
+[Inferior 1 (process 60159) detached]
+
+### 16:45:15  pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2048 nrows_x=124160 bpr=64 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q8_0         |  34.37 GiB |    34.66 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |          pp2048 |       1757.60 ± 0.00 |
+
+build: ce9b53952 (9487)
+
+### 16:45:33  pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=5120 nrows_x=124160 bpr=160 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+| qwen35 27B Q8_0                |  26.62 GiB |    26.90 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |          pp2048 |        427.59 ± 0.00 |
+
+build: ce9b53952 (9487)
+
+### 16:49:14  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1653.32 ± 0.00 |
+
+build: ce9b53952 (9487)
+
+### 16:55:21  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1504.25 ± 0.00 |
+
+build: ce9b53952 (9487)
+
+### 18:23:45  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1417.67 ± 0.00 |
+
+build: ce9b53952 (9487)
+
+### 18:41:47  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1511.45 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 18:45:31  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -1024
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 18:45:34  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -1024
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 18:45:49  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: 4096
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 18:46:06  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+llama-bench: benchmark 1/2: depth run 1/1
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |  pp2048 @ d1024 |       1378.52 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: depth run 1/1 (cached)
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |  pp4096 @ d1024 |       1264.70 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 20:04:09  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/12: starting
+llama-bench: benchmark 1/12: warmup prompt run
+llama-bench: benchmark 1/12: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        210.29 ± 0.00 |
+llama-bench: benchmark 2/12: starting
+llama-bench: benchmark 2/12: warmup prompt run
+llama-bench: benchmark 2/12: prompt run 1/1
+
+### 20:05:40  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+llama-bench: benchmark 1/2: depth run 1/1
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |   pp2048 @ d500 |       1287.71 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: depth run 1/1 (cached)
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |   pp8192 @ d500 |       1212.58 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 20:19:41  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/2: depth run 1/1
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |   pp2048 @ d500 |       1263.43 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: depth run 1/1 (cached)
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |   pp8192 @ d500 |       1188.72 ± 0.00 |
+[0;31mE20260712 20:20:03.895166 125872485548416 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_agent_info.csv
+[m[0;31mE20260712 20:20:03.897676 125872485548416 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_stats.csv
+[m[0;31mE20260712 20:20:03.898132 125872485548416 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_trace.csv
+[m[0;31mE20260712 20:20:03.939310 125872485548416 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_domain_stats.csv
+[m
+build: 5ab82e74f (9488)
+
+### 20:20:22  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+llama-bench: benchmark 1/2: depth run 1/1
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |   pp2048 @ d500 |       1290.55 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: depth run 1/1 (cached)
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |   pp8192 @ d500 |       1207.76 ± 0.00 |
+[0;31mE20260712 20:20:45.628212 125516213055872 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_agent_info.csv
+[m[0;31mE20260712 20:20:45.631783 125516213055872 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_stats.csv
+[m[0;31mE20260712 20:20:45.633124 125516213055872 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_trace.csv
+[m[0;31mE20260712 20:20:45.674782 125516213055872 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_domain_stats.csv
+[m
+build: 5ab82e74f (9488)
+
+### 20:24:04  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: depth run 1/1
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |   pp2048 @ d500 |        207.41 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: depth run 1/1 (cached)
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |   pp2048 @ d500 |        382.86 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: depth run 1/1 (cached)
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |   pp2048 @ d500 |        658.44 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: depth run 1/1 (cached)
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |   pp2048 @ d500 |        935.25 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+
+### 20:25:09  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        204.30 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        384.71 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        672.92 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        950.90 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1112.35 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1242.89 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1284.32 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1280.11 ± 0.00 |
+[0;31mE20260712 20:26:09.964384 124841619939712 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_agent_info.csv
+[m[0;31mE20260712 20:26:10.056732 124841619939712 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_stats.csv
+[m[0;31mE20260712 20:26:10.084413 124841619939712 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_trace.csv
+[m[0;31mE20260712 20:26:11.960661 124841619939712 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_domain_stats.csv
+[m
+build: 5ab82e74f (9488)
+
+### 20:27:05  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        334.26 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        520.10 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        695.04 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        988.58 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1225.55 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1285.36 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1276.32 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1250.22 ± 0.00 |
+[0;31mE20260712 20:27:54.626763 137912839553408 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_agent_info.csv
+[m[0;31mE20260712 20:27:54.716363 137912839553408 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_stats.csv
+[m[0;31mE20260712 20:27:54.746726 137912839553408 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_trace.csv
+[m[0;31mE20260712 20:27:56.763948 137912839553408 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_domain_stats.csv
+[m
+build: 5ab82e74f (9488)
+
+### 20:32:38  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        209.08 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        393.24 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        685.83 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        972.14 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |       1141.56 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1269.92 ± 0.00 |
+[0;31mE20260712 20:32:56.832080 135320346149248 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_agent_info.csv
+[m[0;31mE20260712 20:32:56.856659 135320346149248 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_stats.csv
+[m[0;31mE20260712 20:32:56.888244 135320346149248 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_kernel_trace.csv
+[m[0;31mE20260712 20:32:57.386936 135320346149248 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-results/kernels_domain_stats.csv
+[m
+build: 5ab82e74f (9488)
+
+### 20:33:13  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        209.50 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        385.80 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        664.84 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        958.79 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |       1137.81 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1240.46 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 20:39:35  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        210.47 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        385.82 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        668.15 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        958.60 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |       1141.90 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1244.58 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 20:40:27  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        210.44 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        387.23 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        667.71 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        968.02 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |       1143.88 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1237.90 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:17:49  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        107.13 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        202.55 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        370.55 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        631.33 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |        881.60 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1159.54 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:19:49  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        106.97 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        201.80 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        369.19 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        631.39 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |        883.07 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1154.53 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:23:30  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        107.14 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        202.70 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        371.05 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        631.59 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |        881.39 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1166.29 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:24:29  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        106.92 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        202.83 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        370.36 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        631.69 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |        882.80 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1159.85 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:25:29  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        106.99 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+
+### 21:26:48  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        107.13 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+
+### 21:27:20  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        107.42 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+
+### 21:32:18  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        212.10 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        392.23 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        679.34 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        982.73 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |       1162.19 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1258.46 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:39:31  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/6: starting
+llama-bench: benchmark 1/6: warmup prompt run
+llama-bench: benchmark 1/6: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp512 |        212.07 ± 0.00 |
+llama-bench: benchmark 2/6: starting
+llama-bench: benchmark 2/6: warmup prompt run
+llama-bench: benchmark 2/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp512 |        392.76 ± 0.00 |
+llama-bench: benchmark 3/6: starting
+llama-bench: benchmark 3/6: warmup prompt run
+llama-bench: benchmark 3/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp512 |        676.35 ± 0.00 |
+llama-bench: benchmark 4/6: starting
+llama-bench: benchmark 4/6: warmup prompt run
+llama-bench: benchmark 4/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp512 |        983.49 ± 0.00 |
+llama-bench: benchmark 5/6: starting
+llama-bench: benchmark 5/6: warmup prompt run
+llama-bench: benchmark 5/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp512 |       1162.21 ± 0.00 |
+llama-bench: benchmark 6/6: starting
+llama-bench: benchmark 6/6: warmup prompt run
+llama-bench: benchmark 6/6: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp512 |       1263.88 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:40:16  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1356.20 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:42:17  pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |          pp2048 |       2583.24 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:46:07  pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |          pp2048 |       2535.24 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:46:46  pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |          pp2048 |       2494.60 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:47:16  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1298.45 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:47:49  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/1: starting
+llama-bench: benchmark 1/1: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/1: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1270.04 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:48:24  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        932.94 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1268.65 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:49:26  pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        899.96 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1299.90 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:52:46 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        936.10 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1273.25 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:52:51 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        895.76 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1301.89 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:53:36 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        338.05 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        346.45 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        497.50 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        515.38 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        708.91 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        692.68 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |        932.11 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        978.52 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |        931.21 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1242.70 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |        929.88 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1311.25 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |        931.04 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1292.63 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        934.16 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1259.71 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 21:54:23 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        206.62 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        208.75 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        374.29 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        385.17 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        682.11 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        666.95 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |        887.97 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        935.91 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |        887.31 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1122.25 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |        890.02 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1247.41 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |        890.87 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1286.47 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        890.15 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1276.59 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 22:04:54 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        209.97 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        209.49 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        393.77 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        391.84 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        681.36 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        680.86 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |        966.84 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        965.23 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |        967.72 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1132.39 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |        964.75 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1257.34 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |        963.77 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1299.86 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        965.01 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1294.03 ± 0.00 |
+[0;31mE20260712 22:05:57.202602 126323985629568 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-repack/kernels_agent_info.csv
+[m[0;31mE20260712 22:05:57.286966 126323985629568 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-repack/kernels_kernel_stats.csv
+[m[0;31mE20260712 22:05:57.287567 126323985629568 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-repack/kernels_kernel_trace.csv
+[m[0;31mE20260712 22:05:59.101910 126323985629568 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-repack/kernels_domain_stats.csv
+[m
+build: 5ab82e74f (9488)
+
+### 22:06:06 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        342.01 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        341.69 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        524.66 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        523.91 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        699.64 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        702.90 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |        999.94 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        996.19 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |        996.00 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1233.92 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |        996.80 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1301.67 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |        999.27 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1284.91 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        998.01 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1262.05 ± 0.00 |
+[0;31mE20260712 22:06:56.413675 135670285758848 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-native/kernels_agent_info.csv
+[m[0;31mE20260712 22:06:56.498047 135670285758848 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-native/kernels_kernel_stats.csv
+[m[0;31mE20260712 22:06:56.498528 135670285758848 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-native/kernels_kernel_trace.csv
+[m[0;31mE20260712 22:06:58.371181 135670285758848 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/discovery-native/kernels_domain_stats.csv
+[m
+build: 5ab82e74f (9488)
+
+### 22:16:48 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=1 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=9728 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        422.59 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        425.03 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        616.41 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        603.18 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        802.99 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        749.62 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |       1084.59 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |       1051.78 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |       1077.53 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1298.59 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |       1079.45 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1367.85 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |       1076.33 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1343.20 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |       1075.66 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1286.32 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 22:17:30 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        224.57 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        223.36 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        421.80 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        416.26 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        765.05 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        717.97 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |       1047.75 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |       1030.24 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |       1052.47 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1189.08 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |       1068.88 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1335.16 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |       1050.23 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1362.84 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |       1065.38 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1334.10 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 23:12:39 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=1 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=9728 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        427.13 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        424.15 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        615.97 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        604.29 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        802.78 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        749.65 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |       1076.86 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |       1050.96 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |       1081.46 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1295.66 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |       1078.16 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1365.24 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |       1078.11 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1341.79 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |       1075.77 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1286.18 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 23:13:21 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        149.02 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        148.04 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        284.48 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        279.61 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        525.29 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        504.76 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |        861.01 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        855.61 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |        862.77 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1206.93 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |        860.83 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1322.08 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |        862.19 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1430.08 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        860.56 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1399.88 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 23:34:58 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        150.08 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        148.68 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        285.47 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        280.40 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        528.06 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        506.04 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |        868.38 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        856.95 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |        865.19 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1213.40 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |        865.29 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1331.59 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |        864.61 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1438.98 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        865.24 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1406.96 ± 0.00 |
+
+build: 5ab82e74f (9488)
+
+### 00:10:23 [native(off)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 00:10:23 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 00:10:57 [native(off)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 00:10:57 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 00:11:45 [native(off)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 00:11:46 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 00:12:47 [native(off)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=5120 nrows_x=124160 bpr=160 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+| qwen35 27B Q8_0                |  26.62 GiB |    26.90 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |           pp128 |        318.76 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 27B Q8_0                |  26.62 GiB |    26.90 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |          pp2048 |        428.15 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 00:13:29 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+llama-bench: benchmark 1/2: warmup prompt run
+llama-bench: benchmark 1/2: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |     sm |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -----: | --: | ---: | --------------: | -------------------: |
+| qwen35 27B Q8_0                |  26.62 GiB |    26.90 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |           pp128 |        238.90 ± 0.00 |
+llama-bench: benchmark 2/2: starting
+llama-bench: benchmark 2/2: warmup prompt run
+llama-bench: benchmark 2/2: prompt run 1/1
+| qwen35 27B Q8_0                |  26.62 GiB |    26.90 B | ROCm       |  99 |      24 |     2048 | tensor |   1 |    0 |          pp2048 |        433.95 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 01:17:55 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI50/MI60, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16
+[0;31mE20260713 01:17:59.036680 129281209573760 output_file.cpp:102] Opened result file: /home/iacopo/Desktop/mx-llama.cpp-gfx906/cmp_repack_native/repack_M16_agent_info.csv
+[musage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:27:05 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:27:05 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:27:48 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:27:48 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:28:28 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:28:28 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:29:11 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:29:11 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid parameter for argument: -ub 16-2048*2
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:30:23 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid range format
+error: invalid parameter for argument: -ub
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:30:23 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+error: invalid range format
+error: invalid parameter for argument: -ub
+usage: ./build/bin/llama-bench [options]
+
+options:
+  -h, --help
+  --numa <distribute|isolate|numactl>         numa mode (default: disabled)
+  -r, --repetitions <n>                       number of times to repeat each test (default: 5)
+  --prio <-1|0|1|2|3>                         process/thread priority (default: 0)
+  --delay <0...N> (seconds)                   delay between each test (default: 0)
+  -o, --output <csv|json|jsonl|md|sql>        output format printed to stdout (default: md)
+  -oe, --output-err <csv|json|jsonl|md|sql>   output format printed to stderr (default: none)
+  --list-devices                              list available devices and exit
+  -v, --verbose                               verbose output
+  --progress                                  print test progress indicators
+  --no-warmup                                 skip warmup runs before benchmarking
+  -fitt, --fit-target <MiB>                   fit model to device memory with this margin per device in MiB (default: off)
+  -fitc, --fit-ctx <n>                        minimum ctx size for --fit-target (default: 4096)
+
+test parameters:
+  -m, --model <filename>                      (default: models/7B/ggml-model-q4_0.gguf)
+  -hf, -hfr, --hf-repo <user>/<model>[:quant] Hugging Face model repository; quant is optional, case-insensitive
+                                              default to Q4_K_M, or falls back to the first file in the repo if Q4_K_M doesn't exist.
+                                              example: ggml-org/GLM-4.7-Flash-GGUF:Q4_K_M
+                                              (default: unused)
+  -hff, --hf-file <file>                      Hugging Face model file. If specified, it will override the quant in --hf-repo
+                                              (default: unused)
+  -hft, --hf-token <token>                    Hugging Face access token
+                                              (default: value from HF_TOKEN environment variable)
+  -p, --n-prompt <n>                          (default: 512)
+  -n, --n-gen <n>                             (default: 128)
+  -pg <pp,tg>                                 (default: )
+  -d, --n-depth <n>                           (default: 0)
+  -b, --batch-size <n>                        (default: 2048)
+  -ub, --ubatch-size <n>                      (default: 512)
+  -ctk, --cache-type-k <t>                    (default: f16)
+  -ctv, --cache-type-v <t>                    (default: f16)
+  -t, --threads <n>                           (default: 12)
+  -C, --cpu-mask <hex,hex>                    (default: 0x0)
+  --cpu-strict <0|1>                          (default: 0)
+  --poll <0...100>                            (default: 50)
+  -ngl, --n-gpu-layers <n>                    (default: -1)
+  -ncmoe, --n-cpu-moe <n>                     (default: 0)
+  -sm, --split-mode <none|layer|row|tensor>   (default: layer)
+  -tps, --tensor-parallel-size <T>            (default: 0)
+  -mg, --main-gpu <i>                         (default: 0)
+  -nkvo, --no-kv-offload <0|1>                (default: 0)
+  -fa, --flash-attn <on|off|auto>             (default: auto)
+  -dev, --device <dev0/dev1/...>              (default: auto)
+  -mmp, --mmap <0|1>                          (default: 1)
+  -dio, --direct-io <0|1>                     (default: 0)
+  -embd, --embeddings <0|1>                   (default: 0)
+  -ts, --tensor-split <ts0/ts1/..>            (default: 0)
+  -ot --override-tensor <tensor name pattern>=<buffer type>;...
+                                              (default: disabled)
+  -nopo, --no-op-offload <0|1>                (default: 0)
+  --no-host <0|1>                             (default: 0)
+
+Multiple values can be given for each parameter by separating them with ','
+or by specifying the parameter multiple times. Ranges can be given as
+'first-last' or 'first-last+step' or 'first-last*mult'.
+
+### 01:30:42 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=1 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=9728 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen3 4B Q8_0                  |   3.98 GiB |     4.02 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        427.12 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+
+### 01:30:58 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        335.52 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        345.45 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        499.31 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        518.53 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        708.80 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        692.54 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |        926.50 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        975.69 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |        926.71 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1242.75 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |        927.17 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1310.57 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |        923.02 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1291.97 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        927.91 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1260.94 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 01:31:45 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        217.25 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+llama-bench: benchmark 2/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        220.33 ± 0.00 |
+llama-bench: benchmark 3/16: starting
+llama-bench: benchmark 3/16: warmup prompt run
+llama-bench: benchmark 3/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |           pp128 |        392.46 ± 0.00 |
+llama-bench: benchmark 4/16: starting
+llama-bench: benchmark 4/16: warmup prompt run
+llama-bench: benchmark 4/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        403.79 ± 0.00 |
+llama-bench: benchmark 5/16: starting
+llama-bench: benchmark 5/16: warmup prompt run
+llama-bench: benchmark 5/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |           pp128 |        720.35 ± 0.00 |
+llama-bench: benchmark 6/16: starting
+llama-bench: benchmark 6/16: warmup prompt run
+llama-bench: benchmark 6/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        706.40 ± 0.00 |
+llama-bench: benchmark 7/16: starting
+llama-bench: benchmark 7/16: warmup prompt run
+llama-bench: benchmark 7/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |           pp128 |        810.13 ± 0.00 |
+llama-bench: benchmark 8/16: starting
+llama-bench: benchmark 8/16: warmup prompt run
+llama-bench: benchmark 8/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        844.28 ± 0.00 |
+llama-bench: benchmark 9/16: starting
+llama-bench: benchmark 9/16: warmup prompt run
+llama-bench: benchmark 9/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |           pp128 |        809.25 ± 0.00 |
+llama-bench: benchmark 10/16: starting
+llama-bench: benchmark 10/16: warmup prompt run
+llama-bench: benchmark 10/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1123.21 ± 0.00 |
+llama-bench: benchmark 11/16: starting
+llama-bench: benchmark 11/16: warmup prompt run
+llama-bench: benchmark 11/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |           pp128 |        809.42 ± 0.00 |
+llama-bench: benchmark 12/16: starting
+llama-bench: benchmark 12/16: warmup prompt run
+llama-bench: benchmark 12/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1249.62 ± 0.00 |
+llama-bench: benchmark 13/16: starting
+llama-bench: benchmark 13/16: warmup prompt run
+llama-bench: benchmark 13/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |           pp128 |        808.84 ± 0.00 |
+llama-bench: benchmark 14/16: starting
+llama-bench: benchmark 14/16: warmup prompt run
+llama-bench: benchmark 14/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1241.23 ± 0.00 |
+llama-bench: benchmark 15/16: starting
+llama-bench: benchmark 15/16: warmup prompt run
+llama-bench: benchmark 15/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |           pp128 |        807.77 ± 0.00 |
+llama-bench: benchmark 16/16: starting
+llama-bench: benchmark 16/16: warmup prompt run
+llama-bench: benchmark 16/16: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1295.25 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 01:49:11 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/16: starting
+llama-bench: benchmark 1/16: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/16: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |           pp128 |        335.74 ± 0.00 |
+llama-bench: benchmark 2/16: starting
+llama-bench: benchmark 2/16: warmup prompt run
+
+### 01:49:33 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        345.63 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        519.32 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        693.15 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        975.75 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1243.79 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1312.64 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1294.74 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1262.87 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 01:50:17 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        195.93 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        262.45 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        203.16 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        269.97 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+
+### 07:10:43 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        345.24 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        520.22 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        693.29 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        974.33 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1244.88 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1312.33 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1293.72 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1260.51 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 07:11:27 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        143.26 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        267.44 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        478.09 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        790.78 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1122.67 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1260.26 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1376.61 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1344.12 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 07:13:05 [native(off)] pp2048/tg128
+ggml_cuda_init: found 2 ROCm devices (Total VRAM: 64139 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+  Device 1: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/2: starting
+
+### 07:13:10 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        342.58 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        510.79 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        687.06 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        966.54 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1233.17 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1300.75 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1281.18 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1246.94 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 07:13:55 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        143.05 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+
+### 07:16:53 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |         99.40 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        187.32 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        344.48 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        583.78 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |        836.33 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1123.45 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1244.97 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1300.74 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 08:21:25 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |         99.39 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        188.27 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        344.64 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        583.58 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |        836.12 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+
+### 08:27:50 [native(off)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+[KSHARD-DIAG] env=0 gcn=1 small_k=0 has_fusion=0 has_ids=0 nchannels_dst=1 nsamples_dst=1 kb=1 type=8 ncols_x=2560 nrows_x=248320 bpr=80 bpi=16 vdr=2 qi=8 warp=64
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        345.67 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        518.01 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        692.08 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        973.82 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1242.26 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1309.87 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1293.06 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1259.20 ± 0.00 |
+
+build: fd33285c7 (9489)
+
+### 08:28:34 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        161.38 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        302.35 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        541.78 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        871.50 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1168.49 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1311.30 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1396.12 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1389.56 ± 0.00 |
+
+build: fd33285c7 (9489)

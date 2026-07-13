@@ -1,0 +1,7 @@
+mmq_gemm_q8_0_repacked  # 75.8%
+gcn_f32_gemm_tn(float const*, float const*, float*, int, int, int, int, int, int)  # 10.3%
+gated_delta_net_chunked_cuda  # 2.7%
+gated_delta_net_cuda  # 2.1%
+concat_f32_non_cont  # 2.0%
+flash_attn_tile  # 1.4%
+quantize_mmq_q8_1  # 1.2%

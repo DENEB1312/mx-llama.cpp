@@ -54,7 +54,11 @@ fi
 LOG_FILE="bench_results.md"
 MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3.6-27B-Q8_0.gguf"
 MODEL_PATH="/media/iacopo/LLMs/llms/Qwen3-4B-Instruct-2507-Q8_0.gguf"
-#MODEL_PATH="/media/iacopo/LLMs/llms/Qwen_Qwen3.5-4B-Q8_0.gguf"
+MODEL_PATH="/media/iacopo/LLMs/llms/Qwen_Qwen3.5-4B-Q8_0.gguf"
+# Override the model from the caller (used by compare_repack_native.py)
+MODEL_PATH="${MODEL_OVERRIDE:-$MODEL_PATH}"
+# Override the micro-batch token (used to pin M for kernel comparison)
+UBATCH_ARG="--ub "16-2048*2"}"
 BENCH_PARAMS=(
     -m "$MODEL_PATH"       # Model path
     -ngl 99                # Number of GPU layers (all on GPU)
@@ -64,7 +68,7 @@ BENCH_PARAMS=(
     -ctv f16               # KV cache value type (f16 precision)
     --progress             # Show progress during benchmark
     -r 1                   # Number of repetitions
-    -ub "16-2048*2"               # Micro-batch size
+    -ub "16-2048*2"               # Micro-batch size (overridable)
     -mmp 0 
     #--spec-type draft-mtp --spec-draft-n-max 2 
     #-d 8192               # Context size
@@ -74,7 +78,7 @@ BENCH_PARAMS=(
 
 #BENCH_TESTS="-p 0 -n 2048"
 #BENCH_TESTS="-p 2048 -n 0"
-BENCH_TESTS="-p 128,2048 -n 0"
+BENCH_TESTS="${BENCH_TESTS_OVERRIDE:--p 2048 -n 0}"
 #BENCH_TESTS="-p 512 -n 128"
 
 echo "=== Benchmark ==="

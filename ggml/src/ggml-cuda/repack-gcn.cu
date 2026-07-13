@@ -1117,12 +1117,12 @@ static __global__ void mul_mat_vec_q4k_repacked_glu(
 // repack only matches native at large N and regresses at small N.
 #define MMQ_RP_Q8_BK 4
 #define MMQ_RP_Q8_TN 2
-#define MMQ_RP_Q8_BM 128
+#define MMQ_RP_Q8_BM 64
 #define MMQ_RP_Q8_BN (64 * MMQ_RP_Q8_TN)
-#define MMQ_RP_Q8_NROW_LANES 8
+#define MMQ_RP_Q8_NROW_LANES 4
 
 template <bool HAS_IDS, int TN_>
-static __global__ void __launch_bounds__(256, 2) mmq_gemm_q4k_repacked(
+static __global__ void __launch_bounds__(256, 1) mmq_gemm_q4k_repacked(
         const uint8_t * __restrict__ wbase, const block_q8_1 * __restrict__ xq,
         float * __restrict__ y, const uint32_t ne0, const uint32_t ne1,
         const uint32_t n_tok, const uint32_t x_stride,
@@ -2136,7 +2136,7 @@ static void ggml_cuda_mul_mat_repacked_slice(ggml_backend_cuda_context & ctx,
                 nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01, has_sum);
             break;
         case GGML_TYPE_Q8_0:
-            mmq_gemm_q8_0_repacked<false, MMQ_RP_Q8_TN><<<grid, dim3(64, 8), 0, stream>>>(
+            mmq_gemm_q8_0_repacked<false, MMQ_RP_Q8_TN><<<grid, dim3(64, 4), 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, (uint32_t) ne11, (uint32_t) x_stride,
                 nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
             break;
