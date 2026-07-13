@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <map>
+#include <motex>
 #include <string>
 #include <vector>
 
@@ -218,8 +219,8 @@ static __device__ __forceinline__ int sX_swizzle(int lr) {
     return (n << 6) | tx;
 }
 
-template <bool HAS_IDS, int TN_>
-    static __global__ void __launch_bounds__(512, 1) mmq_gemm_q8_0_repacked(
+template <bool HAS_IDS, int TN_, int NRL>
+    static __global__ void __launch_bounds__(64 * NRL, 1) mmq_gemm_q8_0_repacked(
         const uint8_t * __restrict__ wbase, const block_q8_1 * __restrict__ xq,
         float * __restrict__ y, const uint32_t ne0, const uint32_t ne1,
         const uint32_t n_tok, const uint32_t x_stride,
@@ -230,7 +231,7 @@ template <bool HAS_IDS, int TN_>
    
     const int t  = threadIdx.x + threadIdx.y * blockDim.x;
     const int tx = threadIdx.x;          // 0..63 column lane
-    const int ty = threadIdx.y;          // 0..7  row lane
+    const int ty = threadIdx.y;          // 0..NRL-1  row lane
     const uint32_t row0 = blockIdx.x * MMQ_RP_Q8_BM;
     uint32_t tok0 = blockIdx.y * (64 * TN_);
     uint32_t a_base = 0, a_end = 0;
@@ -259,10 +260,10 @@ template <bool HAS_IDS, int TN_>
     __shared__ float      sWd  [MMQ_RP_Q8_BM][MMQ_RP_Q8_BK];
     __shared__ block_q8_1 sX   [MMQ_RP_Q8_BN][MMQ_RP_Q8_BK + 1];
 
-    constexpr int NROW = MMQ_RP_Q8_BM / MMQ_RP_Q8_NROW_LANES;   // 16 rows/lane
+    constexpr int NROW = MMQ_RP_Q8_BM / NRL;   // 16 rows/lane
     float acc[NROW][TN_] = {};
 
-    constexpr int NTHREADS = 64 * MMQ_RP_Q8_NROW_LANES;
+    constexpr int NTHREADS = 64 * NRL;
     const int w_elm = MMQ_RP_Q8_BM * MMQ_RP_Q8_BK;
     const int x_elm = MMQ_RP_Q8_BN * MMQ_RP_Q8_BK;
 
@@ -329,7 +330,7 @@ template <bool HAS_IDS, int TN_>
                 xq32_cached[n][7] = q1.w;
             }
             for (int r = 0; r < NROW; r++) {
-                const int row = ty + r * MMQ_RP_Q8_NROW_LANES;
+                const int row = ty + r * NRL;
             
                 uint4 wlo, whi;
                 ggml_cuda_memcpy_1<16, 0>(&wlo, &sW_lo[row][kk]);
@@ -353,7 +354,7 @@ template <bool HAS_IDS, int TN_>
     }
 
     for (int r = 0; r < NROW; r++) {
-        const uint32_t row = row0 + ty + r * MMQ_RP_Q8_NROW_LANES;
+        const uint32_t row = row0 + ty + r * NRL;
         if (row >= ne1) {
             continue;
         }
@@ -486,7 +487,7 @@ static void ggml_cuda_mul_mat_repacked_slice(ggml_backend_cuda_context & ctx,
                     (ne11 + mmq_bn - 1) / mmq_bn, 1);
     switch (src0->type) {
         case GGML_TYPE_Q8_0:
-            mmq_gemm_q8_0_repacked<false, MMQ_RP_Q8_TN><<<grid, dim3(64, 4), 0, stream>>>(
+            mmq_gemm_q8_0_repacked<false, MMQ_RP_Q8_TN, MMQ_RP_Q8_NROW_LANES><<<grid, dim3(64, MMQ_RP_Q8_NROW_LANES), 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, (uint32_t) ne11, (uint32_t) x_stride,
                 nullptr, nullptr, nullptr, nullptr, 0, 0, (uint32_t) ne01);
             break;
@@ -572,6 +573,7 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
     }
 
     constexpr int TN_ID = 1;
+    constexpr int NRL_D = 8;
     ggml_cuda_pool_alloc<int32_t> tile_off(ctx.pool(), ne02 + 1);
     repack_tile_off<16 * TN_ID><<<1, 1, 0, stream>>>(expert_bounds.get(), tile_off.get(), ne02);
     const int64_t max_tiles = n_assign / (16 * TN_ID) + ne02;
@@ -580,7 +582,7 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
 
     switch (src0->type) {
         case GGML_TYPE_Q8_0:
-            mmq_gemm_q8_0_repacked<true, TN_ID><<<grid, dim3(64, 8), 0, stream>>>(
+            mmq_gemm_q8_0_repacked<true, TN_ID, NRL_ID><<<grid, dim3(64, NRL_ID), 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, 0, (uint32_t) x_stride,
                 ids_src1.get(), ids_dst.get(), expert_bounds.get(), tile_off.get(),
                 (uint32_t) ne02, expert_stride, dst_s1);
@@ -611,39 +613,29 @@ bool ggml_backend_buft_is_cuda_repack(ggml_backend_buffer_type_t buft) {
 static void ggml_backend_cuda_repack_buffer_set_tensor(
         ggml_backend_buffer_t buffer, ggml_tensor * tensor,
         const void * data, size_t offset, size_t size) {
-    {
-        static long long g_n = 0;
-        if (g_n < 50) {
-            FILE * f = fopen("/tmp/repack_dbg.log", "a");
-            if (f) {
-                fprintf(f, "REPACK_ENTER[%lld] dev=%d name=%s type=%d off=%zu size=%zu nbytes=%zu ne=[%lld,%lld,%lld,%lld]\n",
-                    g_n, ((ggml_backend_cuda_repack_buffer_type_context *)buffer->buft->context)->device,
-                    tensor->name ? tensor->name : "(null)", (int)tensor->type,
-                    offset, size, ggml_nbytes(tensor),
-                    (long long)tensor->ne[0], (long long)tensor->ne[1],
-                    (long long)tensor->ne[2], (long long)tensor->ne[3]);
-                fclose(f);
-            }
-        }
-        g_n++;
-    }
+    
 
     const size_t t_nbytes = ggml_nbytes(tensor);
 
     if (offset != 0 || size != t_nbytes) {
+                static std::mutex staging_mutex;
+
         static std::map<void*, std::vector<uint8_t>> staging;
         void * key = tensor->data;
-        auto & staged = staging[key];
-
-        if (offset == 0 && staged.empty()) {
-            staged.resize(t_nbytes, 0);
-        }
-
-        GGML_ASSERT(offset + size <= t_nbytes);
-        memcpy(staged.data() + offset, data, size);
-
-        if (offset + size < t_nbytes) {
-            return; // more segments to come
+        std::vector<uint8_t> full;
+        {
+            std::lock_guard<std::mutex> lock(staging_mutex);
+            auto & staged = staging[key];
+            if (offset == 0 && staged.empty()) {
+                staged.resize(t_nbytes, 0);
+            }
+            GGML_ASSERT(offset + size <= t_nbytes);
+            memcpy(staged.data() + offset, data, size);
+            if (offset + size < t_nbytes) {
+                return; // more segments to come
+            }
+            full = std::move(staged);
+            staging.erase(key);
         }
 
         // All segments collected; repack the full shard.
@@ -656,7 +648,7 @@ static void ggml_backend_cuda_repack_buffer_set_tensor(
         const size_t dst_stride = repack_gcn_nbytes(tensor->type, ne0, ne1);
         std::vector<uint8_t> repacked(dst_stride * ne2);
         for (int64_t e = 0; e < ne2; e++) {
-            const uint8_t * src_e = staged.data() + e * src_stride;
+            const uint8_t * src_e = full.data() + e * src_stride;
             uint8_t       * dst_e = repacked.data() + e * dst_stride;
             switch (tensor->type) {
                 case GGML_TYPE_Q8_0: repack_q8_0_host((const block_q8_0 *) src_e, dst_e, ne0, ne1); break;
@@ -671,7 +663,6 @@ static void ggml_backend_cuda_repack_buffer_set_tensor(
             cudaMemcpyHostToDevice, cudaStreamPerThread));
         CUDA_CHECK(cudaStreamSynchronize(cudaStreamPerThread));
 
-        staging.erase(key);
         return;
     }
 
