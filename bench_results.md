@@ -19628,3 +19628,123 @@ llama-bench: benchmark 8/8: prompt run 1/1
 | qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1389.56 ± 0.00 |
 
 build: fd33285c7 (9489)
+
+### 08:34:56 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        170.48 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        318.40 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        567.42 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        912.66 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1195.97 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1348.70 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1429.73 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1418.96 ± 0.00 |
+
+build: a0afb4a9f (9490)
+
+### 08:40:33 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        144.81 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        272.72 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        493.99 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        812.13 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1067.77 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1191.93 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1254.95 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1245.77 ± 0.00 |
+
+build: a0afb4a9f (9490)
+
+### 08:45:24 [repack(on)] pp2048/tg128
+ggml_cuda_init: found 1 ROCm devices (Total VRAM: 32069 MiB):
+  Device 0: AMD Instinct MI60 / MI50, gfx906:sramecc+:xnack- (0x906), VMM: no, Wave Size: 64, VRAM: 32069 MiB
+llama-bench: benchmark 1/8: starting
+llama-bench: benchmark 1/8: warmup prompt run
+llama-bench: benchmark 1/8: prompt run 1/1
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch |  fa | mmap |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | --: | ---: | --------------: | -------------------: |
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       16 |   1 |    0 |          pp2048 |        162.54 ± 0.00 |
+llama-bench: benchmark 2/8: starting
+llama-bench: benchmark 2/8: warmup prompt run
+llama-bench: benchmark 2/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       32 |   1 |    0 |          pp2048 |        304.40 ± 0.00 |
+llama-bench: benchmark 3/8: starting
+llama-bench: benchmark 3/8: warmup prompt run
+llama-bench: benchmark 3/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |       64 |   1 |    0 |          pp2048 |        545.93 ± 0.00 |
+llama-bench: benchmark 4/8: starting
+llama-bench: benchmark 4/8: warmup prompt run
+llama-bench: benchmark 4/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      128 |   1 |    0 |          pp2048 |        877.94 ± 0.00 |
+llama-bench: benchmark 5/8: starting
+llama-bench: benchmark 5/8: warmup prompt run
+llama-bench: benchmark 5/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      256 |   1 |    0 |          pp2048 |       1175.71 ± 0.00 |
+llama-bench: benchmark 6/8: starting
+llama-bench: benchmark 6/8: warmup prompt run
+llama-bench: benchmark 6/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |      512 |   1 |    0 |          pp2048 |       1318.40 ± 0.00 |
+llama-bench: benchmark 7/8: starting
+llama-bench: benchmark 7/8: warmup prompt run
+llama-bench: benchmark 7/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     1024 |   1 |    0 |          pp2048 |       1407.44 ± 0.00 |
+llama-bench: benchmark 8/8: starting
+llama-bench: benchmark 8/8: warmup prompt run
+llama-bench: benchmark 8/8: prompt run 1/1
+| qwen35 4B Q8_0                 |   4.29 GiB |     4.33 B | ROCm       |  99 |      24 |     2048 |   1 |    0 |          pp2048 |       1392.79 ± 0.00 |
+
+build: a0afb4a9f (9490)

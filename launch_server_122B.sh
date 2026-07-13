@@ -81,7 +81,7 @@ MODEL_PATH="/media/iacopo/LLMs/llms/Qwen_Qwen3.5-4B-Q8_0.gguf"
     -ctk f16 \
     -ctv f16 \
     --host 0.0.0.0 \
-    --port 8082 \
+    --port 8080 \
     -c 250000 \
     --jinja \
     --no-mmap \
