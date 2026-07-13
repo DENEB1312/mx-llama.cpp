@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <map>
-#include <motex>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -582,7 +582,7 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
 
     switch (src0->type) {
         case GGML_TYPE_Q8_0:
-            mmq_gemm_q8_0_repacked<true, TN_ID, NRL_ID><<<grid, dim3(64, NRL_ID), 0, stream>>>(
+            mmq_gemm_q8_0_repacked<true, TN_ID, NRL_D><<<grid, dim3(64, NRL_D), 0, stream>>>(
                 w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01, 0, (uint32_t) x_stride,
                 ids_src1.get(), ids_dst.get(), expert_bounds.get(), tile_off.get(),
                 (uint32_t) ne02, expert_stride, dst_s1);
