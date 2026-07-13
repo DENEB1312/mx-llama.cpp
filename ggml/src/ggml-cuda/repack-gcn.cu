@@ -16,33 +16,7 @@
 // =====================================================================
 // REPACK SYSTEM — gfx906 (GCN / Vega20) Q8_0 weight repacking
 // =====================================================================
-// Goal: store Q8_0 weights in a plane layout that the matvec / MMQ
-// kernels can stream fully coalesced, with the GEMM tiling/threading
-// selected for gfx906 wave64.
-//
-// Lifecycle:
-//   1. GATE  (ggml-backend-meta.cpp): a MUL_MAT whose src0 is a Q8_0
-//      tensor is routed into the repack buffer type at graph build time
-//      only if GGML_CUDA_REPACK_Q8_0 != 0.
-//   2. REPAck (CPU, *_host() below): weights are rewritten once at upload
-//      into the Q8_0 planes (see repack-gcn.cuh header for the layout).
-//   3. COMPUTE (this file): two paths selected by N = src1->ne[1]:
-//        ne11 == 1  -> dp4a matvec  (decode, one token)
-//        ne11  > 1  -> int8 MMQ tile GEMM (prefill)
-//
-// KNOWN LIMITATION (the main improvement target): the Q8_0 prefill MMQ uses
-// a SINGLE fixed tile (BM=128, BN=128, BK=4) regardless of N. The native
-// mul_mat_q<Q8_0> (mmq.cuh::mul_mat_q_case) instead picks mmq_x in
-// {8,16,...,128} to minimize x-tiles for the actual N, and on gfx906 caps
-// mmq_x at 64 for N<4096. Because of this, repack only wins at large N
-// (pp2048 ≈ native) and regresses sharply at small N (pp128 ≈ -39%): see
-// the MMQ_RP_Q8_* comment block. Making the repacked Q8_0 MMQ tile-selectable
-// per N is the key work item to beat native across all shapes.
-// =====================================================================
 
-// Forward declaration: read one canonical block_q8_1 out of the transposed
-// block_q8_1_mmq activation buffer produced by quantize_mmq_q8_1_cuda.
-// Defined further below; declared here so the matvec kernels can use it.
 __device__ __forceinline__ block_q8_1 rp_xq_from_mmq(
         const block_q8_1_mmq * xq, const uint32_t col, const uint32_t sb,
         const uint32_t ne11, const bool has_sum);
@@ -51,16 +25,11 @@ __device__ __forceinline__ block_q8_1 rp_xq_from_mmq(
 // layout helpers
 // ---------------------------------------------------------------------
 
-// Sub-blocks (32 weights) per repacked row, padded by one when the
-// natural count is a power of two (a power-of-two row stride aliases
-// every row onto the same HBM channel: ~3x matvec penalty). Shared by
-// all repacked types.
 static __host__ __device__ inline int64_t repack_q4k_nsp(const int64_t ne0) {
     const int64_t n_sub = ne0 / 32;
     return (n_sub & (n_sub - 1)) == 0 ? n_sub + 1 : n_sub;
 }
 
-// Plane bytes for Q8_0: 32 qs + 2 (d fp16) per sub-block.
 static inline size_t repack_gcn_nbytes(const ggml_type type, const int64_t ne0, const int64_t ne1) {
     const int64_t nsp      = repack_q4k_nsp(ne0);
     switch (type) {
@@ -76,16 +45,6 @@ bool ggml_cuda_repack_tensor_supported(const ggml_tensor * t) {
     }
     switch (t->type) {
         case GGML_TYPE_Q8_0: {
-            // Q8_0 repack is its own opt-in. The repacked planes are
-            // byte-identical to the on-disk block_q8_0, so the win is purely
-            // in tiling/threading of the MMQ GEMM, not in bandwidth. On a
-            // small pure-Q8_0 0.8B it was measured +43% prefill, but on
-            // gfx906 with larger models (e.g. Qwen3-4B Q8_0) the current
-            // SINGLE fixed MMQ tile (see MMQ_RP_Q8_*) regresses vs native:
-            // ~-39% at pp128 and only parity at pp2048, because native
-            // selects the tile width per N. The repacked matvec also loses
-            // ~6% decode to canonical mmvq. Re-tune / make tile-selectable
-            // before considering it for default-on.
             static const bool q8 = [] {
                 const char * e = getenv("GGML_CUDA_REPACK_Q8_0");
                 return e != nullptr && e[0] != '0';
@@ -100,10 +59,6 @@ bool ggml_cuda_repack_tensor_supported(const ggml_tensor * t) {
 // host-side repack (one-shot at weight upload)
 // ---------------------------------------------------------------------
 
-// Q8_0: two planes — 32 aligned qs bytes per sub-block, then the fp16
-// d-scales as their own stream. Same bytes as on-disk modulo padding;
-// the win is alignment (one i32 load per sdot4 instead of two
-// uint16 loads OR-shifted around the on-disk 2-byte offset).
 static void repack_q8_0_host(const block_q8_0 * blocks, uint8_t * dst, const int64_t ne0, const int64_t ne1) {
     const int64_t n_blocks = ne0 / 32;
     const int64_t nsp      = repack_q4k_nsp(ne0);
@@ -124,15 +79,6 @@ static void repack_q8_0_host(const block_q8_0 * blocks, uint8_t * dst, const int
 // kernels (GCN only — guarded so non-HIP / non-GCN builds still compile)
 // ---------------------------------------------------------------------
 
-// --- MUL_MAT_ID support -----------------------------------------------
-// Expert routing comes compacted from ggml_cuda_launch_mm_ids_helper:
-// assignment index a in [0, n_assign) is expert-sorted; expert_bounds
-// gives each expert's [start, end) range; ids_src1[a] is the flat
-// column index into the naturally-ordered activation buffer; ids_dst[a]
-// is the flat destination column. Weights for expert e live at
-// wbase + e * expert_stride (per-expert repacked slabs, identical
-// layout to the 2D case).
-
 // Largest e with expert_bounds[e] <= a.
 static __device__ __forceinline__ uint32_t repack_find_expert(
         const int32_t * __restrict__ expert_bounds, const uint32_t n_expert, const uint32_t a) {
@@ -148,8 +94,6 @@ static __device__ __forceinline__ uint32_t repack_find_expert(
     return lo;
 }
 
-// tile_off[e] = prefix sum of per-expert token-tile counts (BN-sized
-// tiles); single-thread kernel, n_expert <= a few hundred.
 template <int BN>
 static __global__ void repack_tile_off(
         const int32_t * __restrict__ expert_bounds, int32_t * __restrict__ tile_off,
@@ -166,14 +110,6 @@ static __global__ void repack_tile_off(
     }
 }
 
-
-// Read one K sub-block `sb` of token `col` out of the block_q8_1_mmq buffer
-// produced by quantize_mmq_q8_1_cuda, returning it as a canonical
-// block_q8_1. The mmq quantizer lays the activation out transposed:
-//   idx = (sb >> 2) * ne11 + col      (per slice / channel)
-// with 4 canonical sub-blocks packed per 128-value mmq block. `has_sum`
-// selects the D4 layout (scale only: Q8_0) vs the DS4 layout
-// (scale + partial sum) written by the quantizer.
 __device__ __forceinline__ block_q8_1 rp_xq_from_mmq(
         const block_q8_1_mmq * xq, const uint32_t col, const uint32_t sb,
         const uint32_t ne11, const bool has_sum) {
@@ -185,8 +121,7 @@ __device__ __forceinline__ block_q8_1 rp_xq_from_mmq(
     } else {
         out.ds = make_half2(__float2half(m.d4[sb & 3]), __float2half(0.0f));
     }
-    // Vectorized 128-bit copy of the 32 activation int8 for this sub-block
-    // (replaces 32 scalar byte loads with 2x uint4).
+ 
     const uint4 * qsp = reinterpret_cast<const uint4 *>(m.qs + (sb & 3) * QK8_1);
     uint4       * oqp = reinterpret_cast<uint4       *>(out.qs);
     #pragma unroll
@@ -196,12 +131,6 @@ __device__ __forceinline__ block_q8_1 rp_xq_from_mmq(
     return out;
 }
 
-// Q8_0 repacked matvec — NWAVES wave64s per block, ROWS output rows
-// per wave. The original reinstinct tuning used single-wave blocks
-// (NWAVES=1) for its MoE-expert shapes; small dense models want the
-// 4-wave shape the K-quant matvecs use (NWAVES=4). ROWS=1 doubles the
-// wavefront count and wins at out_dim >= 4096 where ROWS=2 leaves too
-// few wavefront generations in flight to sustain HBM bandwidth.
 template <int ROWS, int NWAVES, bool HAS_IDS>
 static __global__ void mul_mat_vec_q8_0_repacked(
         const uint8_t * __restrict__ wbase, const block_q8_1 * __restrict__ xq,
@@ -211,9 +140,7 @@ static __global__ void mul_mat_vec_q8_0_repacked(
         const size_t expert_stride, const uint32_t xs_id, const uint32_t dst_s1) {
 #if defined(GGML_USE_HIP) && defined(GCN)
     if constexpr (HAS_IDS) {
-        // decode (one token): slot a maps directly — expert ids_raw[a],
-        // activation column a, dst column a. No compaction kernel needed
-        // (ids_src1 carries the RAW ids tensor here).
+    
         const uint32_t a = blockIdx.y;
         const uint32_t e = (uint32_t) ids_src1[a];
         wbase += e * expert_stride;
@@ -236,11 +163,6 @@ static __global__ void mul_mat_vec_q8_0_repacked(
 
     float acc[ROWS] = {};
 
-    // Work unit: a 16-weight half sub-block (4 sdot4s). At small ne0 a
-    // full-sub-block unit leaves lanes idle (ne0=1024 -> 32 sub-blocks
-    // for 64 lanes); halves keep the wave full down to ne0=1024.
-    // (8-weight quarters were tried and regress: 4x the d-plane traffic
-    // outweighs the extra balance.)
     const uint32_t n_half = n_blocks * 2;
     for (uint32_t hb = lane; hb < n_half; hb += 64) {
         const uint32_t sb   = hb >> 1;
@@ -282,42 +204,13 @@ static __global__ void mul_mat_vec_q8_0_repacked(
 }
 
 
-// Q8_0 MMQ tile — SINGLE FIXED CONFIGURATION (see top-of-file LIMITATION).
-//
-// A 512-thread (64x8) block mirrors native mul_mat_q<Q8_0>'s threading:
-// tx = 64 column lanes, ty = 8 row lanes (stride 8) -> BM=128, BN=128, BK=4.
-// Each wavefront reads 64 *distinct* activation rows (no broadcast) for 8
-// waves/CU latency hiding. The repacked planes are byte-identical to on-disk
-// block_q8_0, so the only lever here is threading/tiling.
-//
-// Resource bounds on gfx906 (wave64, 65K VGPR/CU, 64KiB LDS):
-//   - 512-thread block @ occupancy 1 -> ~36 VGPRs/thread (fits 8 waves).
-//   - Weights staged through LDS and read per-row in the K-loop (transient):
-//     sW[128][4]=18K + sX[128][5]=23K ~= 41KiB < 64KiB. (Direct-from-global
-//     regressed pp2048 1546->1030, so LDS staging is required.)
-//   - Inner K-loop hoists the r-loop out of n so the W plane is read once per
-//     (kk,r) and reused across both n (TN=2): halves W LDS reads, closed a
-//     residual ~2.2% pp2048 deficit on Qwen3-4B Q8_0.
-//
-// Rejected variant (BK tuning round): BN=64 TN=1 (native's 128x64x256K shape)
-// regressed pp2048 1274->1190 — halves per-block work, doubles block count,
-// so launch latency dominates. BN=128 TN=2 keeps the work in fewer blocks.
-//
-// TO BE MADE N-SELECTABLE (key improvement): this tile is fixed regardless of
-// N (ubatch). Native mul_mat_q_case picks mmq_x in {8..128} per N (capped 64
-// for N<4096 on gfx906). That selection is what repack lacks, and it is why
-// repack only matches native at large N and regresses at small N.
+
 #define MMQ_RP_Q8_BK 4
 #define MMQ_RP_Q8_TN 2
 #define MMQ_RP_Q8_BM 64
 #define MMQ_RP_Q8_BN (64 * MMQ_RP_Q8_TN)
 #define MMQ_RP_Q8_NROW_LANES 4
 
-// Permute sX row index within each 64-row half so that lanes tx and tx+32
-// (which are 32 rows apart in the linear layout) map to different LDS bank
-// groups, eliminating the 2-way conflict on the 32-byte qs uint4 reads.
-// Lane tx (tx < 32) → row tx; lane tx (tx >= 32) → row tx^16 (swapped halves).
-// Bank diff becomes 16*45 mod 32 = 16 ≠ 0 → zero conflict.
 static __device__ __forceinline__ int sX_swizzle(int lr) {
     const int n  = lr >> 6;        // 0 or 1 (upper half)
     int       tx = lr & 63;        // 0..63 within half
@@ -325,8 +218,6 @@ static __device__ __forceinline__ int sX_swizzle(int lr) {
     return (n << 6) | tx;
 }
 
-// Q8_0 MMQ — 32 qs bytes per sub-block staged as two uint4s; no offset
-// term, so the accumulate is just dsc * dx * idot.
 template <bool HAS_IDS, int TN_>
     static __global__ void __launch_bounds__(512, 1) mmq_gemm_q8_0_repacked(
         const uint8_t * __restrict__ wbase, const block_q8_1 * __restrict__ xq,
@@ -336,12 +227,7 @@ template <bool HAS_IDS, int TN_>
         const int32_t * __restrict__ expert_bounds, const int32_t * __restrict__ tile_off,
         const uint32_t n_expert, const size_t expert_stride, const uint32_t dst_s1) {
 #if defined(GGML_USE_HIP) && defined(GCN)
-    // 64x8 (512-thread) block mirroring native mul_mat_q<Q8_0>: 64 column
-    // lanes (tx) give each warp 64 distinct sX rows (no broadcast); 8 row
-    // lanes (ty) with stride NROW_LANES tile BM=128 via a 16-row loop.
-    // Weights are read from LDS inside the K-loop (transient) to keep
-    // per-thread VGPRs ~36 so 8 waves fit gfx906's 65K VGPR/CU. Tile 128x64
-    // (BN=64 keeps sX ~= 20K so LDS ~= 57KiB < 64KiB).
+   
     const int t  = threadIdx.x + threadIdx.y * blockDim.x;
     const int tx = threadIdx.x;          // 0..63 column lane
     const int ty = threadIdx.y;          // 0..7  row lane
@@ -376,9 +262,6 @@ template <bool HAS_IDS, int TN_>
     constexpr int NROW = MMQ_RP_Q8_BM / MMQ_RP_Q8_NROW_LANES;   // 16 rows/lane
     float acc[NROW][TN_] = {};
 
-    // Weights staged through LDS (read per-row inside the K-loop, transient)
-    // so per-thread VGPR ~=36 fits 8 waves on gfx906's 65K VGPR/CU. LDS reads
-    // are far cheaper than re-fetching weights from global every K-step.
     constexpr int NTHREADS = 64 * MMQ_RP_Q8_NROW_LANES;
     const int w_elm = MMQ_RP_Q8_BM * MMQ_RP_Q8_BK;
     const int x_elm = MMQ_RP_Q8_BN * MMQ_RP_Q8_BK;
@@ -426,25 +309,13 @@ template <bool HAS_IDS, int TN_>
         __syncthreads();
 
         for (int kk = 0; kk < MMQ_RP_Q8_BK; kk++) {
-            // Interchange: hoist the r loop out of the n loop so the
-            // (sW_lo, sW_hi, sWd) reads happen once per (kk, r) and
-            // are reused across the TN_=2 column lanes. With the old
-            // (n, r) order the same 16 weights were re-read per n,
-            // doubling the LDS read count for the W plane. The
-            // activation read still depends on n and stays inside.
-            // Activation scale dx, and the 32-byte qs, depend only on
-            // (n, kk), not on r -> hoist them out of the r loop into
-            // registers so the 16 r-iterations reuse one cached copy of
-            // the activation instead of re-reading sX 16 times.
+           
             float   dx[TN_];
             int xq32_cached[TN_][8];
             for (int n = 0; n < TN_; n++) {
                 const block_q8_1 * xb = &sX[sX_swizzle(tx + n * 64)][kk];
                 dx[n] = __low2float(xb->ds);
-                // Force a 128-bit LDS read (ds_read_b128) via the ggml
-                // helper instead of relying on the compiler to widen the
-                // uint4 access; keeps it HW-agnostic (max_cpy=16 on gfx906).
-                // sX_swizzle preserves the bank-conflict-free layout.
+        
                 uint4 q0, q1;
                 ggml_cuda_memcpy_1<16, 0>(&q0, (const void *) xb->qs);
                 ggml_cuda_memcpy_1<16, 0>(&q1, (const void *) ((const char *) xb->qs + 16));
@@ -459,8 +330,7 @@ template <bool HAS_IDS, int TN_>
             }
             for (int r = 0; r < NROW; r++) {
                 const int row = ty + r * MMQ_RP_Q8_NROW_LANES;
-                // 128-bit LDS reads via the ggml helper (same ds_read_b128
-                // guarantee as the activation path above).
+            
                 uint4 wlo, whi;
                 ggml_cuda_memcpy_1<16, 0>(&wlo, &sW_lo[row][kk]);
                 ggml_cuda_memcpy_1<16, 0>(&whi, &sW_hi[row][kk]);
@@ -540,12 +410,7 @@ void ggml_cuda_mul_mat_repacked(ggml_backend_cuda_context & ctx,
     const uint64_t n_groups   = (uint64_t) ne10_padded / (4 * QK8_1); // mmq blocks (128 vals) per token col
 
     if (ne11 == 1) {
-        // Decode (single token) and any single-row matmul: use the canonical
-        // contiguous quantizer so the matvec reads xq + sb directly. A single
-        // token's quantize cost is negligible, and this restores the pre-rewrite
-        // decode throughput (the transposed block_q8_1_mmq gather regressed TG
-        // ~2.4x). Matvec is only ever invoked for ne11 == 1, so it always sees
-        // this canonical buffer.
+      
         ggml_cuda_pool_alloc<block_q8_1> src1_q8_1(ctx.pool(),
             ne13 * ne12 * ne11 * x_stride);
         {
@@ -565,12 +430,7 @@ void ggml_cuda_mul_mat_repacked(ggml_backend_cuda_context & ctx,
         }
         }
     } else {
-        // Prefill: use the fast tile-aware quantizer (same kernel the native
-        // mmq path uses), writing a transposed block_q8_1_mmq buffer; the GEMM
-        // reads it via rp_xq_from_mmq. Total bytes unchanged vs canonical
-        // (4*sizeof(block_q8_1) == sizeof(block_q8_1_mmq)), only the in-block
-        // ordering is transposed. This is what removed the slow gfx906-locked
-        // quantize_q8_1 bottleneck and made repack beat native on PP.
+       
         ggml_cuda_pool_alloc<block_q8_1_mmq> src1_q8_1(ctx.pool(),
             ne13 * ne12 * ne11 * n_groups);
         {
@@ -598,25 +458,16 @@ static void ggml_cuda_mul_mat_repacked_slice(ggml_backend_cuda_context & ctx,
         float * dst_d, const int64_t ne00, const int64_t ne01, const int64_t ne11,
         const int64_t x_stride, cudaStream_t stream) {
     if (ne11 == 1) {
-        // decode: dp4a matvec straight from the planes
         switch (src0->type) {
             case GGML_TYPE_Q8_0: {
-                // large ne01: single-wave ROWS=1 blocks maximize the
-                // wavefront count (measured on gfx906: ROWS=2 at
-                // ne01=4096 stalls ~184 GB/s, ROWS=1 ~2x it). Small
-                // ne01: 4-wave ROWS=2 blocks (the K-quant matvec shape).
+             
                 if (ne01 >= 4096) {
                     const dim3 grid(ne01, 1, 1);
                     mul_mat_vec_q8_0_repacked<1, 1, false><<<grid, 64, 0, stream>>>(
                         w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01,
                         nullptr, nullptr, nullptr, 0, 0, 0, 0);
                 } else {
-                    // 4-wave ROWS=2 with half-sub-block work units is the
-                    // best of the swept variants (gfx906, 0.8B-Q8_0 tg128:
-                    // 231.0 vs 222.7 single-wave, 222.2 full-block units,
-                    // 219.9 ROWS=4, 214.2 quarter units; canonical mmvq
-                    // is 238.0 — the residual ~3% is why Q8_0 stays
-                    // behind its own env gate)
+                
                     const dim3 grid((ne01 + 7) / 8, 1, 1);
                     mul_mat_vec_q8_0_repacked<2, 4, false><<<grid, 256, 0, stream>>>(
                         w, xq, dst_d, (uint32_t) ne00, (uint32_t) ne01,
@@ -628,10 +479,7 @@ static void ggml_cuda_mul_mat_repacked_slice(ggml_backend_cuda_context & ctx,
         return;
     }
 
-    // prefill: int8 MMQ tile GEMM straight from the repacked planes.
-    // Q8_0 uses its own wider tile (see MMQ_RP_Q8_*). NOTE: this is a single
-    // fixed tile chosen only by quant type, never by N — unlike native
-    // mul_mat_q_case.
+  
     const int mmq_bm = MMQ_RP_Q8_BM;
     const int mmq_bn = MMQ_RP_Q8_BN;
     const dim3 grid((ne01 + mmq_bm - 1) / mmq_bm,
@@ -647,10 +495,6 @@ static void ggml_cuda_mul_mat_repacked_slice(ggml_backend_cuda_context & ctx,
     GGML_UNUSED(ctx);
 }
 
-// MUL_MAT_ID with src0 in the repack buffer type. The mm_ids_helper
-// compacts routing into expert-sorted assignment order; activations are
-// quantized once in natural column order and gathered per assignment
-// via ids_src1 inside the kernels; outputs scatter via ids_dst.
 void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
         const ggml_tensor * src0, const ggml_tensor * src1, const ggml_tensor * ids,
         ggml_tensor * dst) {
@@ -660,7 +504,6 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
     GGML_ASSERT(src1->nb[0] == sizeof(float));
     GGML_ASSERT(ids->nb[0]  == sizeof(int32_t));
     GGML_ASSERT(src1->ne[3] == 1 && dst->ne[3] == 1);
-    // column-contiguity: ids_src1/ids_dst are flat column indices
     GGML_ASSERT(src1->nb[2] == src1->nb[1] * src1->ne[1]);
     GGML_ASSERT(dst->nb[2]  == dst->nb[1]  * dst->ne[1]);
     GGML_ASSERT(dst->nb[1]  == (size_t) dst->ne[0] * sizeof(float));
@@ -680,7 +523,6 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
     const size_t expert_stride = repack_gcn_nbytes(src0->type, ne00, ne01);
     const uint32_t dst_s1 = dst->nb[1] / sizeof(float);
 
-    // routing compaction
     ggml_cuda_pool_alloc<int32_t> ids_src1(ctx.pool(), n_assign);
     ggml_cuda_pool_alloc<int32_t> ids_dst (ctx.pool(), n_assign);
     ggml_cuda_pool_alloc<int32_t> expert_bounds(ctx.pool(), ne02 + 1);
@@ -693,7 +535,6 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
         CUDA_CHECK(cudaGetLastError());
     }
 
-    // quantize all activation columns once, natural order
     const int64_t ne10_padded = GGML_PAD(ne10, MATRIX_ROW_PADDING);
     const int64_t x_stride    = ne10_padded / QK8_1;
     ggml_cuda_pool_alloc<char> src1_q8_1(ctx.pool(),
@@ -708,10 +549,6 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
     const block_q8_1 * xq = (const block_q8_1 *) src1_q8_1.get();
 
     if (n_tokens == 1) {
-        // decode: one matvec per slot; experts read directly from the
-        // raw ids tensor in-kernel (no compaction kernels — launch
-        // parity with canonical mmvq-id). Broadcast src1 (ne[1]==1, one
-        // shared activation column for all slots) uses x-stride 0.
         const uint32_t xs_eff = src1->ne[1] == 1 ? 0u : (uint32_t) x_stride;
         switch (src0->type) {
             case GGML_TYPE_Q8_0: {
@@ -734,12 +571,9 @@ void ggml_cuda_mul_mat_id_repacked(ggml_backend_cuda_context & ctx,
         return;
     }
 
-    // batch: grouped tile GEMM, thin 16-token tiles (MoE routing spreads
-    // tokens across experts; a 64-wide tile would be mostly empty)
     constexpr int TN_ID = 1;
     ggml_cuda_pool_alloc<int32_t> tile_off(ctx.pool(), ne02 + 1);
     repack_tile_off<16 * TN_ID><<<1, 1, 0, stream>>>(expert_bounds.get(), tile_off.get(), ne02);
-    // over-launch upper bound: every expert can add one partial tile
     const int64_t max_tiles = n_assign / (16 * TN_ID) + ne02;
     const int id_bm = MMQ_RP_Q8_BM;
     const dim3 grid((ne01 + id_bm - 1) / id_bm, max_tiles, 1);
@@ -796,9 +630,6 @@ static void ggml_backend_cuda_repack_buffer_set_tensor(
 
     const size_t t_nbytes = ggml_nbytes(tensor);
 
-    // Multi-segment upload (e.g. QKV split under TP): the meta backend
-    // calls us multiple times with increasing offset (one per row slice);
-    // we buffer the host data and repack once the final call arrives.
     if (offset != 0 || size != t_nbytes) {
         static std::map<void*, std::vector<uint8_t>> staging;
         void * key = tensor->data;
@@ -923,9 +754,6 @@ ggml_backend_buffer_type_t ggml_backend_cuda_repack_buffer_type(int device) {
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
 
-    // Default-on for GCN; GGML_CUDA_REPACK=0 opts out. (Repacked
-    // weights cannot be read back: llama-quantize/save from a loaded
-    // model needs the opt-out.)
     const char * env = getenv("GGML_CUDA_REPACK");
     if (env != nullptr && env[0] == '0') {
         return nullptr;
