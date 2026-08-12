@@ -319,6 +319,7 @@ static const ggml_backend_device_i ggml_backend_meta_device_iface = {
     /* .event_new            = */ ggml_backend_meta_device_event_new,
     /* .event_free           = */ ggml_backend_meta_device_event_free,
     /* .event_synchronize    = */ ggml_backend_meta_device_event_synchronize,
+    /* .event_query          = */ NULL,
 };
 
 static bool ggml_backend_dev_is_meta(ggml_backend_dev_t dev) {
