@@ -253,7 +253,7 @@ void launch_gated_delta_net_chunk(
     const int device = ggml_cuda_get_device();
     const int warp_size = ggml_cuda_info().devices[device].warp_size;
     const int cc = ggml_cuda_info().devices[device].cc;
-    const int CS = KDA ? 16 : 64;
+    constexpr int CS = KDA ? 16 : 64;
     const int num_warps = cc == GGML_CUDA_CC_VEGA20 ? 2 : 4;
     dim3      block_dims(warp_size <= S_v ? warp_size : S_v, num_warps, 1);
 
@@ -265,7 +265,7 @@ void launch_gated_delta_net_chunk(
             constexpr int Tc = 4;
             dim3 grid_dims(H, n_seqs, (S_v + num_warps * Tc - 1) / (num_warps * Tc));
             const ggml_cuda_kernel_launch_params lp = ggml_cuda_kernel_launch_params(grid_dims, block_dims, 0, stream);
-            ggml_cuda_kernel_launch(gated_delta_net_chunked_cuda<16, KDA, KDA ? 16 : 64, Tc>, lp,
+            ggml_cuda_kernel_launch(gated_delta_net_chunked_cuda<16, KDA, CS, Tc>, lp,
                 q_d, k_d, v_d, g_d, b_d, s_d, dst_d, state_d, H,
                 n_tokens, n_seqs, sq1, sq2, sq3, sv1, sv2, sv3,
                 sb1, sb2, sb3, neqk1_magic, rq3_magic, scale, K);
@@ -275,7 +275,7 @@ void launch_gated_delta_net_chunk(
             constexpr int Tc = 4;
             dim3 grid_dims(H, n_seqs, (S_v + num_warps * Tc - 1) / (num_warps * Tc));
             const ggml_cuda_kernel_launch_params lp = ggml_cuda_kernel_launch_params(grid_dims, block_dims, 0, stream);
-            ggml_cuda_kernel_launch(gated_delta_net_chunked_cuda<32, KDA, KDA ? 16 : 64, Tc>, lp,
+            ggml_cuda_kernel_launch(gated_delta_net_chunked_cuda<32, KDA, CS, Tc>, lp,
                 q_d, k_d, v_d, g_d, b_d, s_d, dst_d, state_d, H,
                 n_tokens, n_seqs, sq1, sq2, sq3, sv1, sv2, sv3,
                 sb1, sb2, sb3, neqk1_magic, rq3_magic, scale, K);
@@ -285,7 +285,7 @@ void launch_gated_delta_net_chunk(
             constexpr int Tc = 4;
             dim3 grid_dims(H, n_seqs, (S_v + num_warps * Tc - 1) / (num_warps * Tc));
             const ggml_cuda_kernel_launch_params lp = ggml_cuda_kernel_launch_params(grid_dims, block_dims, 0, stream);
-            ggml_cuda_kernel_launch(gated_delta_net_chunked_cuda<64, KDA, KDA ? 16 : 64, Tc>, lp,
+            ggml_cuda_kernel_launch(gated_delta_net_chunked_cuda<64, KDA, CS, Tc>, lp,
                 q_d, k_d, v_d, g_d, b_d, s_d, dst_d, state_d, H,
                 n_tokens, n_seqs, sq1, sq2, sq3, sv1, sv2, sv3,
                 sb1, sb2, sb3, neqk1_magic, rq3_magic, scale, K);
@@ -295,7 +295,7 @@ void launch_gated_delta_net_chunk(
             constexpr int Tc = 2;
             dim3 grid_dims(H, n_seqs, (S_v + num_warps * Tc - 1) / (num_warps * Tc));
             const ggml_cuda_kernel_launch_params lp = ggml_cuda_kernel_launch_params(grid_dims, block_dims, 0, stream);
-            ggml_cuda_kernel_launch(gated_delta_net_chunked_cuda<128, KDA, KDA ? 16 : 64, Tc>, lp,
+            ggml_cuda_kernel_launch(gated_delta_net_chunked_cuda<128, KDA, CS, Tc>, lp,
                 q_d, k_d, v_d, g_d, b_d, s_d, dst_d, state_d, H,
                 n_tokens, n_seqs, sq1, sq2, sq3, sv1, sv2, sv3,
                 sb1, sb2, sb3, neqk1_magic, rq3_magic, scale, K);
