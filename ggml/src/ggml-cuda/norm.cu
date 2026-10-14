@@ -1,7 +1,7 @@
 #include "norm.cuh"
 #include <cstdint>
 
-template <int block_size>
+template <int block_size, bool clamped = false>
 static __global__ void norm_f32(
         const float * x, float * dst, const int ncols, const int nchannels, const int nsamples,
         const int64_t stride_row, const int64_t stride_channel, const int64_t stride_sample, const float eps) {
@@ -14,8 +14,8 @@ static __global__ void norm_f32(
     ggml_cuda_pdl_sync();
 
     // grid.y and grid.z are clamped to the CUDA limit, iterate over the excess channels/samples
-    for (int sample = blockIdx.z; sample < nsamples; sample += gridDim.z) {
-        for (int channel = blockIdx.y; channel < nchannels; channel += gridDim.y) {
+    for (int sample = blockIdx.z;; sample += gridDim.z) {
+        for (int channel = blockIdx.y;; channel += gridDim.y) {
             const float * xc   = x   + sample*stride_sample + channel*stride_channel + row*stride_row;
             float       * dstc = dst + ((sample*nchannels + channel)*nrows + row)*ncols;
 
@@ -38,8 +38,26 @@ static __global__ void norm_f32(
                 dstc[col] = (xc[col] - mean) * inv_std;
             }
 
+            // unclamped grid: exactly one channel/sample per block, the loops fold away
+            if constexpr (!clamped) {
+                break;
+            } else {
+                if (channel + (int) gridDim.y >= nchannels) {
+                    break;
+                }
+                if constexpr (block_size > WARP_SIZE) {
+                    // sync is needed as we reuse s_sum2 across block_reduce invocations, see #26385
+                    __syncthreads();
+                }
+            }
+        }
+        if constexpr (!clamped) {
+            break;
+        } else {
+            if (sample + (int) gridDim.z >= nsamples) {
+                break;
+            }
             if constexpr (block_size > WARP_SIZE) {
-                // sync is needed as we reuse s_sum2 across block_reduce invocations, see #26385
                 __syncthreads();
             }
         }
@@ -81,7 +99,7 @@ static __global__ void group_norm_f32(const float * x, float * dst, const int gr
     }
 }
 
-template <int block_size, bool do_multiply = false, bool do_add = false, bool do_scale = false>
+template <int block_size, bool do_multiply = false, bool do_add = false, bool do_scale = false, bool clamped = false>
 static __global__ void rms_norm_f32(const float * x,
                                     float *       dst,
                                     const int     ncols,
@@ -121,8 +139,8 @@ static __global__ void rms_norm_f32(const float * x,
     ggml_cuda_pdl_sync();
 
     // grid.y and grid.z are clamped to the CUDA limit, iterate over the excess channels/samples
-    for (int sample = blockIdx.z; sample < nsamples; sample += gridDim.z) {
-        for (int channel = blockIdx.y; channel < nchannels; channel += gridDim.y) {
+    for (int sample = blockIdx.z;; sample += gridDim.z) {
+        for (int channel = blockIdx.y;; channel += gridDim.y) {
             const float * xc   = x   + sample*stride_sample + channel*stride_channel + row*stride_row;
             float       * dstc = dst + ((sample*nchannels + channel)*nrows + row)*ncols;
 
@@ -170,8 +188,26 @@ static __global__ void rms_norm_f32(const float * x,
                 }
             }
 
+            // unclamped grid: exactly one channel/sample per block, the loops fold away
+            if constexpr (!clamped) {
+                break;
+            } else {
+                if (channel + (int) gridDim.y >= nchannels) {
+                    break;
+                }
+                if constexpr (block_size > WARP_SIZE) {
+                    // sync is needed as we reuse s_sum across block_reduce invocations, see #26385
+                    __syncthreads();
+                }
+            }
+        }
+        if constexpr (!clamped) {
+            break;
+        } else {
+            if (sample + (int) gridDim.z >= nsamples) {
+                break;
+            }
             if constexpr (block_size > WARP_SIZE) {
-                // sync is needed as we reuse s_sum across block_reduce invocations, see #26385
                 __syncthreads();
             }
         }
@@ -265,7 +301,7 @@ static __global__ void rms_norm_back_f32(
 //     }
 // }
 
-template <int block_size>
+template <int block_size, bool clamped = false>
 static __global__ void l2_norm_f32(
         const float * x, float * dst, const int ncols, const int nchannels, const int nsamples,
         const int64_t stride_row, const int64_t stride_channel, const int64_t stride_sample, const float eps) {
@@ -278,8 +314,8 @@ static __global__ void l2_norm_f32(
     ggml_cuda_pdl_sync();
 
     // grid.y and grid.z are clamped to the CUDA limit, iterate over the excess channels/samples
-    for (int sample = blockIdx.z; sample < nsamples; sample += gridDim.z) {
-        for (int channel = blockIdx.y; channel < nchannels; channel += gridDim.y) {
+    for (int sample = blockIdx.z;; sample += gridDim.z) {
+        for (int channel = blockIdx.y;; channel += gridDim.y) {
             const float * xc   = x   + sample*stride_sample + channel*stride_channel + row*stride_row;
             float       * dstc = dst + ((sample*nchannels + channel)*nrows + row)*ncols;
 
@@ -300,8 +336,26 @@ static __global__ void l2_norm_f32(
                 dstc[col] = scale * xc[col];
             }
 
+            // unclamped grid: exactly one channel/sample per block, the loops fold away
+            if constexpr (!clamped) {
+                break;
+            } else {
+                if (channel + (int) gridDim.y >= nchannels) {
+                    break;
+                }
+                if constexpr (block_size > WARP_SIZE) {
+                    // sync is needed as we reuse s_sum across block_reduce invocations, see #26385
+                    __syncthreads();
+                }
+            }
+        }
+        if constexpr (!clamped) {
+            break;
+        } else {
+            if (sample + (int) gridDim.z >= nsamples) {
+                break;
+            }
             if constexpr (block_size > WARP_SIZE) {
-                // sync is needed as we reuse s_sum across block_reduce invocations, see #26385
                 __syncthreads();
             }
         }
@@ -312,12 +366,22 @@ static void norm_f32_cuda(
         const float * x, float * dst, const int ncols, const int nrows, const int nchannels, const int nsamples,
         const int64_t stride_row, const int64_t stride_channel, const int64_t stride_sample, const float eps, cudaStream_t stream) {
     const dim3 blocks_num(nrows, MIN(nchannels, UINT16_MAX), MIN(nsamples, UINT16_MAX));
+    // clamped grids need the channel/sample loops in the kernel, the common case must not pay for them
+    const bool clamped_grid = nchannels > UINT16_MAX || nsamples > UINT16_MAX;
+    auto launch = [&](auto clamped_tag) {
+    constexpr bool clamped = decltype(clamped_tag)::value;
     if (ncols < 1024) {
         const dim3 block_dims(WARP_SIZE, 1, 1);
-        norm_f32<WARP_SIZE><<<blocks_num, block_dims, 0, stream>>>(x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps);
+        norm_f32<WARP_SIZE, clamped><<<blocks_num, block_dims, 0, stream>>>(x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps);
     } else {
         const dim3 block_dims(1024, 1, 1);
-        norm_f32<1024><<<blocks_num, block_dims, block_dims.x > WARP_SIZE ? 32 * sizeof(float2): 0, stream>>>(x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps);
+        norm_f32<1024, clamped><<<blocks_num, block_dims, block_dims.x > WARP_SIZE ? 32 * sizeof(float2): 0, stream>>>(x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps);
+    }
+    };
+    if (clamped_grid) {
+        launch(std::true_type{});
+    } else {
+        launch(std::false_type{});
     }
 }
 
@@ -338,10 +402,14 @@ static void rms_norm_f32_cuda(
         const int64_t stride_row, const int64_t stride_channel, const int64_t stride_sample, const float eps, cudaStream_t stream,
         const float scale_out = 1.0f) {
     const dim3 blocks_num(nrows, MIN(nchannels, UINT16_MAX), MIN(nsamples, UINT16_MAX));
+    // clamped grids need the channel/sample loops in the kernel, the common case must not pay for them
+    const bool clamped_grid = nchannels > UINT16_MAX || nsamples > UINT16_MAX;
+    auto launch = [&](auto clamped_tag) {
+    constexpr bool clamped = decltype(clamped_tag)::value;
     if (ncols < 1024) {
         const dim3 block_dims(256, 1, 1);
         const ggml_cuda_kernel_launch_params launch_params = {blocks_num, block_dims, block_dims.x > WARP_SIZE ? 32 * sizeof(float): 0, stream};
-        ggml_cuda_kernel_launch(rms_norm_f32<256, false, false, do_scale>, launch_params,
+        ggml_cuda_kernel_launch(rms_norm_f32<256, false, false, do_scale, clamped>, launch_params,
             x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps,
         // underlying cudaLaunchKernelEx does not support default params
         nullptr, 0, 0, 0, make_uint3(0, 0, 0), make_uint3(0, 0, 0), make_uint3(0, 0, 0), make_uint3(0, 0, 0),
@@ -349,10 +417,16 @@ static void rms_norm_f32_cuda(
     } else {
         const dim3 block_dims(1024, 1, 1);
         const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params{blocks_num, block_dims, block_dims.x > WARP_SIZE ? 32 * sizeof(float): 0, stream};
-        ggml_cuda_kernel_launch(rms_norm_f32<1024, false, false, do_scale>, launch_params, x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps,
+        ggml_cuda_kernel_launch(rms_norm_f32<1024, false, false, do_scale, clamped>, launch_params, x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps,
         // underlying cudaLaunchKernelEx does not support default params
         nullptr, 0, 0, 0, make_uint3(0, 0, 0), make_uint3(0, 0, 0), make_uint3(0, 0, 0), make_uint3(0, 0, 0),
         nullptr, 0, 0, 0, make_uint3(0, 0, 0), make_uint3(0, 0, 0), make_uint3(0, 0, 0), make_uint3(0, 0, 0), scale_out);
+    }
+    };
+    if (clamped_grid) {
+        launch(std::true_type{});
+    } else {
+        launch(std::false_type{});
     }
 }
 
@@ -384,6 +458,10 @@ static void rms_norm_mul_f32_cuda(const float *  x,
                                   const float    eps,
                                   cudaStream_t   stream) {
     const dim3 blocks_num(nrows, MIN(nchannels, UINT16_MAX), MIN(nsamples, UINT16_MAX));
+    // clamped grids need the channel/sample loops in the kernel, the common case must not pay for them
+    const bool clamped_grid = nchannels > UINT16_MAX || nsamples > UINT16_MAX;
+    auto launch = [&](auto clamped_tag) {
+    constexpr bool clamped = decltype(clamped_tag)::value;
     if (mul == nullptr) {
         rms_norm_f32_cuda(x, dst, ncols, nrows, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps, stream);
         return;
@@ -396,7 +474,7 @@ static void rms_norm_mul_f32_cuda(const float *  x,
         if (ncols < 1024) {
             const dim3 block_dims(256, 1, 1);
             const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params{blocks_num, block_dims, block_dims.x > WARP_SIZE ? 32 * sizeof(float): 0, stream};
-            ggml_cuda_kernel_launch(rms_norm_f32<256, true>, launch_params,
+            ggml_cuda_kernel_launch(rms_norm_f32<256, true, false, false, clamped>, launch_params,
                 x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps, mul, mul_stride_row, mul_stride_channel,
                 mul_stride_sample, mul_ncols_packed, mul_nrows_packed, mul_nchannels_packed, mul_nsamples_packed,
                 // underlying cudaLaunchKernelEx does not support default params
@@ -404,7 +482,7 @@ static void rms_norm_mul_f32_cuda(const float *  x,
         } else {
             const dim3 block_dims(1024, 1, 1);
             const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params{blocks_num, block_dims, block_dims.x > WARP_SIZE ? 32 * sizeof(float): 0, stream};
-            ggml_cuda_kernel_launch(rms_norm_f32<1024, true>, launch_params,
+            ggml_cuda_kernel_launch(rms_norm_f32<1024, true, false, false, clamped>, launch_params,
                 x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps, mul, mul_stride_row, mul_stride_channel,
                 mul_stride_sample, mul_ncols_packed, mul_nrows_packed, mul_nchannels_packed, mul_nsamples_packed,
                 // underlying cudaLaunchKernelEx does not support default params
@@ -423,7 +501,7 @@ static void rms_norm_mul_f32_cuda(const float *  x,
         if (ncols < 1024) {
             const dim3 block_dims(256, 1, 1);
             const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params{blocks_num, block_dims,block_dims.x > WARP_SIZE ? 32 * sizeof(float): 0, stream};
-            ggml_cuda_kernel_launch(rms_norm_f32<256, true, true>, launch_params,
+            ggml_cuda_kernel_launch(rms_norm_f32<256, true, true, false, clamped>, launch_params,
                 x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps, mul, mul_stride_row, mul_stride_channel,
                 mul_stride_sample, mul_ncols_packed, mul_nrows_packed, mul_nchannels_packed, mul_nsamples_packed, add,
                 add_stride_row, add_stride_channel, add_stride_sample, add_ncols_packed, add_nrows_packed,
@@ -431,12 +509,18 @@ static void rms_norm_mul_f32_cuda(const float *  x,
         } else {
             const dim3 block_dims(1024, 1, 1);
             const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params{blocks_num, block_dims, block_dims.x > WARP_SIZE ? 32 * sizeof(float): 0, stream};
-            ggml_cuda_kernel_launch(rms_norm_f32<1024, true, true>, launch_params,
+            ggml_cuda_kernel_launch(rms_norm_f32<1024, true, true, false, clamped>, launch_params,
                 x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps, mul, mul_stride_row, mul_stride_channel,
                 mul_stride_sample, mul_ncols_packed, mul_nrows_packed, mul_nchannels_packed, mul_nsamples_packed, add,
                 add_stride_row, add_stride_channel, add_stride_sample, add_ncols_packed, add_nrows_packed,
                 add_nchannels_packed, add_nsamples_packed, 1.0f);
         }
+    }
+    };
+    if (clamped_grid) {
+        launch(std::true_type{});
+    } else {
+        launch(std::false_type{});
     }
 }
 
@@ -454,14 +538,24 @@ static void l2_norm_f32_cuda(
         const float * x, float * dst, const int ncols, const int nrows, const int nchannels, const int nsamples,
         const int64_t stride_row, const int64_t stride_channel, const int64_t stride_sample, const float eps, cudaStream_t stream) {
     const dim3 blocks_num(nrows, MIN(nchannels, UINT16_MAX), MIN(nsamples, UINT16_MAX));
+    // clamped grids need the channel/sample loops in the kernel, the common case must not pay for them
+    const bool clamped_grid = nchannels > UINT16_MAX || nsamples > UINT16_MAX;
+    auto launch = [&](auto clamped_tag) {
+    constexpr bool clamped = decltype(clamped_tag)::value;
     if (ncols < 1024) {
         const dim3 block_dims(WARP_SIZE, 1, 1);
         const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params{blocks_num, block_dims, 0, stream};
-        ggml_cuda_kernel_launch(l2_norm_f32<WARP_SIZE>, launch_params, x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps);
+        ggml_cuda_kernel_launch(l2_norm_f32<WARP_SIZE, clamped>, launch_params, x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps);
     } else {
         const dim3 block_dims(1024, 1, 1);
         const ggml_cuda_kernel_launch_params launch_params = ggml_cuda_kernel_launch_params{blocks_num, block_dims, block_dims.x > WARP_SIZE ? 32 * sizeof(float): 0, stream};
-        ggml_cuda_kernel_launch(l2_norm_f32<1024>, launch_params, x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps);
+        ggml_cuda_kernel_launch(l2_norm_f32<1024, clamped>, launch_params, x, dst, ncols, nchannels, nsamples, stride_row, stride_channel, stride_sample, eps);
+    }
+    };
+    if (clamped_grid) {
+        launch(std::true_type{});
+    } else {
+        launch(std::false_type{});
     }
 }
 

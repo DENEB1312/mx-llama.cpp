@@ -707,7 +707,7 @@ void ggml_cuda_op_rope_fused(ggml_backend_cuda_context & ctx, ggml_tensor * rope
 
 // fused RMS_NORM + MUL + ROPE (+ VIEW + SET_ROWS)
 // one block per row: block_reduce gives the norm scale, then each thread applies mul and rope to the elements it owns
-template <int block_size, bool has_ff, typename D>
+template <int block_size, bool has_ff, typename D, bool clamped = false>
 static __global__ void rms_norm_mul_rope_f32(
         const float * x, D * dst, const int ncols, const int nchannels, const int nsamples,
         const int64_t s01, const int64_t s02, const int64_t s03,
@@ -732,8 +732,8 @@ static __global__ void rms_norm_mul_rope_f32(
     ggml_cuda_pdl_sync();
 
     // grid.y and grid.z are clamped to the CUDA limit, iterate over the excess channels/samples
-    for (int sample = blockIdx.z; sample < nsamples; sample += gridDim.z) {
-        for (int channel = blockIdx.y; channel < nchannels; channel += gridDim.y) {
+    for (int sample = blockIdx.z;; sample += gridDim.z) {
+        for (int channel = blockIdx.y;; channel += gridDim.y) {
             const float * xc = x + sample*s03 + channel*s02 + row*s01;
 
             const uint32_t mul_row     = fastmodulo(row,     mul_nrows_packed);
@@ -789,8 +789,26 @@ static __global__ void rms_norm_mul_rope_f32(
                 dstc[ix1] = ggml_cuda_cast<D>(x0*sin_theta + x1*cos_theta);
             }
 
+            // unclamped grid: exactly one channel/sample per block, the loops fold away
+            if constexpr (!clamped) {
+                break;
+            } else {
+                if (channel + (int) gridDim.y >= nchannels) {
+                    break;
+                }
+                if constexpr (block_size > WARP_SIZE) {
+                    // sync is needed as we reuse s_sum across block_reduce invocations, see #26385
+                    __syncthreads();
+                }
+            }
+        }
+        if constexpr (!clamped) {
+            break;
+        } else {
+            if (sample + (int) gridDim.z >= nsamples) {
+                break;
+            }
             if constexpr (block_size > WARP_SIZE) {
-                // sync is needed as we reuse s_sum across block_reduce invocations, see #26385
                 __syncthreads();
             }
         }
@@ -817,6 +835,10 @@ static void rms_norm_mul_rope_cuda(
     GGML_ASSERT(ncols % 2 == 0);
 
     const dim3 blocks_num(nrows, MIN(nchannels, UINT16_MAX), MIN(nsamples, UINT16_MAX));
+    // clamped grids need the channel/sample loops in the kernel, the common case must not pay for them
+    const bool clamped_grid = nchannels > UINT16_MAX || nsamples > UINT16_MAX;
+    auto launch = [&](auto clamped_tag) {
+    constexpr bool clamped = decltype(clamped_tag)::value;
 
     const float theta_scale = powf(freq_base, -2.0f/n_dims);
 
@@ -829,13 +851,13 @@ static void rms_norm_mul_rope_cuda(
         const dim3 block_dims(256, 1, 1);
         const ggml_cuda_kernel_launch_params launch_params = {blocks_num, block_dims, 32*sizeof(float), stream};
         if (freq_factors == nullptr) {
-            ggml_cuda_kernel_launch(rms_norm_mul_rope_f32<256, false, D>, launch_params,
+            ggml_cuda_kernel_launch(rms_norm_mul_rope_f32<256, false, D, clamped>, launch_params,
                 x, dst, ncols, nchannels, nsamples, s01, s02, s03, s1, s2, s3, eps, mul, mul_s01, mul_s02, mul_s03,
                 mul_ncols_packed, mul_nrows_packed, mul_nchannels_packed, mul_nsamples_packed,
                 n_dims, pos, freq_scale, ext_factor, attn_factor, corr_dims, theta_scale,
                 freq_factors, row_indices, set_rows_stride, is_neox);
         } else {
-            ggml_cuda_kernel_launch(rms_norm_mul_rope_f32<256, true, D>, launch_params,
+            ggml_cuda_kernel_launch(rms_norm_mul_rope_f32<256, true, D, clamped>, launch_params,
                 x, dst, ncols, nchannels, nsamples, s01, s02, s03, s1, s2, s3, eps, mul, mul_s01, mul_s02, mul_s03,
                 mul_ncols_packed, mul_nrows_packed, mul_nchannels_packed, mul_nsamples_packed,
                 n_dims, pos, freq_scale, ext_factor, attn_factor, corr_dims, theta_scale,
@@ -845,18 +867,24 @@ static void rms_norm_mul_rope_cuda(
         const dim3 block_dims(1024, 1, 1);
         const ggml_cuda_kernel_launch_params launch_params = {blocks_num, block_dims, 32*sizeof(float), stream};
         if (freq_factors == nullptr) {
-            ggml_cuda_kernel_launch(rms_norm_mul_rope_f32<1024, false, D>, launch_params,
+            ggml_cuda_kernel_launch(rms_norm_mul_rope_f32<1024, false, D, clamped>, launch_params,
                 x, dst, ncols, nchannels, nsamples, s01, s02, s03, s1, s2, s3, eps, mul, mul_s01, mul_s02, mul_s03,
                 mul_ncols_packed, mul_nrows_packed, mul_nchannels_packed, mul_nsamples_packed,
                 n_dims, pos, freq_scale, ext_factor, attn_factor, corr_dims, theta_scale,
                 freq_factors, row_indices, set_rows_stride, is_neox);
         } else {
-            ggml_cuda_kernel_launch(rms_norm_mul_rope_f32<1024, true, D>, launch_params,
+            ggml_cuda_kernel_launch(rms_norm_mul_rope_f32<1024, true, D, clamped>, launch_params,
                 x, dst, ncols, nchannels, nsamples, s01, s02, s03, s1, s2, s3, eps, mul, mul_s01, mul_s02, mul_s03,
                 mul_ncols_packed, mul_nrows_packed, mul_nchannels_packed, mul_nsamples_packed,
                 n_dims, pos, freq_scale, ext_factor, attn_factor, corr_dims, theta_scale,
                 freq_factors, row_indices, set_rows_stride, is_neox);
         }
+    }
+    };
+    if (clamped_grid) {
+        launch(std::true_type{});
+    } else {
+        launch(std::false_type{});
     }
 }
 
