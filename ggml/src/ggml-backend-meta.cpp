@@ -668,6 +668,7 @@ static ggml_backend_buffer_type_t * ggml_backend_meta_device_get_extra_bufts(ggm
 // Container to hold the tensor slices per simple ggml backend buffer.
 struct ggml_backend_meta_simple_tensor_container {
     std::vector<ggml_context_ptr> ctxs;
+    std::vector<ggml_context_ptr> ctxs_full; // Retired by get_ctx, their tensors stay mapped until reset.
     std::map<const ggml_tensor *, std::vector<ggml_tensor *>> simple_tensors;
 
     ggml_backend_meta_simple_tensor_container(const ggml_init_params & params, const int n_simple) {
@@ -677,6 +678,32 @@ struct ggml_backend_meta_simple_tensor_container {
         }
     }
     ggml_backend_meta_simple_tensor_container() {}
+
+    // Context of lane j with room for one more tensor.
+    // A compute container is sized from a fixed number of views per static tensor, but one graph can view a small buffer more often than that (DeepSeek-V4.1 -sm tensor needs more than 32 views of a 2-tensor buffer).
+    // A full context is kept alive and replaced by one twice its size, so the pool settles after the first graph.
+    ggml_context * get_ctx(size_t j) {
+        ggml_context * ctx = ctxs[j].get();
+        if (ggml_get_mem_size(ctx) - ggml_used_mem(ctx) >= ggml_tensor_overhead()) {
+            return ctx;
+        }
+        const ggml_init_params params = {
+            /*.mem_size   =*/ 2*ggml_get_mem_size(ctx),
+            /*.mem_buffer =*/ nullptr,
+            /*.no_alloc   =*/ true,
+        };
+        ctxs_full.push_back(std::move(ctxs[j]));
+        ctxs[j].reset(ggml_init(params));
+        return ctxs[j].get();
+    }
+
+    void reset() {
+        for (ggml_context_ptr & ctx : ctxs) {
+            ggml_reset(ctx.get());
+        }
+        ctxs_full.clear();
+        simple_tensors.clear();
+    }
 };
 
 struct ggml_backend_meta_buffer_context {
@@ -1652,7 +1679,7 @@ static enum ggml_status ggml_backend_meta_buffer_init_tensor_impl(ggml_backend_m
     std::vector<ggml_tensor *> simple_tensors;
     simple_tensors.reserve(n_simple_bufs);
     for (size_t j = 0; j < n_simple_bufs; j++) {
-        ggml_context          * simple_ctx = stc.ctxs[j].get();
+        ggml_context          * simple_ctx = stc.get_ctx(j);
         ggml_backend_buffer_t   simple_buf = buf_ctx->bufs[j].get();
 
         // A lane outside the mirror mask gets an empty tensor, which allocates nothing.
@@ -3454,11 +3481,7 @@ static enum ggml_status ggml_backend_meta_graph_compute(ggml_backend_t backend, 
         for (ggml_backend_buffer_t buf : used_buffers) {
             ggml_backend_meta_buffer_context * buf_ctx = (ggml_backend_meta_buffer_context *) buf->context;
             buf_ctx->stc_compute_index_next = buf_ctx->stc_compute_index ^ 1;
-            ggml_backend_meta_simple_tensor_container & stc = buf_ctx->stc_compute[buf_ctx->stc_compute_index_next];
-            for (ggml_context_ptr & ctx : stc.ctxs) {
-                ggml_reset(ctx.get());
-            }
-            stc.simple_tensors.clear();
+            buf_ctx->stc_compute[buf_ctx->stc_compute_index_next].reset();
         }
         size_t n_subgraphs  = 0;
         size_t max_tmp_size = 0;
