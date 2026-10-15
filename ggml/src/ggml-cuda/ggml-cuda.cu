@@ -2343,7 +2343,7 @@ static void ggml_cuda_mul_mat_cublas_impl(ggml_backend_cuda_context & ctx, const
                         nr, ne11, ne10,
                         (const float *) alpha, (const float *) src0_alloc.get(), s01,
                                                (const float *) src1_ptr, s11,
-                        (const float *) beta,  (float       *) dst_ptr + r0, ne0));
+                        (const float *) beta,  (float       *) dst_ptr + r0, ldc));
         }
     } else if (compute_type == GGML_TYPE_F32 && ne12 == 1 && ne13 == 1) {
         CUBLAS_CHECK(
