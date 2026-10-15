@@ -931,6 +931,7 @@ struct ggml_backend_sched_split {
     int i_start;
     int i_end;
     struct ggml_tensor ** inputs;
+    uint8_t * inputs_read; // per input, whether a computed node reads its copy, set by ggml_backend_sched_mark_read_inputs
     int n_inputs;
     int inputs_capacity;
     // graph view of this split
@@ -1353,6 +1354,9 @@ static void ggml_backend_sched_split_inputs_grow(struct ggml_backend_sched_split
         GGML_ABORT("failed to grow split inputs container");
     }
     split->inputs = pnew;
+    auto * rnew = (uint8_t *) realloc((void *) split->inputs_read, new_cap * sizeof(uint8_t));
+    GGML_ASSERT(rnew != NULL);
+    split->inputs_read = rnew;
     split->inputs_capacity = new_cap;
 }
 
@@ -1555,6 +1559,67 @@ static void ggml_backend_sched_set_if_supported(ggml_backend_sched_t sched, stru
     if (ggml_backend_supports_op(sched->backends[cur_backend_id], node)) {
         *node_backend_id = cur_backend_id;
         SET_CAUSE(node, "2.sup");
+    }
+}
+
+// Marks the split inputs whose copy a computed node reads, directly or through a view.
+// The inputs of a branch that ggml_build_forward_select did not pick are still split inputs, and copying them is wasted work.
+// A copy belongs to one backend and is registered only by the first split of that backend that needs it, later splits of the backend read it without copying again.
+// So a computed reader anywhere in the graph counts, not only one in the registering split.
+// A graph that carries no compute flags keeps every copy.
+static void ggml_backend_sched_mark_read_inputs(ggml_backend_sched_t sched) {
+    std::unordered_map<const struct ggml_tensor *, bool> read;
+    for (int i = 0; i < sched->n_splits; i++) {
+        const struct ggml_backend_sched_split * split = &sched->splits[i];
+        for (int j = 0; j < split->n_inputs; j++) {
+            const size_t id = hash_id(split->inputs[j]);
+            for (int c = 0; c < sched->n_copies; c++) {
+                read[tensor_id_copy(id, split->backend_id, c)] = false;
+            }
+        }
+    }
+
+    // copies and the views of them live in the scheduler context, which filters out almost every source before a lookup
+    const char * ctx_lo = (const char *) sched->context_buffer;
+    const char * ctx_hi = ctx_lo + sched->context_buffer_size;
+    bool any_compute = false;
+    for (int i = 0; i < sched->n_splits; i++) {
+        const struct ggml_backend_sched_split * split = &sched->splits[i];
+        for (int k = 0; k < split->graph.n_nodes; k++) {
+            const struct ggml_tensor * node = split->graph.nodes[k];
+            if ((node->flags & GGML_TENSOR_FLAG_COMPUTE) == 0) {
+                continue;
+            }
+            any_compute = true;
+            for (int j = 0; j < GGML_MAX_SRC; j++) {
+                const struct ggml_tensor * src = node->src[j];
+                if (src == NULL) {
+                    continue;
+                }
+                const struct ggml_tensor * ts[2] = { src, src->view_src };
+                for (const struct ggml_tensor * t : ts) {
+                    if (t == NULL || (const char *) t < ctx_lo || (const char *) t >= ctx_hi) {
+                        continue;
+                    }
+                    auto it = read.find(t);
+                    if (it != read.end()) {
+                        it->second = true;
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < sched->n_splits; i++) {
+        struct ggml_backend_sched_split * split = &sched->splits[i];
+        for (int j = 0; j < split->n_inputs; j++) {
+            const size_t id = hash_id(split->inputs[j]);
+            bool r = !any_compute;
+            for (int c = 0; c < sched->n_copies && !r; c++) {
+                r = read[tensor_id_copy(id, split->backend_id, c)];
+            }
+            split->inputs_read[j] = r;
+        }
     }
 }
 
@@ -2138,6 +2203,8 @@ void ggml_backend_sched_split_graph(ggml_backend_sched_t sched, struct ggml_cgra
         graph_copy->leafs[graph_copy->n_leafs++] = leaf;
     }
 
+    ggml_backend_sched_mark_read_inputs(sched);
+
     // set ids for all splits
     for (int i = 0; i < sched->n_splits; ++i) {
         sched->splits[i].graph.uid = ggml_graph_next_uid();
@@ -2327,6 +2394,9 @@ static enum ggml_status ggml_backend_sched_compute_splits(ggml_backend_sched_t s
             ggml_backend_t input_backend = ggml_backend_sched_get_tensor_backend(sched, split->inputs[input_id]);
             struct ggml_tensor * input = split->inputs[input_id];
             struct ggml_tensor * input_cpy = tensor_copy(input, split_backend_id, sched->cur_copy);
+            if (pass == 0 && input != input_cpy && !split->inputs_read[input_id]) {
+                continue;
+            }
             sched->timing.n_inputs += sched->timing.enabled ? 1 : 0;
 
             if (input->flags & GGML_TENSOR_FLAG_INPUT) {
@@ -2753,6 +2823,7 @@ void ggml_backend_sched_free(ggml_backend_sched_t sched) {
     ggml_backend_sched_free_input_staging(sched);
     for (int i = 0; i < sched->splits_capacity; i++) {
         free(sched->splits[i].inputs);
+        free(sched->splits[i].inputs_read);
     }
     free(sched->splits);
     free(sched->graph_inputs);
