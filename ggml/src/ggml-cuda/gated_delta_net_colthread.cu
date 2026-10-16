@@ -144,10 +144,16 @@ gated_delta_net_colthread(const float * q, const float * k, const float * v, con
         }
         __syncthreads();
 
+        // attn lane partial of the previous token: its group sum runs at the top of the
+        // next iteration, where the kv leaf that follows fills its DPP shadow
+        float attn_lane = 0.0f;
         for (int tt = 0; tt < nt; ++tt) {
             const int64_t t    = t0 + tt;
             const float   vcol = sv[tt][threadIdx.x / LPC];
-            float attn;
+
+            // previous token's attn group sum: dead until the store below, so the kv
+            // leaf's LDS reads and muls that follow fill its DPP shadow
+            const float attn = gdn_group_sum<LPC>(attn_lane);
 
             // kv = sum_i S[i][col] * k[i]: one chunked-kernel leaf pair per b (row b, then row b + S_v/2).
             // The intrinsics pin the FMA contraction to the chunked kernel's emitted ops, so the
@@ -183,6 +189,10 @@ gated_delta_net_colthread(const float * q, const float * k, const float * v, con
                     p[4*j + 3] = __fmaf_rn(s[B + 4*j + 3], khi.w, p[4*j + 3]);
                 }
             }
+            if (tt > 0 && sub == 0) {
+                attn_data[(t - 1) * S_v * H + col] = attn * scale;
+            }
+
             const float kv = gdn_group_sum<LPC>(gdn_pairwise_sum(p));
             // delta = (v - g * kv) * beta, fused the way the chunked kernel compiled it
             const float dm    = KDA ? __fsub_rn(vcol, kv) : __fmaf_rn(-sg[tt], kv, vcol);
@@ -235,11 +245,7 @@ gated_delta_net_colthread(const float * q, const float * k, const float * v, con
                 a[4*j + 2] = __fmaf_rn(s[B + 4*j + 2], qhi.z, a[4*j + 2]);
                 a[4*j + 3] = __fmaf_rn(s[B + 4*j + 3], qhi.w, a[4*j + 3]);
             }
-            attn = gdn_group_sum<LPC>(gdn_pairwise_sum(a));
-
-            if (sub == 0) {
-                attn_data[t * S_v * H + col] = attn * scale;
-            }
+            attn_lane = gdn_pairwise_sum(a);
 
             if constexpr (keep_rs_t) {
                 const int target_slot = (int) (n_tokens - 1 - t);
@@ -252,6 +258,12 @@ gated_delta_net_colthread(const float * q, const float * k, const float * v, con
                     }
                 }
             }
+        }
+
+        // last token of the tile: no next leaf to pipeline with
+        const float attn = gdn_group_sum<LPC>(attn_lane);
+        if (sub == 0) {
+            attn_data[(t0 + nt - 1) * S_v * H + col] = attn * scale;
         }
     }
 
